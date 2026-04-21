@@ -1,0 +1,98 @@
+{
+  "project_metadata": {
+    "project_id": "road_maintenance",
+    "name_ar": "صيانة الطرق والأرصفة",
+    "name_en": "Roads & Pavement Maintenance",
+    "network_type": "R",
+    "description_ar": "صيانة وتأهيل شبكات الطرق والأرصفة",
+    "description_en": "Maintenance and rehabilitation of roads and pavements",
+    "created_date": "2026-04-20",
+    "last_modified": "2026-04-20",
+    "version": "1.0",
+    "total_codes_defined": 20,
+    "status": "active"
+  },
+
+  "activity_sequence": [
+    { "sequence_num": 1,  "code_id": "001-SUR-BASE",  "phase_name_ar": "المسح",           "mandatory": true,  "dependencies": [],                          "pages": 5 },
+    { "sequence_num": 2,  "code_id": "001-TRF-MGT",   "phase_name_ar": "إدارة المرور",    "mandatory": true,  "dependencies": ["001-SUR-BASE"],            "pages": 4 },
+    { "sequence_num": 3,  "code_id": "001-RDS-INS",   "phase_name_ar": "فحص الطريق",      "mandatory": true,  "dependencies": ["001-SUR-BASE"],            "pages": 5 },
+    { "sequence_num": 4,  "code_id": "001-PRM-GOV",   "phase_name_ar": "الرخص",           "mandatory": true,  "dependencies": ["001-SUR-BASE"],            "pages": 3 },
+    { "sequence_num": 5,  "code_id": "001-APP-DES",   "phase_name_ar": "الاعتماد",        "mandatory": true,  "dependencies": ["001-PRM-GOV"],             "pages": 4 },
+    { "sequence_num": 6,  "code_id": "001-APP-HSE",   "phase_name_ar": "السلامة",         "mandatory": true,  "dependencies": ["001-APP-DES"],             "pages": 3 },
+    { "sequence_num": 7,  "code_id": "002-MAT-SITE",  "phase_name_ar": "نقل المواد",      "mandatory": true,  "dependencies": ["001-APP-HSE"],             "pages": 3 },
+    { "sequence_num": 8,  "code_id": "002-PAV-EVL",   "phase_name_ar": "تقييم الرصيف",   "mandatory": true,  "dependencies": ["001-RDS-INS"],             "pages": 5 },
+    { "sequence_num": 9,  "code_id": "002-MIL-ASP",   "phase_name_ar": "جلخ الأسفلت",    "mandatory": true,  "dependencies": ["002-PAV-EVL", "001-TRF-MGT"], "pages": 5 },
+    { "sequence_num": 10, "code_id": "002-WST-MIL",   "phase_name_ar": "التخلص من المخلفات","mandatory": true,"dependencies": ["002-MIL-ASP"],            "pages": 3 },
+    { "sequence_num": 11, "code_id": "004-QC-MATS",   "phase_name_ar": "فحص المواد",      "mandatory": true,  "dependencies": ["002-MAT-SITE"],            "pages": 3 },
+    { "sequence_num": 12, "code_id": "003-PRM-COAT",  "phase_name_ar": "طبقة التشريب",   "mandatory": true,  "dependencies": ["002-WST-MIL"],             "pages": 3 },
+    { "sequence_num": 13, "code_id": "003-ASP-BASE",  "phase_name_ar": "طبقة الأساس",    "mandatory": true,  "dependencies": ["003-PRM-COAT"],            "pages": 6 },
+    { "sequence_num": 14, "code_id": "003-ASP-WER",   "phase_name_ar": "طبقة التآكل",    "mandatory": true,  "dependencies": ["003-ASP-BASE"],            "pages": 6 },
+    { "sequence_num": 15, "code_id": "003-CRB-STN",   "phase_name_ar": "حجارة الحافة",   "mandatory": false, "dependencies": ["003-ASP-BASE"],            "pages": 3 },
+    { "sequence_num": 16, "code_id": "004-TST-CMP",   "phase_name_ar": "اختبار الدك",     "mandatory": true,  "dependencies": ["003-ASP-WER"],             "pages": 4 },
+    { "sequence_num": 17, "code_id": "004-TST-THK",   "phase_name_ar": "اختبار السماكة", "mandatory": true,  "dependencies": ["003-ASP-WER"],             "pages": 3 },
+    { "sequence_num": 18, "code_id": "005-MRK-RD",    "phase_name_ar": "الدهانات",        "mandatory": true,  "dependencies": ["004-TST-CMP"],             "pages": 4 },
+    { "sequence_num": 19, "code_id": "005-SGN-TRF",   "phase_name_ar": "اللوحات المرورية","mandatory": false,"dependencies": ["005-MRK-RD"],              "pages": 3 },
+    { "sequence_num": 20, "code_id": "005-SAF-BAR",   "phase_name_ar": "الحواجز الأمنية","mandatory": false, "dependencies": ["003-ASP-WER"],             "pages": 3 },
+    { "sequence_num": 21, "code_id": "005-HND-DOC",   "phase_name_ar": "تسليم الوثائق",  "mandatory": true,  "dependencies": ["005-MRK-RD"],              "pages": 2 },
+    { "sequence_num": 22, "code_id": "005-HND-FIN",   "phase_name_ar": "التسليم النهائي","mandatory": true,  "dependencies": ["005-HND-DOC"],             "pages": 2 }
+  ],
+
+  "application_rules": {
+    "milling_required": {
+      "rule": "جلخ الأسفلت القائم إلزامي قبل فرد الطبقات الجديدة في مشاريع الصيانة",
+      "mandatory_code": "002-MIL-ASP"
+    },
+    "owner_specific_rules": {
+      "mot": {
+        "required_codes": ["001-TRF-MGT", "004-TST-CMP", "004-TST-THK", "005-MRK-RD"],
+        "note": "وزارة النقل تشترط خطة مرور مفصلة واختبارات الدك"
+      },
+      "amana_riyadh": {
+        "required_codes": ["001-TRF-MGT", "005-MRK-RD", "005-SGN-TRF"],
+        "note": "أمانة الرياض تشترط الدهانات واللوحات المرورية"
+      }
+    }
+  },
+
+  "typical_proposals": {
+    "routine_maintenance": {
+      "description_ar": "صيانة دورية (جلخ وإعادة تأسفلت)",
+      "description_en": "Routine maintenance (mill & overlay)",
+      "typical_codes": [
+        "001-SUR-BASE", "001-TRF-MGT", "001-RDS-INS", "001-PRM-GOV",
+        "001-APP-DES", "001-APP-HSE", "002-MAT-SITE",
+        "002-PAV-EVL", "002-MIL-ASP", "002-WST-MIL",
+        "004-QC-MATS", "003-PRM-COAT", "003-ASP-WER",
+        "004-TST-CMP", "004-TST-THK",
+        "005-MRK-RD", "005-HND-DOC", "005-HND-FIN"
+      ],
+      "total_pages": 71,
+      "estimated_duration_days": 30
+    },
+    "full_rehabilitation": {
+      "description_ar": "تأهيل شامل (جميع الطبقات + دهانات + لوحات)",
+      "description_en": "Full rehabilitation (all layers + markings + signs)",
+      "typical_codes": [
+        "001-SUR-BASE", "001-TRF-MGT", "001-RDS-INS", "001-PRM-GOV",
+        "001-APP-DES", "001-APP-HSE", "002-MAT-SITE",
+        "002-PAV-EVL", "002-MIL-ASP", "002-WST-MIL",
+        "004-QC-MATS", "003-PRM-COAT", "003-ASP-BASE", "003-ASP-WER",
+        "003-CRB-STN", "004-TST-CMP", "004-TST-THK",
+        "005-MRK-RD", "005-SGN-TRF", "005-SAF-BAR",
+        "005-HND-DOC", "005-HND-FIN"
+      ],
+      "total_pages": 87,
+      "estimated_duration_days": 60
+    }
+  },
+
+  "statistics": {
+    "total_codes_in_project": 20,
+    "mandatory_codes": 14,
+    "optional_codes": 6,
+    "mutually_exclusive_groups": 0,
+    "minimum_proposal_codes": 14,
+    "maximum_proposal_codes": 22
+  }
+}

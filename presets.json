@@ -1,0 +1,173 @@
+{
+  "version": "1.0",
+  "presets": {
+    "ww_nwc_small": {
+      "name_ar": "صرف صحي — شبكة صغيرة",
+      "description_ar": "شبكة صرف صحي بالحفر الدقيق، مناسبة للأحياء السكنية",
+      "icon": "🔵",
+      "group": "صرف صحي",
+      "project_ids": ["wastewater"],
+      "owner_id": "nwc",
+      "codes": [
+        "001-SUR-BASE", "001-PRM-GOV", "001-APP-DES", "001-APP-HSE",
+        "002-MAT-SITE", "002-EXC-FINE", "002-WST-EXC",
+        "003-PIP-SEW", "003-PIP-FIT",
+        "004-TST-LEK", "004-QC-INSTALL",
+        "005-BKF-SND", "005-RST-ASP", "005-HND-DOC", "005-HND-FIN"
+      ]
+    },
+    "ww_nwc_main": {
+      "name_ar": "صرف صحي — خط رئيسي",
+      "description_ar": "خط صرف رئيسي بالحفر المفتوح، مع إعادة تأهيل الطريق",
+      "icon": "🟦",
+      "group": "صرف صحي",
+      "project_ids": ["wastewater"],
+      "owner_id": "nwc",
+      "codes": [
+        "001-SUR-BASE", "001-PRM-GOV", "001-SUR-NET", "001-APP-DES",
+        "001-PRM-ENV", "001-APP-HSE", "001-APP-MRL",
+        "002-MAT-SITE", "002-EXC-OPEN", "002-MAT-STORE", "002-WST-EXC", "002-WST-RECY",
+        "003-PIP-SEW", "003-PIP-FIT", "003-WLD-MECH",
+        "004-TST-LEK", "004-QC-MATS", "004-QC-INSTALL",
+        "005-BKF-SND", "005-BKF-SOL", "005-RST-ASP",
+        "005-HND-DOC", "005-HND-TRN", "005-HND-FIN"
+      ]
+    },
+    "ww_nwc_tunnel": {
+      "name_ar": "صرف صحي — حفر نفقي",
+      "description_ar": "خط صرف بتقنية TBM للمناطق ذات الكثافة العالية",
+      "icon": "⚫",
+      "group": "صرف صحي",
+      "project_ids": ["wastewater"],
+      "owner_id": "nwc",
+      "codes": [
+        "001-SUR-BASE", "001-PRM-GOV", "001-SUR-NET", "001-APP-DES",
+        "001-PRM-ENV", "001-APP-HSE", "001-APP-MRL",
+        "002-MAT-SITE", "002-EXC-TUNNEL", "002-MAT-STORE", "002-WST-EXC",
+        "003-PIP-SEW", "003-PIP-FIT", "003-WLD-MECH",
+        "004-TST-LEK", "004-QC-MATS", "004-QC-INSTALL",
+        "005-BKF-SND", "005-HND-DOC", "005-HND-TRN", "005-HND-FIN"
+      ]
+    },
+    "ws_nwc_dist": {
+      "name_ar": "مياه — شبكة توزيع",
+      "description_ar": "شبكة توزيع مياه بالحفر الدقيق مع اختبارات الضغط",
+      "icon": "🟢",
+      "group": "مياه",
+      "project_ids": ["water_supply"],
+      "owner_id": "nwc",
+      "codes": [
+        "001-SUR-BASE", "001-PRM-GOV", "001-APP-DES", "001-APP-HSE",
+        "002-MAT-SITE", "002-EXC-FINE", "002-WST-EXC",
+        "003-PIP-WAT", "003-PIP-FIT",
+        "004-TST-LEK", "004-TST-HYD", "004-QC-INSTALL",
+        "005-BKF-SND", "005-RST-ASP", "005-HND-DOC", "005-HND-FIN"
+      ]
+    },
+    "ws_nwc_main": {
+      "name_ar": "مياه — خط رئيسي",
+      "description_ar": "خط مياه رئيسي بالحفر المفتوح مع لحام وفلنجات",
+      "icon": "🟩",
+      "group": "مياه",
+      "project_ids": ["water_supply"],
+      "owner_id": "nwc",
+      "codes": [
+        "001-SUR-BASE", "001-PRM-GOV", "001-SUR-NET", "001-APP-DES",
+        "001-PRM-ENV", "001-APP-HSE", "001-APP-MRL",
+        "002-MAT-SITE", "002-EXC-OPEN", "002-MAT-STORE", "002-WST-EXC", "002-WST-RECY",
+        "003-PIP-WAT", "003-PIP-FIT", "003-WLD-FLD", "003-WLD-MECH",
+        "004-TST-LEK", "004-TST-HYD", "004-QC-MATS", "004-QC-INSTALL",
+        "005-BKF-SND", "005-BKF-SOL", "005-RST-ASP",
+        "005-HND-DOC", "005-HND-TRN", "005-HND-FIN"
+      ]
+    },
+    "wt_swa_main": {
+      "name_ar": "نقل مياه — خط رئيسي",
+      "description_ar": "خط نقل المياه الرئيسي مع صمامات الهواء وكتل التثبيت",
+      "icon": "🔷",
+      "group": "مياه",
+      "project_ids": ["water_transmission"],
+      "owner_id": "swa",
+      "codes": [
+        "003-PIP-TRN", "003-ANC-BLK", "003-AIR-VLV", "004-TST-PRE"
+      ]
+    },
+    "rm_mot_routine": {
+      "name_ar": "طرق — صيانة دورية",
+      "description_ar": "صيانة طرق دورية بالطبقة السطحية والدهان",
+      "icon": "🟡",
+      "group": "طرق وأسفلت",
+      "project_ids": ["road_maintenance"],
+      "owner_id": "mot",
+      "codes": [
+        "001-TRF-MGT", "001-RDS-INS",
+        "002-PAV-EVL", "002-MIL-ASP",
+        "003-ASP-WER",
+        "004-TST-CMP", "004-TST-THK",
+        "005-MRK-RD", "005-SGN-TRF"
+      ]
+    },
+    "rm_mot_full": {
+      "name_ar": "طرق — إعادة تأهيل كاملة",
+      "description_ar": "إعادة تأهيل شاملة بالطبقتين الأساسية والسطحية مع الرصيف",
+      "icon": "🟠",
+      "group": "طرق وأسفلت",
+      "project_ids": ["road_maintenance"],
+      "owner_id": "mot",
+      "codes": [
+        "001-TRF-MGT", "001-RDS-INS",
+        "002-PAV-EVL", "002-MIL-ASP", "002-WST-MIL",
+        "003-PRM-COAT", "003-ASP-BASE", "003-ASP-WER", "003-CRB-STN",
+        "004-TST-CMP", "004-TST-THK",
+        "005-MRK-RD", "005-SGN-TRF", "005-SAF-BAR"
+      ]
+    },
+    "gc_nhi_building": {
+      "name_ar": "إنشاءات — مبنى خرساني",
+      "description_ar": "مبنى حكومي بهيكل خرساني مع تشطيبات كاملة",
+      "icon": "🏗️",
+      "group": "إنشاءات",
+      "project_ids": ["general_construction"],
+      "owner_id": "nhi",
+      "codes": [
+        "001-SOI-INV",
+        "002-EXC-FND",
+        "003-FND-CON", "003-RBR-WRK", "003-STR-CON", "003-MAS-BLK",
+        "004-TST-CON", "004-INS-ELE", "004-INS-FIN",
+        "005-CLN-STE"
+      ]
+    },
+    "gc_nhi_steel": {
+      "name_ar": "إنشاءات — هيكل معدني",
+      "description_ar": "منشأة بهيكل معدني مع أساسات خرسانية",
+      "icon": "🔩",
+      "group": "إنشاءات",
+      "project_ids": ["general_construction"],
+      "owner_id": "nhi",
+      "codes": [
+        "001-SOI-INV",
+        "002-EXC-FND",
+        "003-FND-CON", "003-STL-STR",
+        "004-TST-CON", "004-INS-ELE",
+        "005-CLN-STE"
+      ]
+    },
+    "ww_ws_nwc_combined": {
+      "name_ar": "صرف + مياه — مشروع مزدوج",
+      "description_ar": "شبكتا الصرف والمياه معاً في مشروع واحد",
+      "icon": "⚡",
+      "group": "مشاريع مزدوجة",
+      "project_ids": ["wastewater", "water_supply"],
+      "owner_id": "nwc",
+      "codes": [
+        "001-SUR-BASE", "001-PRM-GOV", "001-SUR-NET", "001-APP-DES",
+        "001-PRM-ENV", "001-APP-HSE", "001-APP-MRL",
+        "002-MAT-SITE", "002-EXC-OPEN", "002-MAT-STORE", "002-WST-EXC",
+        "003-PIP-SEW", "003-PIP-WAT", "003-PIP-FIT", "003-WLD-MECH",
+        "004-TST-LEK", "004-TST-HYD", "004-QC-MATS", "004-QC-INSTALL",
+        "005-BKF-SND", "005-BKF-SOL", "005-RST-ASP",
+        "005-HND-DOC", "005-HND-TRN", "005-HND-FIN"
+      ]
+    }
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "style_id": "amana_riyadh",
+  "owner": "Riyadh Region Municipality",
+  "scheme": "teal_white",
+
+  "fonts": {
+    "body": { "family": "Times New Roman", "size": 12, "bold": false },
+    "heading1": { "family": "Times New Roman", "size": 16, "bold": true },
+    "heading2": { "family": "Times New Roman", "size": 14, "bold": true },
+    "heading3": { "family": "Times New Roman", "size": 13, "bold": true },
+    "caption": { "family": "Times New Roman", "size": 10, "bold": false, "italic": true }
+  },
+
+  "colors": {
+    "primary": "#006666",
+    "secondary": "#FFFFFF",
+    "accent": "#009999",
+    "text": "#000000",
+    "heading": "#006666"
+  },
+
+  "margins_cm": {
+    "top": 2.5,
+    "bottom": 2.5,
+    "left": 3.0,
+    "right": 2.5
+  },
+
+  "header": {
+    "enabled": true,
+    "text_ar": "أمانة منطقة الرياض - عرض فني",
+    "text_en": "Riyadh Region Municipality - Technical Proposal",
+    "show_logo": true,
+    "logo_path": "assets/amana_riyadh_logo.png",
+    "line_below": true
+  },
+
+  "footer": {
+    "enabled": true,
+    "text_ar": "سري - للاستخدام الداخلي فقط",
+    "show_page_number": true,
+    "page_format": "صفحة {n} من {total}",
+    "line_above": true
+  },
+
+  "page_numbering": true,
+  "table_of_contents": true,
+  "rtl_direction": true,
+  "language": "ar"
+}

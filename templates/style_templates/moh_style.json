@@ -1,0 +1,57 @@
+{
+  "style_id": "moh",
+  "owner": "Ministry of Housing",
+  "scheme": "gray_red",
+
+  "fonts": {
+    "body": { "family": "Times New Roman", "size": 12, "bold": false },
+    "heading1": { "family": "Times New Roman", "size": 16, "bold": true },
+    "heading2": { "family": "Times New Roman", "size": 14, "bold": true },
+    "heading3": { "family": "Times New Roman", "size": 13, "bold": true },
+    "caption": { "family": "Times New Roman", "size": 10, "bold": false, "italic": true }
+  },
+
+  "colors": {
+    "primary": "#8B0000",
+    "secondary": "#808080",
+    "accent": "#A52A2A",
+    "text": "#000000",
+    "heading": "#8B0000"
+  },
+
+  "margins_cm": {
+    "top": 2.5,
+    "bottom": 2.5,
+    "left": 3.0,
+    "right": 2.5
+  },
+
+  "header": {
+    "enabled": true,
+    "text_ar": "وزارة الإسكان - عرض فني",
+    "text_en": "Ministry of Housing - Technical Proposal",
+    "show_logo": true,
+    "logo_path": "assets/moh_logo.png",
+    "line_below": true
+  },
+
+  "footer": {
+    "enabled": true,
+    "text_ar": "وزارة الإسكان - سري",
+    "show_page_number": true,
+    "page_format": "صفحة {n} من {total}",
+    "line_above": true
+  },
+
+  "compliance_matrix": {
+    "enabled": true,
+    "title_ar": "مصفوفة الامتثال",
+    "position": "appendix"
+  },
+
+  "detailed_reporting": true,
+  "page_numbering": true,
+  "table_of_contents": true,
+  "rtl_direction": true,
+  "language": "ar"
+}

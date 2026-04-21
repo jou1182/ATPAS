@@ -1,0 +1,49 @@
+{
+  "owner_id": "amana_riyadh",
+  "owner_name_ar": "أمانة منطقة الرياض",
+  "owner_name_en": "Riyadh Region Municipality",
+  "owner_code": "AMANA-RYD",
+  "applicable_networks": ["R", "A", "S", "W"],
+  "default_language": "ar",
+
+  "mandatory_codes": [
+    "001-SUR-BASE",
+    "001-TRF-MGT",
+    "001-PRM-GOV",
+    "001-APP-DES",
+    "001-APP-HSE",
+    "005-MRK-RD",
+    "005-SGN-TRF",
+    "005-HND-DOC"
+  ],
+  "forbidden_codes": [],
+
+  "mandatory_sections": [
+    "traffic_management",
+    "safety",
+    "road_markings",
+    "traffic_signs",
+    "site_cleanup",
+    "environmental_compliance"
+  ],
+
+  "specific_requirements": {
+    "requires_compliance_matrix": false,
+    "requires_heritage_clause": false,
+    "requires_detailed_reporting": true,
+    "requires_audit_trail": true,
+    "requires_as_built_drawings": true,
+    "requires_traffic_management_plan": true,
+    "requires_road_markings": true,
+    "requires_traffic_signs": true,
+    "requires_municipality_permit": true,
+    "night_work_permitted": false,
+    "working_hours": "07:00-18:00"
+  },
+
+  "style_guide": "templates/style_templates/amana_riyadh_style.json",
+  "contact": "projects@alriyadh.gov.sa",
+  "created_date": "2026-04-20",
+  "last_modified": "2026-04-20",
+  "version": "1.0"
+}

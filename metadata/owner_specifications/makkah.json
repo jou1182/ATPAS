@@ -1,0 +1,39 @@
+{
+  "owner_id": "makkah",
+  "owner_name_ar": "أمانة العاصمة المقدسة",
+  "owner_name_en": "Makkah Municipality",
+  "owner_code": "MAK",
+  "applicable_networks": ["S", "W", "A"],
+  "default_language": "ar",
+
+  "mandatory_codes": [
+    "001-SUR-BASE",
+    "001-PRM-GOV",
+    "001-PRM-MUN",
+    "001-APP-DES"
+  ],
+  "optional_codes": ["005-RST-LND"],
+  "forbidden_codes": [],
+
+  "mandatory_sections": [
+    "environmental_compliance",
+    "heritage_protection",
+    "safety",
+    "cultural_sensitivity"
+  ],
+
+  "specific_requirements": {
+    "requires_compliance_matrix": false,
+    "requires_heritage_clause": true,
+    "requires_detailed_reporting": false,
+    "requires_audit_trail": true,
+    "requires_as_built_drawings": true,
+    "heritage_clause_text": "يلتزم المقاول بالحفاظ على التراث العمراني والإسلامي للعاصمة المقدسة وعدم التأثير على المواقع التراثية."
+  },
+
+  "style_guide": "templates/style_templates/makkah_style.json",
+  "contact": "projects@makkah.gov.sa",
+  "created_date": "2026-04-20",
+  "last_modified": "2026-04-20",
+  "version": "1.0"
+}

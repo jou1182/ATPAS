@@ -1,0 +1,46 @@
+{
+  "owner_id": "moh",
+  "owner_name_ar": "وزارة الإسكان",
+  "owner_name_en": "Ministry of Housing",
+  "owner_code": "MOH",
+  "applicable_networks": ["S", "W", "A"],
+  "default_language": "ar",
+
+  "mandatory_codes": [
+    "001-SUR-BASE",
+    "001-PRM-GOV",
+    "001-APP-DES",
+    "004-QC-INSTALL",
+    "005-HND-DOC"
+  ],
+  "forbidden_codes": [],
+
+  "mandatory_sections": [
+    "quality_control",
+    "safety",
+    "environmental_compliance",
+    "compliance_matrix",
+    "financial_tracking"
+  ],
+
+  "specific_requirements": {
+    "requires_compliance_matrix": true,
+    "requires_heritage_clause": false,
+    "requires_detailed_reporting": true,
+    "requires_audit_trail": true,
+    "requires_as_built_drawings": true,
+    "strict_requirements": true,
+    "compliance_matrix_sections": [
+      "specifications_compliance",
+      "material_standards",
+      "testing_requirements",
+      "documentation_requirements"
+    ]
+  },
+
+  "style_guide": "templates/style_templates/moh_style.json",
+  "contact": "projects@housing.gov.sa",
+  "created_date": "2026-04-20",
+  "last_modified": "2026-04-20",
+  "version": "1.0"
+}

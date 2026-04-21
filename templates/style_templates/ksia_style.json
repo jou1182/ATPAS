@@ -1,0 +1,50 @@
+{
+  "style_id": "ksia",
+  "owner": "King Salman International Airport",
+  "scheme": "darkblue_gold",
+
+  "fonts": {
+    "body": { "family": "Times New Roman", "size": 12, "bold": false },
+    "heading1": { "family": "Times New Roman", "size": 16, "bold": true },
+    "heading2": { "family": "Times New Roman", "size": 14, "bold": true },
+    "heading3": { "family": "Times New Roman", "size": 13, "bold": true },
+    "caption": { "family": "Times New Roman", "size": 10, "bold": false, "italic": true }
+  },
+
+  "colors": {
+    "primary": "#0A1F44",
+    "secondary": "#FFFFFF",
+    "accent": "#C9A84C",
+    "text": "#000000",
+    "heading": "#0A1F44"
+  },
+
+  "margins_cm": {
+    "top": 2.5,
+    "bottom": 2.5,
+    "left": 3.0,
+    "right": 2.5
+  },
+
+  "header": {
+    "enabled": true,
+    "text_ar": "مطار الملك سلمان الدولي - عرض فني",
+    "text_en": "King Salman International Airport - Technical Proposal",
+    "show_logo": true,
+    "logo_path": "assets/ksia_logo.png",
+    "line_below": true
+  },
+
+  "footer": {
+    "enabled": true,
+    "text_ar": "سري - للاستخدام الداخلي فقط",
+    "show_page_number": true,
+    "page_format": "صفحة {n} من {total}",
+    "line_above": true
+  },
+
+  "page_numbering": true,
+  "table_of_contents": true,
+  "rtl_direction": true,
+  "language": "ar"
+}

@@ -1,0 +1,56 @@
+{
+  "style_id": "makkah",
+  "owner": "Makkah Municipality",
+  "scheme": "green_gold",
+
+  "fonts": {
+    "body": { "family": "Arial", "size": 11, "bold": false },
+    "heading1": { "family": "Arial", "size": 15, "bold": true },
+    "heading2": { "family": "Arial", "size": 13, "bold": true },
+    "heading3": { "family": "Arial", "size": 12, "bold": true },
+    "caption": { "family": "Arial", "size": 10, "bold": false, "italic": true }
+  },
+
+  "colors": {
+    "primary": "#006400",
+    "secondary": "#FFD700",
+    "accent": "#228B22",
+    "text": "#000000",
+    "heading": "#006400"
+  },
+
+  "margins_cm": {
+    "top": 2.5,
+    "bottom": 2.5,
+    "left": 3.0,
+    "right": 2.5
+  },
+
+  "header": {
+    "enabled": true,
+    "text_ar": "أمانة العاصمة المقدسة - عرض فني",
+    "text_en": "Makkah Municipality - Technical Proposal",
+    "show_logo": true,
+    "logo_path": "assets/makkah_logo.png",
+    "line_below": true
+  },
+
+  "footer": {
+    "enabled": true,
+    "text_ar": "أمانة العاصمة المقدسة",
+    "show_page_number": true,
+    "page_format": "صفحة {n} من {total}",
+    "line_above": true
+  },
+
+  "heritage_clause": {
+    "enabled": true,
+    "title_ar": "بند الحفاظ على التراث",
+    "position": "after_introduction"
+  },
+
+  "page_numbering": true,
+  "table_of_contents": true,
+  "rtl_direction": true,
+  "language": "ar"
+}

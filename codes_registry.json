@@ -1,0 +1,2814 @@
+{
+  "metadata": {
+    "registry_name": "Al-Rawaf Codes Registry",
+    "version": "1.0.0",
+    "total_codes": 64,
+    "status": "development",
+    "last_updated": "2026-04-20T18:00:00Z",
+    "last_updated_by": "Claude AI",
+    "format_version": "2.0",
+    "description": "سجل موحد لكل الأكواس في النظام - SSOT (Single Source of Truth)"
+  },
+  "codes": {
+    "001-SUR-BASE": {
+      "code_id": "001-SUR-BASE",
+      "category": "001",
+      "phase": "SUR",
+      "variation": "BASE",
+      "activity_name_ar": "مسح وتثبيت نقاط عامة",
+      "activity_name_en": "General Surveying & Point Establishment",
+      "project_ids": [
+        "wastewater",
+        "water_supply",
+        "asphalt"
+      ],
+      "network_types": [
+        "S",
+        "W",
+        "A"
+      ],
+      "applicable_owners": [
+        "nwc",
+        "makkah",
+        "moh"
+      ],
+      "sequence_order": 1,
+      "dependencies": [],
+      "has_images": true,
+      "image_count": 3,
+      "page_count": 5,
+      "source_document": "001-SUR-BASE.docx",
+      "section_reference": "preparatory_works",
+      "tags": [
+        "surveying",
+        "preparatory",
+        "basic"
+      ],
+      "status": "active",
+      "created_date": "2026-04-01",
+      "last_modified": "2026-04-20",
+      "version": "1.0",
+      "notes": "النشاط الأول في أي مشروع - إلزامي"
+    },
+    "001-PRM-GOV": {
+      "code_id": "001-PRM-GOV",
+      "category": "001",
+      "phase": "PRM",
+      "variation": "GOV",
+      "activity_name_ar": "الحصول على رخص حكومية",
+      "activity_name_en": "Government Permits & Approvals",
+      "project_ids": [
+        "wastewater",
+        "water_supply",
+        "asphalt"
+      ],
+      "network_types": [
+        "S",
+        "W",
+        "A"
+      ],
+      "applicable_owners": [
+        "nwc",
+        "makkah",
+        "moh"
+      ],
+      "sequence_order": 2,
+      "dependencies": [
+        "001-SUR-BASE"
+      ],
+      "has_images": false,
+      "image_count": 0,
+      "page_count": 3,
+      "section_reference": "permits_approvals",
+      "tags": [
+        "permits",
+        "government",
+        "regulatory"
+      ],
+      "status": "active",
+      "created_date": "2026-04-01",
+      "last_modified": "2026-04-20",
+      "version": "1.0",
+      "notes": "يجب الحصول عليها بعد المسح الأولي"
+    },
+    "001-PRM-MUN": {
+      "code_id": "001-PRM-MUN",
+      "category": "001",
+      "phase": "PRM",
+      "variation": "MUN",
+      "activity_name_ar": "الحصول على رخص بلدية",
+      "activity_name_en": "Municipal Permits & Approvals",
+      "project_ids": [
+        "wastewater",
+        "water_supply",
+        "asphalt"
+      ],
+      "network_types": [
+        "S",
+        "W",
+        "A"
+      ],
+      "applicable_owners": [
+        "makkah"
+      ],
+      "sequence_order": 3,
+      "dependencies": [
+        "001-PRM-GOV"
+      ],
+      "has_images": false,
+      "image_count": 0,
+      "page_count": 2,
+      "section_reference": "permits_approvals",
+      "tags": [
+        "permits",
+        "municipal",
+        "local"
+      ],
+      "status": "active",
+      "created_date": "2026-04-01",
+      "last_modified": "2026-04-20",
+      "version": "1.0",
+      "notes": "خاص بمشاريع أمانة مكة المكرمة فقط"
+    },
+    "001-APP-DES": {
+      "code_id": "001-APP-DES",
+      "category": "001",
+      "phase": "APP",
+      "variation": "DES",
+      "activity_name_ar": "اعتماد المخططات التفصيلية",
+      "activity_name_en": "Design Approval & Acceptance",
+      "project_ids": [
+        "wastewater",
+        "water_supply",
+        "asphalt"
+      ],
+      "network_types": [
+        "S",
+        "W",
+        "A"
+      ],
+      "applicable_owners": [
+        "nwc",
+        "makkah",
+        "moh"
+      ],
+      "sequence_order": 4,
+      "dependencies": [
+        "001-PRM-GOV"
+      ],
+      "has_images": true,
+      "image_count": 5,
+      "page_count": 4,
+      "section_reference": "approvals",
+      "tags": [
+        "design",
+        "approval",
+        "drawings"
+      ],
+      "status": "active",
+      "created_date": "2026-04-01",
+      "last_modified": "2026-04-20",
+      "version": "1.0",
+      "notes": "يتضمن الرسومات والمخططات الهندسية"
+    },
+    "001-APP-HSE": {
+      "code_id": "001-APP-HSE",
+      "category": "001",
+      "phase": "APP",
+      "variation": "HSE",
+      "activity_name_ar": "اعتماد خطة الصحة والسلامة",
+      "activity_name_en": "Health, Safety & Environment Plan Approval",
+      "project_ids": [
+        "wastewater",
+        "water_supply",
+        "asphalt"
+      ],
+      "network_types": [
+        "S",
+        "W",
+        "A"
+      ],
+      "applicable_owners": [
+        "nwc",
+        "makkah",
+        "moh"
+      ],
+      "sequence_order": 5,
+      "dependencies": [
+        "001-APP-DES"
+      ],
+      "has_images": true,
+      "image_count": 2,
+      "page_count": 3,
+      "section_reference": "approvals",
+      "tags": [
+        "safety",
+        "health",
+        "environment"
+      ],
+      "status": "active",
+      "created_date": "2026-04-01",
+      "last_modified": "2026-04-20",
+      "version": "1.0",
+      "notes": "خطة شاملة للسلامة والصحة المهنية"
+    },
+    "002-MAT-SITE": {
+      "code_id": "002-MAT-SITE",
+      "category": "002",
+      "phase": "MAT",
+      "variation": "SITE",
+      "activity_name_ar": "نقل المواد إلى موقع العمل",
+      "activity_name_en": "Material Transfer to Site",
+      "project_ids": [
+        "wastewater",
+        "water_supply",
+        "asphalt"
+      ],
+      "network_types": [
+        "S",
+        "W",
+        "A"
+      ],
+      "applicable_owners": [
+        "nwc",
+        "makkah",
+        "moh"
+      ],
+      "sequence_order": 6,
+      "dependencies": [
+        "001-APP-HSE"
+      ],
+      "has_images": true,
+      "image_count": 2,
+      "page_count": 3,
+      "section_reference": "material_management",
+      "tags": [
+        "materials",
+        "logistics",
+        "transportation"
+      ],
+      "status": "active",
+      "created_date": "2026-04-01",
+      "last_modified": "2026-04-20",
+      "version": "1.0",
+      "notes": "نقل آمن وموثق للمواد والمعدات"
+    },
+    "002-EXC-FINE": {
+      "code_id": "002-EXC-FINE",
+      "category": "002",
+      "phase": "EXC",
+      "variation": "FINE",
+      "activity_name_ar": "حفر دقيق لأنابيب صغيرة",
+      "activity_name_en": "Fine Excavation (Small Pipes d<400mm)",
+      "project_ids": [
+        "wastewater",
+        "water_supply"
+      ],
+      "network_types": [
+        "S",
+        "W"
+      ],
+      "applicable_owners": [
+        "nwc",
+        "makkah",
+        "moh"
+      ],
+      "excavation_type": "FINE",
+      "sequence_order": 7,
+      "dependencies": [
+        "002-MAT-SITE"
+      ],
+      "has_images": true,
+      "image_count": 4,
+      "page_count": 6,
+      "section_reference": "excavation_works",
+      "special_requirements": [
+        "trenching",
+        "slope_protection",
+        "ground_investigation"
+      ],
+      "tags": [
+        "excavation",
+        "fine",
+        "pipes",
+        "precision"
+      ],
+      "status": "active",
+      "created_date": "2026-04-01",
+      "last_modified": "2026-04-20",
+      "version": "1.0",
+      "notes": "حفر دقيق مع حماية الحواف - أنابيب قطر أقل من 400 ملم",
+      "depth_range": "0.5-1.5m",
+      "width_range": "0.4-0.8m"
+    },
+    "002-EXC-OPEN": {
+      "code_id": "002-EXC-OPEN",
+      "category": "002",
+      "phase": "EXC",
+      "variation": "OPEN",
+      "activity_name_ar": "حفر مكشوف لأنابيب رئيسية",
+      "activity_name_en": "Open Excavation (Main Lines d>600mm)",
+      "project_ids": [
+        "wastewater",
+        "water_supply"
+      ],
+      "network_types": [
+        "S",
+        "W"
+      ],
+      "applicable_owners": [
+        "nwc",
+        "makkah",
+        "moh"
+      ],
+      "excavation_type": "OPEN",
+      "sequence_order": 7,
+      "dependencies": [
+        "002-MAT-SITE"
+      ],
+      "has_images": true,
+      "image_count": 6,
+      "page_count": 8,
+      "section_reference": "excavation_works",
+      "special_requirements": [
+        "shoring",
+        "dewatering",
+        "safety_barriers",
+        "traffic_control"
+      ],
+      "tags": [
+        "excavation",
+        "open",
+        "main_lines",
+        "large_pipes"
+      ],
+      "status": "active",
+      "created_date": "2026-04-01",
+      "last_modified": "2026-04-20",
+      "version": "1.0",
+      "notes": "حفر مكشوف واسع مع التسند - أنابيب قطر أكبر من 600 ملم",
+      "depth_range": "1.5-4m",
+      "width_range": "1.5-3m"
+    },
+    "002-EXC-TUNNEL": {
+      "code_id": "002-EXC-TUNNEL",
+      "category": "002",
+      "phase": "EXC",
+      "variation": "TUNNEL",
+      "activity_name_ar": "حفر نفقي (طريقة TBM)",
+      "activity_name_en": "Tunneling (TBM Method d>1000mm)",
+      "project_ids": [
+        "wastewater",
+        "water_supply"
+      ],
+      "network_types": [
+        "S",
+        "W"
+      ],
+      "applicable_owners": [
+        "nwc",
+        "moh"
+      ],
+      "excavation_type": "TUNNEL",
+      "sequence_order": 7,
+      "dependencies": [
+        "002-MAT-SITE"
+      ],
+      "has_images": true,
+      "image_count": 8,
+      "page_count": 12,
+      "section_reference": "excavation_works",
+      "special_requirements": [
+        "tbm_method",
+        "ground_stability",
+        "lining",
+        "ventilation",
+        "segment_assembly"
+      ],
+      "tags": [
+        "excavation",
+        "tunnel",
+        "tbm",
+        "deep_underground"
+      ],
+      "status": "active",
+      "created_date": "2026-04-01",
+      "last_modified": "2026-04-20",
+      "version": "1.0",
+      "notes": "حفر نفقي عميق باستخدام آلة حفر نفقي - أنابيب قطر أكبر من 1000 ملم",
+      "depth_range": ">4m",
+      "width_range": "1.0-3.5m",
+      "complexity": "high"
+    },
+    "002-EXC-PAV": {
+      "code_id": "002-EXC-PAV",
+      "category": "002",
+      "phase": "EXC",
+      "variation": "PAV",
+      "activity_name_ar": "قطع الأسفلت الموجود",
+      "activity_name_en": "Asphalt Cutting & Removal",
+      "project_ids": [
+        "asphalt"
+      ],
+      "network_types": [
+        "A"
+      ],
+      "applicable_owners": [
+        "makkah",
+        "moh"
+      ],
+      "excavation_type": "PAV",
+      "sequence_order": 7,
+      "dependencies": [
+        "002-MAT-SITE"
+      ],
+      "has_images": true,
+      "image_count": 3,
+      "page_count": 4,
+      "section_reference": "excavation_works",
+      "special_requirements": [
+        "traffic_control",
+        "dust_control",
+        "noise_management"
+      ],
+      "tags": [
+        "asphalt",
+        "cutting",
+        "removal",
+        "surface"
+      ],
+      "status": "active",
+      "created_date": "2026-04-01",
+      "last_modified": "2026-04-20",
+      "version": "1.0",
+      "notes": "قطع الأسفلت الحالي وإزالته - خاص بمشاريع الطرق",
+      "depth_range": "0.05-0.15m",
+      "typical_thickness": "0.08m"
+    },
+    "001-SUR-NET": {
+      "code_id": "001-SUR-NET",
+      "category": "001",
+      "phase": "SUR",
+      "variation": "NET",
+      "activity_name_ar": "مسح الشبكة المحددة",
+      "activity_name_en": "Network Surveying & Alignment",
+      "project_ids": [
+        "wastewater",
+        "water_supply"
+      ],
+      "network_types": [
+        "S",
+        "W"
+      ],
+      "applicable_owners": [
+        "nwc",
+        "makkah",
+        "moh"
+      ],
+      "sequence_order": 2,
+      "dependencies": [
+        "001-SUR-BASE"
+      ],
+      "has_images": true,
+      "image_count": 2,
+      "page_count": 4,
+      "section_reference": "preparatory_works",
+      "tags": [
+        "surveying",
+        "network",
+        "alignment"
+      ],
+      "status": "active",
+      "created_date": "2026-04-20",
+      "last_modified": "2026-04-20",
+      "version": "1.0",
+      "notes": "مسح تفصيلي لمسار الشبكة وتحديد الإحداثيات"
+    },
+    "001-PRM-ENV": {
+      "code_id": "001-PRM-ENV",
+      "category": "001",
+      "phase": "PRM",
+      "variation": "ENV",
+      "activity_name_ar": "الحصول على الموافقة البيئية",
+      "activity_name_en": "Environmental Approval",
+      "project_ids": [
+        "wastewater",
+        "water_supply",
+        "asphalt"
+      ],
+      "network_types": [
+        "S",
+        "W",
+        "A"
+      ],
+      "applicable_owners": [
+        "nwc",
+        "makkah",
+        "moh"
+      ],
+      "sequence_order": 4,
+      "dependencies": [
+        "001-PRM-GOV"
+      ],
+      "has_images": false,
+      "image_count": 0,
+      "page_count": 2,
+      "section_reference": "permits_approvals",
+      "tags": [
+        "environmental",
+        "approval",
+        "compliance"
+      ],
+      "status": "active",
+      "created_date": "2026-04-20",
+      "last_modified": "2026-04-20",
+      "version": "1.0",
+      "notes": "الموافقة البيئية من الجهات المختصة"
+    },
+    "001-APP-MRL": {
+      "code_id": "001-APP-MRL",
+      "category": "001",
+      "phase": "APP",
+      "variation": "MRL",
+      "activity_name_ar": "اعتماد المواد والموارد",
+      "activity_name_en": "Material & Resource Approval",
+      "project_ids": [
+        "wastewater",
+        "water_supply",
+        "asphalt"
+      ],
+      "network_types": [
+        "S",
+        "W",
+        "A"
+      ],
+      "applicable_owners": [
+        "nwc",
+        "makkah",
+        "moh"
+      ],
+      "sequence_order": 5,
+      "dependencies": [
+        "001-APP-DES"
+      ],
+      "has_images": false,
+      "image_count": 0,
+      "page_count": 3,
+      "section_reference": "approvals",
+      "tags": [
+        "materials",
+        "approval",
+        "specifications"
+      ],
+      "status": "active",
+      "created_date": "2026-04-20",
+      "last_modified": "2026-04-20",
+      "version": "1.0",
+      "notes": "اعتماد المواد والموارد المستخدمة قبل البدء"
+    },
+    "002-MAT-STORE": {
+      "code_id": "002-MAT-STORE",
+      "category": "002",
+      "phase": "MAT",
+      "variation": "STORE",
+      "activity_name_ar": "تخزين المواد والمعدات",
+      "activity_name_en": "Material & Equipment Storage",
+      "project_ids": [
+        "wastewater",
+        "water_supply",
+        "asphalt"
+      ],
+      "network_types": [
+        "S",
+        "W",
+        "A"
+      ],
+      "applicable_owners": [
+        "nwc",
+        "makkah",
+        "moh"
+      ],
+      "sequence_order": 7,
+      "dependencies": [
+        "002-MAT-SITE"
+      ],
+      "has_images": true,
+      "image_count": 2,
+      "page_count": 2,
+      "section_reference": "material_management",
+      "tags": [
+        "storage",
+        "materials",
+        "equipment",
+        "site"
+      ],
+      "status": "active",
+      "created_date": "2026-04-20",
+      "last_modified": "2026-04-20",
+      "version": "1.0",
+      "notes": "تخزين آمن ومنظم للمواد والمعدات في الموقع"
+    },
+    "002-WST-RECY": {
+      "code_id": "002-WST-RECY",
+      "category": "002",
+      "phase": "WST",
+      "variation": "RECY",
+      "activity_name_ar": "إعادة تدوير الفائض",
+      "activity_name_en": "Waste Recycling & Reuse",
+      "project_ids": [
+        "wastewater",
+        "water_supply",
+        "asphalt"
+      ],
+      "network_types": [
+        "S",
+        "W",
+        "A"
+      ],
+      "applicable_owners": [
+        "nwc",
+        "makkah",
+        "moh"
+      ],
+      "sequence_order": 9,
+      "dependencies": [
+        "002-WST-EXC"
+      ],
+      "has_images": true,
+      "image_count": 1,
+      "page_count": 2,
+      "section_reference": "waste_management",
+      "tags": [
+        "recycling",
+        "waste",
+        "environment",
+        "sustainability"
+      ],
+      "status": "active",
+      "created_date": "2026-04-20",
+      "last_modified": "2026-04-20",
+      "version": "1.0",
+      "notes": "إعادة استخدام المخلفات الصالحة وفرزها بشكل بيئي"
+    },
+    "002-WST-EXC": {
+      "code_id": "002-WST-EXC",
+      "category": "002",
+      "phase": "WST",
+      "variation": "EXC",
+      "activity_name_ar": "نقل المخلفات من الحفر",
+      "activity_name_en": "Excavated Waste Removal",
+      "project_ids": [
+        "wastewater",
+        "water_supply",
+        "asphalt"
+      ],
+      "network_types": [
+        "S",
+        "W",
+        "A"
+      ],
+      "applicable_owners": [
+        "nwc",
+        "makkah",
+        "moh"
+      ],
+      "sequence_order": 8,
+      "dependencies": [
+        "002-EXC-FINE",
+        "002-EXC-OPEN",
+        "002-EXC-TUNNEL",
+        "002-EXC-PAV"
+      ],
+      "has_images": true,
+      "image_count": 2,
+      "page_count": 3,
+      "section_reference": "waste_management",
+      "tags": [
+        "waste",
+        "removal",
+        "debris",
+        "recycling"
+      ],
+      "status": "active",
+      "created_date": "2026-04-01",
+      "last_modified": "2026-04-20",
+      "version": "1.0",
+      "notes": "نقل وتصريف آمن للمخلفات من أعمال الحفر",
+      "dependencies_note": "يعتمد على أي من طرق الحفر المختارة"
+    },
+    "003-PIP-SEW": {
+      "code_id": "003-PIP-SEW",
+      "category": "003",
+      "phase": "PIP",
+      "variation": "SEW",
+      "activity_name_ar": "تركيب أنابيب الصرف الصحي",
+      "activity_name_en": "Sewage Pipe Installation",
+      "project_ids": [
+        "wastewater"
+      ],
+      "network_types": [
+        "S"
+      ],
+      "applicable_owners": [
+        "nwc",
+        "makkah",
+        "moh"
+      ],
+      "sequence_order": 9,
+      "dependencies": [
+        "002-EXC-FINE",
+        "002-EXC-OPEN"
+      ],
+      "has_images": true,
+      "image_count": 4,
+      "page_count": 7,
+      "section_reference": "installation_works",
+      "material_specs": [
+        "PVC",
+        "Concrete",
+        "GRP"
+      ],
+      "tags": [
+        "installation",
+        "sewage",
+        "pipes",
+        "gravity"
+      ],
+      "status": "active",
+      "created_date": "2026-04-01",
+      "last_modified": "2026-04-20",
+      "version": "1.0",
+      "notes": "تركيب آني للأنابيب حسب الرسومات المعتمدة",
+      "typical_diameters": [
+        "100mm",
+        "150mm",
+        "200mm",
+        "250mm",
+        "300mm",
+        "400mm"
+      ]
+    },
+    "003-PIP-WAT": {
+      "code_id": "003-PIP-WAT",
+      "category": "003",
+      "phase": "PIP",
+      "variation": "WAT",
+      "activity_name_ar": "تركيب أنابيب المياه",
+      "activity_name_en": "Water Pipe Installation",
+      "project_ids": [
+        "water_supply"
+      ],
+      "network_types": [
+        "W"
+      ],
+      "applicable_owners": [
+        "nwc",
+        "makkah"
+      ],
+      "sequence_order": 9,
+      "dependencies": [
+        "002-EXC-FINE",
+        "002-EXC-OPEN"
+      ],
+      "has_images": true,
+      "image_count": 4,
+      "page_count": 7,
+      "section_reference": "installation_works",
+      "material_specs": [
+        "HDPE",
+        "PVC",
+        "Ductile Iron"
+      ],
+      "tags": [
+        "installation",
+        "water",
+        "pipes",
+        "pressure"
+      ],
+      "status": "active",
+      "created_date": "2026-04-01",
+      "last_modified": "2026-04-20",
+      "version": "1.0",
+      "notes": "تركيب أنابيب مياه الشرب - ذات معايير صحية عالية",
+      "typical_diameters": [
+        "50mm",
+        "75mm",
+        "100mm",
+        "150mm",
+        "200mm",
+        "250mm",
+        "300mm"
+      ]
+    },
+    "003-PIP-FIT": {
+      "code_id": "003-PIP-FIT",
+      "category": "003",
+      "phase": "PIP",
+      "variation": "FIT",
+      "activity_name_ar": "تركيب التجهيزات والوصلات",
+      "activity_name_en": "Fittings & Connections Installation",
+      "project_ids": [
+        "wastewater",
+        "water_supply"
+      ],
+      "network_types": [
+        "S",
+        "W"
+      ],
+      "applicable_owners": [
+        "nwc",
+        "makkah",
+        "moh"
+      ],
+      "sequence_order": 10,
+      "dependencies": [
+        "003-PIP-SEW",
+        "003-PIP-WAT"
+      ],
+      "has_images": true,
+      "image_count": 3,
+      "page_count": 4,
+      "section_reference": "installation_works",
+      "material_specs": [
+        "Metal",
+        "Plastic",
+        "Composite"
+      ],
+      "tags": [
+        "fittings",
+        "connections",
+        "valves",
+        "accessories"
+      ],
+      "status": "active",
+      "created_date": "2026-04-20",
+      "last_modified": "2026-04-20",
+      "version": "1.0",
+      "notes": "تركيب التجهيزات والوصلات والصمامات"
+    },
+    "003-WLD-MECH": {
+      "code_id": "003-WLD-MECH",
+      "category": "003",
+      "phase": "WLD",
+      "variation": "MECH",
+      "activity_name_ar": "الوصلات الميكانيكية",
+      "activity_name_en": "Mechanical Connections & Joints",
+      "project_ids": [
+        "wastewater",
+        "water_supply"
+      ],
+      "network_types": [
+        "S",
+        "W"
+      ],
+      "applicable_owners": [
+        "nwc",
+        "makkah",
+        "moh"
+      ],
+      "sequence_order": 11,
+      "dependencies": [
+        "003-PIP-SEW",
+        "003-PIP-WAT"
+      ],
+      "has_images": true,
+      "image_count": 2,
+      "page_count": 3,
+      "section_reference": "installation_works",
+      "quality_control": [
+        "Visual Inspection",
+        "Torque Testing"
+      ],
+      "tags": [
+        "mechanical",
+        "connections",
+        "joints",
+        "flanges"
+      ],
+      "status": "active",
+      "created_date": "2026-04-20",
+      "last_modified": "2026-04-20",
+      "version": "1.0",
+      "notes": "الوصلات الميكانيكية بدون لحام - فلنجات وكوابل"
+    },
+    "003-WLD-FLD": {
+      "code_id": "003-WLD-FLD",
+      "category": "003",
+      "phase": "WLD",
+      "variation": "FLD",
+      "activity_name_ar": "اللحام الحقلي للأنابيب المعدنية",
+      "activity_name_en": "Field Welding (Metal Pipes)",
+      "project_ids": [
+        "water_supply"
+      ],
+      "network_types": [
+        "W"
+      ],
+      "applicable_owners": [
+        "nwc",
+        "makkah"
+      ],
+      "sequence_order": 10,
+      "dependencies": [
+        "003-PIP-WAT"
+      ],
+      "has_images": true,
+      "image_count": 3,
+      "page_count": 5,
+      "section_reference": "installation_works",
+      "quality_control": [
+        "UT Testing",
+        "Visual Inspection",
+        "Pressure Test"
+      ],
+      "tags": [
+        "welding",
+        "metal",
+        "quality",
+        "testing"
+      ],
+      "status": "active",
+      "created_date": "2026-04-01",
+      "last_modified": "2026-04-20",
+      "version": "1.0",
+      "notes": "لحام حقلي لأنابيب معدنية - مع اختبارات جودة شاملة",
+      "welding_standard": "ISO 5817",
+      "certification_required": true
+    },
+    "004-TST-LEK": {
+      "code_id": "004-TST-LEK",
+      "category": "004",
+      "phase": "TST",
+      "variation": "LEK",
+      "activity_name_ar": "اختبار التسرب",
+      "activity_name_en": "Leakage Test",
+      "project_ids": [
+        "wastewater",
+        "water_supply"
+      ],
+      "network_types": [
+        "S",
+        "W"
+      ],
+      "applicable_owners": [
+        "nwc",
+        "makkah",
+        "moh"
+      ],
+      "sequence_order": 11,
+      "dependencies": [
+        "003-PIP-SEW",
+        "003-PIP-WAT"
+      ],
+      "has_images": true,
+      "image_count": 3,
+      "page_count": 3,
+      "section_reference": "testing_inspection",
+      "test_standard": "ISO 1167",
+      "test_duration_hours": 8,
+      "test_pressure_bar": 5,
+      "tags": [
+        "testing",
+        "quality",
+        "leakage",
+        "pipes"
+      ],
+      "status": "active",
+      "created_date": "2026-04-01",
+      "last_modified": "2026-04-20",
+      "version": "1.0",
+      "notes": "اختبار التسرب - التأكد من سلامة الوصلات",
+      "acceptance_criteria": "Zero leakage at test pressure"
+    },
+    "004-TST-HYD": {
+      "code_id": "004-TST-HYD",
+      "category": "004",
+      "phase": "TST",
+      "variation": "HYD",
+      "activity_name_ar": "الاختبار الهيدروستاتيكي",
+      "activity_name_en": "Hydrostatic Pressure Test",
+      "project_ids": [
+        "water_supply"
+      ],
+      "network_types": [
+        "W"
+      ],
+      "applicable_owners": [
+        "nwc",
+        "makkah"
+      ],
+      "sequence_order": 11,
+      "dependencies": [
+        "003-PIP-WAT",
+        "003-WLD-FLD"
+      ],
+      "has_images": true,
+      "image_count": 3,
+      "page_count": 4,
+      "section_reference": "testing_inspection",
+      "test_standard": "ISO 1167",
+      "test_duration_hours": 24,
+      "test_pressure_bar": 10,
+      "tags": [
+        "testing",
+        "pressure",
+        "water",
+        "safety"
+      ],
+      "status": "active",
+      "created_date": "2026-04-01",
+      "last_modified": "2026-04-20",
+      "version": "1.0",
+      "notes": "اختبار ضغط هيدروستاتيكي - لشبكات المياه المضغوطة",
+      "acceptance_criteria": "No visible damage or leakage",
+      "pressure_margin_percent": 50
+    },
+    "004-QC-MATS": {
+      "code_id": "004-QC-MATS",
+      "category": "004",
+      "phase": "QC",
+      "variation": "MATS",
+      "activity_name_ar": "فحص المواد والمواصفات",
+      "activity_name_en": "Material & Specification Inspection",
+      "project_ids": [
+        "wastewater",
+        "water_supply",
+        "asphalt"
+      ],
+      "network_types": [
+        "S",
+        "W",
+        "A"
+      ],
+      "applicable_owners": [
+        "nwc",
+        "makkah",
+        "moh"
+      ],
+      "sequence_order": 12,
+      "dependencies": [
+        "003-PIP-SEW",
+        "003-PIP-WAT"
+      ],
+      "has_images": true,
+      "image_count": 2,
+      "page_count": 3,
+      "section_reference": "testing_inspection",
+      "inspection_checklist": [
+        "Material certificates",
+        "Specification compliance",
+        "Visual inspection",
+        "Dimensional checks"
+      ],
+      "tags": [
+        "materials",
+        "inspection",
+        "quality",
+        "specifications"
+      ],
+      "status": "active",
+      "created_date": "2026-04-20",
+      "last_modified": "2026-04-20",
+      "version": "1.0",
+      "notes": "فحص المواد المستخدمة ومطابقتها للمواصفات"
+    },
+    "004-QC-INSTALL": {
+      "code_id": "004-QC-INSTALL",
+      "category": "004",
+      "phase": "QC",
+      "variation": "INSTALL",
+      "activity_name_ar": "فحص جودة التركيب",
+      "activity_name_en": "Installation Quality Control Inspection",
+      "project_ids": [
+        "wastewater",
+        "water_supply",
+        "asphalt"
+      ],
+      "network_types": [
+        "S",
+        "W",
+        "A"
+      ],
+      "applicable_owners": [
+        "nwc",
+        "makkah",
+        "moh"
+      ],
+      "sequence_order": 12,
+      "dependencies": [
+        "003-PIP-SEW",
+        "003-PIP-WAT"
+      ],
+      "has_images": true,
+      "image_count": 3,
+      "page_count": 3,
+      "section_reference": "testing_inspection",
+      "inspection_checklist": [
+        "Alignment verification",
+        "Joint integrity",
+        "Support adequacy",
+        "Clearances",
+        "Coating condition"
+      ],
+      "tags": [
+        "quality",
+        "inspection",
+        "control",
+        "installation"
+      ],
+      "status": "active",
+      "created_date": "2026-04-01",
+      "last_modified": "2026-04-20",
+      "version": "1.0",
+      "notes": "فحص شامل لجودة عمليات التركيب"
+    },
+    "005-BKF-SND": {
+      "code_id": "005-BKF-SND",
+      "category": "005",
+      "phase": "BKF",
+      "variation": "SND",
+      "activity_name_ar": "ردم رمل حول الأنابيب",
+      "activity_name_en": "Sand Backfilling Around Pipes",
+      "project_ids": [
+        "wastewater",
+        "water_supply"
+      ],
+      "network_types": [
+        "S",
+        "W"
+      ],
+      "applicable_owners": [
+        "nwc",
+        "makkah",
+        "moh"
+      ],
+      "sequence_order": 13,
+      "dependencies": [
+        "004-TST-LEK"
+      ],
+      "has_images": true,
+      "image_count": 2,
+      "page_count": 3,
+      "section_reference": "completion_works",
+      "sand_depth": "0.3m",
+      "sand_type": "clean sand",
+      "tags": [
+        "backfilling",
+        "sand",
+        "protection",
+        "pipes"
+      ],
+      "status": "active",
+      "created_date": "2026-04-01",
+      "last_modified": "2026-04-20",
+      "version": "1.0",
+      "notes": "ردم رمل لحماية الأنابيب من الأضرار"
+    },
+    "005-BKF-SOL": {
+      "code_id": "005-BKF-SOL",
+      "category": "005",
+      "phase": "BKF",
+      "variation": "SOL",
+      "activity_name_ar": "ردم تربة وضغط",
+      "activity_name_en": "Soil Backfilling & Compaction",
+      "project_ids": [
+        "wastewater",
+        "water_supply",
+        "asphalt"
+      ],
+      "network_types": [
+        "S",
+        "W",
+        "A"
+      ],
+      "applicable_owners": [
+        "nwc",
+        "makkah",
+        "moh"
+      ],
+      "sequence_order": 14,
+      "dependencies": [
+        "005-BKF-SND"
+      ],
+      "has_images": true,
+      "image_count": 3,
+      "page_count": 4,
+      "section_reference": "completion_works",
+      "soil_type": "clean excavated soil",
+      "compaction_percentage": 95,
+      "compaction_test": "Proctor test",
+      "tags": [
+        "backfilling",
+        "soil",
+        "compaction",
+        "density"
+      ],
+      "status": "active",
+      "created_date": "2026-04-01",
+      "last_modified": "2026-04-20",
+      "version": "1.0",
+      "notes": "ردم تربة مع ضغط حسب المواصفات - كثافة 95%"
+    },
+    "005-BKF-BASE": {
+      "code_id": "005-BKF-BASE",
+      "category": "005",
+      "phase": "BKF",
+      "variation": "BASE",
+      "activity_name_ar": "إعداد الأساس للأسفلت",
+      "activity_name_en": "Base Preparation for Asphalt",
+      "project_ids": [
+        "asphalt"
+      ],
+      "network_types": [
+        "A"
+      ],
+      "applicable_owners": [
+        "makkah",
+        "moh"
+      ],
+      "sequence_order": 14,
+      "dependencies": [
+        "005-BKF-SOL"
+      ],
+      "has_images": true,
+      "image_count": 2,
+      "page_count": 3,
+      "section_reference": "completion_works",
+      "base_type": "Granular Base",
+      "base_thickness": "0.15m",
+      "compaction_percentage": 100,
+      "tags": [
+        "base",
+        "preparation",
+        "asphalt",
+        "foundation"
+      ],
+      "status": "active",
+      "created_date": "2026-04-01",
+      "last_modified": "2026-04-20",
+      "version": "1.0",
+      "notes": "إعداد أساس صلب وموثوق للطبقة الإسفلتية"
+    },
+    "005-RST-ASP": {
+      "code_id": "005-RST-ASP",
+      "category": "005",
+      "phase": "RST",
+      "variation": "ASP",
+      "activity_name_ar": "إعادة الأسفلت",
+      "activity_name_en": "Asphalt Restoration",
+      "project_ids": [
+        "wastewater",
+        "water_supply",
+        "asphalt"
+      ],
+      "network_types": [
+        "S",
+        "W",
+        "A"
+      ],
+      "applicable_owners": [
+        "nwc",
+        "makkah",
+        "moh"
+      ],
+      "sequence_order": 15,
+      "dependencies": [
+        "005-BKF-SOL"
+      ],
+      "has_images": true,
+      "image_count": 3,
+      "page_count": 5,
+      "section_reference": "completion_works",
+      "layers": [
+        "Base Course",
+        "Intermediate Course",
+        "Surface Course"
+      ],
+      "typical_thickness": "0.20m",
+      "tags": [
+        "asphalt",
+        "restoration",
+        "surface",
+        "finishing"
+      ],
+      "status": "active",
+      "created_date": "2026-04-01",
+      "last_modified": "2026-04-20",
+      "version": "1.0",
+      "notes": "إعادة رصف الطريق - 3 طبقات أسفلتية قياسية"
+    },
+    "005-RST-LND": {
+      "code_id": "005-RST-LND",
+      "category": "005",
+      "phase": "RST",
+      "variation": "LND",
+      "activity_name_ar": "استعادة المناظر الطبيعية",
+      "activity_name_en": "Landscaping & Environmental Restoration",
+      "project_ids": [
+        "wastewater",
+        "water_supply"
+      ],
+      "network_types": [
+        "S",
+        "W"
+      ],
+      "applicable_owners": [
+        "makkah",
+        "moh"
+      ],
+      "sequence_order": 16,
+      "dependencies": [
+        "005-BKF-SOL"
+      ],
+      "has_images": true,
+      "image_count": 2,
+      "page_count": 3,
+      "section_reference": "completion_works",
+      "restoration_type": "Vegetation, site cleaning, beautification",
+      "tags": [
+        "landscaping",
+        "environment",
+        "restoration",
+        "beautification"
+      ],
+      "status": "active",
+      "created_date": "2026-04-01",
+      "last_modified": "2026-04-20",
+      "version": "1.0",
+      "notes": "استعادة المناظر الطبيعية والبيئة المحيطة"
+    },
+    "005-RST-PAV": {
+      "code_id": "005-RST-PAV",
+      "category": "005",
+      "phase": "RST",
+      "variation": "PAV",
+      "activity_name_ar": "استعادة الرصيف والأرصفة",
+      "activity_name_en": "Pavement & Sidewalk Restoration",
+      "project_ids": [
+        "wastewater",
+        "water_supply",
+        "asphalt"
+      ],
+      "network_types": [
+        "S",
+        "W",
+        "A"
+      ],
+      "applicable_owners": [
+        "makkah",
+        "moh"
+      ],
+      "sequence_order": 16,
+      "dependencies": [
+        "005-BKF-SOL"
+      ],
+      "has_images": true,
+      "image_count": 2,
+      "page_count": 2,
+      "section_reference": "completion_works",
+      "tags": [
+        "pavement",
+        "sidewalk",
+        "restoration",
+        "urban"
+      ],
+      "status": "active",
+      "created_date": "2026-04-20",
+      "last_modified": "2026-04-20",
+      "version": "1.0",
+      "notes": "استعادة الرصيف وأرصفة المشاة للحالة الأصلية"
+    },
+    "005-HND-TRN": {
+      "code_id": "005-HND-TRN",
+      "category": "005",
+      "phase": "HND",
+      "variation": "TRN",
+      "activity_name_ar": "تدريب فريق التشغيل",
+      "activity_name_en": "Operation Team Training & Handover",
+      "project_ids": [
+        "wastewater",
+        "water_supply"
+      ],
+      "network_types": [
+        "S",
+        "W"
+      ],
+      "applicable_owners": [
+        "nwc",
+        "makkah",
+        "moh"
+      ],
+      "sequence_order": 18,
+      "dependencies": [
+        "005-HND-DOC"
+      ],
+      "has_images": true,
+      "image_count": 1,
+      "page_count": 3,
+      "section_reference": "handover",
+      "training_includes": [
+        "System operation procedures",
+        "Maintenance schedule",
+        "Emergency procedures",
+        "Contact points"
+      ],
+      "tags": [
+        "training",
+        "operation",
+        "handover",
+        "team"
+      ],
+      "status": "active",
+      "created_date": "2026-04-20",
+      "last_modified": "2026-04-20",
+      "version": "1.0",
+      "notes": "تدريب فريق التشغيل والصيانة على النظام"
+    },
+    "005-HND-DOC": {
+      "code_id": "005-HND-DOC",
+      "category": "005",
+      "phase": "HND",
+      "variation": "DOC",
+      "activity_name_ar": "تسليم الوثائق والرسومات",
+      "activity_name_en": "Documentation & Drawings Handover",
+      "project_ids": [
+        "wastewater",
+        "water_supply",
+        "asphalt"
+      ],
+      "network_types": [
+        "S",
+        "W",
+        "A"
+      ],
+      "applicable_owners": [
+        "nwc",
+        "makkah",
+        "moh"
+      ],
+      "sequence_order": 17,
+      "dependencies": [
+        "005-RST-ASP"
+      ],
+      "has_images": false,
+      "image_count": 0,
+      "page_count": 2,
+      "section_reference": "handover",
+      "documentation_includes": [
+        "As-built drawings",
+        "Test certificates",
+        "Material certificates",
+        "Quality reports",
+        "Maintenance manuals"
+      ],
+      "tags": [
+        "documentation",
+        "handover",
+        "records",
+        "archive"
+      ],
+      "status": "active",
+      "created_date": "2026-04-01",
+      "last_modified": "2026-04-20",
+      "version": "1.0",
+      "notes": "تسليم جميع الوثائق والرسومات الخاصة بالمشروع"
+    },
+    "005-HND-FIN": {
+      "code_id": "005-HND-FIN",
+      "category": "005",
+      "phase": "HND",
+      "variation": "FIN",
+      "activity_name_ar": "التسليم النهائي والقبول",
+      "activity_name_en": "Final Handover & Project Acceptance",
+      "project_ids": [
+        "wastewater",
+        "water_supply",
+        "asphalt"
+      ],
+      "network_types": [
+        "S",
+        "W",
+        "A"
+      ],
+      "applicable_owners": [
+        "nwc",
+        "makkah",
+        "moh"
+      ],
+      "sequence_order": 18,
+      "dependencies": [
+        "005-HND-DOC"
+      ],
+      "has_images": true,
+      "image_count": 2,
+      "page_count": 2,
+      "section_reference": "handover",
+      "acceptance_criteria": [
+        "All tests passed",
+        "All documents delivered",
+        "Final inspection completed",
+        "Client sign-off obtained"
+      ],
+      "tags": [
+        "handover",
+        "completion",
+        "acceptance",
+        "closure"
+      ],
+      "status": "active",
+      "created_date": "2026-04-01",
+      "last_modified": "2026-04-20",
+      "version": "1.0",
+      "notes": "التسليم النهائي الرسمي للمشروع من المقاول للجهة المالكة"
+    },
+    "001-TRF-MGT": {
+      "code_id": "001-TRF-MGT",
+      "category": "001",
+      "phase": "TRF",
+      "variation": "MGT",
+      "activity_name_ar": "خطة إدارة حركة المرور",
+      "activity_name_en": "Traffic Management Plan",
+      "project_ids": [
+        "road_maintenance",
+        "road_construction"
+      ],
+      "network_types": [
+        "R"
+      ],
+      "applicable_owners": [
+        "mot",
+        "amana_riyadh",
+        "amana_qassim",
+        "makkah",
+        "moh"
+      ],
+      "sequence_order": 2,
+      "dependencies": [
+        "001-SUR-BASE"
+      ],
+      "has_images": true,
+      "image_count": 2,
+      "page_count": 4,
+      "source_document": "001-TRF-MGT.docx",
+      "tags": [
+        "traffic",
+        "road",
+        "management"
+      ],
+      "status": "active",
+      "created_date": "2026-04-20",
+      "last_modified": "2026-04-20",
+      "version": "1.0"
+    },
+    "001-RDS-INS": {
+      "code_id": "001-RDS-INS",
+      "category": "001",
+      "phase": "RDS",
+      "variation": "INS",
+      "activity_name_ar": "فحص وتقييم حالة الطريق",
+      "activity_name_en": "Road Condition Inspection & Survey",
+      "project_ids": [
+        "road_maintenance",
+        "road_construction"
+      ],
+      "network_types": [
+        "R"
+      ],
+      "applicable_owners": [
+        "mot",
+        "amana_riyadh",
+        "amana_qassim",
+        "makkah",
+        "moh"
+      ],
+      "sequence_order": 3,
+      "dependencies": [
+        "001-SUR-BASE"
+      ],
+      "has_images": true,
+      "image_count": 4,
+      "page_count": 5,
+      "source_document": "001-RDS-INS.docx",
+      "tags": [
+        "road",
+        "inspection",
+        "survey",
+        "condition"
+      ],
+      "status": "active",
+      "created_date": "2026-04-20",
+      "last_modified": "2026-04-20",
+      "version": "1.0"
+    },
+    "002-PAV-EVL": {
+      "code_id": "002-PAV-EVL",
+      "category": "002",
+      "phase": "PAV",
+      "variation": "EVL",
+      "activity_name_ar": "تقييم الرصيف والطبقات الأسفلتية",
+      "activity_name_en": "Pavement Evaluation & Layer Assessment",
+      "project_ids": [
+        "road_maintenance"
+      ],
+      "network_types": [
+        "R"
+      ],
+      "applicable_owners": [
+        "mot",
+        "amana_riyadh",
+        "amana_qassim",
+        "makkah",
+        "moh"
+      ],
+      "sequence_order": 6,
+      "dependencies": [
+        "001-RDS-INS"
+      ],
+      "has_images": true,
+      "image_count": 3,
+      "page_count": 5,
+      "source_document": "002-PAV-EVL.docx",
+      "tags": [
+        "pavement",
+        "evaluation",
+        "assessment"
+      ],
+      "status": "active",
+      "created_date": "2026-04-20",
+      "last_modified": "2026-04-20",
+      "version": "1.0"
+    },
+    "002-MIL-ASP": {
+      "code_id": "002-MIL-ASP",
+      "category": "002",
+      "phase": "MIL",
+      "variation": "ASP",
+      "activity_name_ar": "جلخ وإزالة الطبقة الأسفلتية القائمة",
+      "activity_name_en": "Asphalt Milling & Scarifying",
+      "project_ids": [
+        "road_maintenance",
+        "road_construction"
+      ],
+      "network_types": [
+        "R"
+      ],
+      "applicable_owners": [
+        "mot",
+        "amana_riyadh",
+        "amana_qassim",
+        "makkah",
+        "moh"
+      ],
+      "sequence_order": 7,
+      "dependencies": [
+        "002-PAV-EVL",
+        "001-TRF-MGT"
+      ],
+      "excavation_type": "MIL",
+      "has_images": true,
+      "image_count": 4,
+      "page_count": 5,
+      "source_document": "002-MIL-ASP.docx",
+      "tags": [
+        "milling",
+        "asphalt",
+        "removal",
+        "scarify"
+      ],
+      "status": "active",
+      "created_date": "2026-04-20",
+      "last_modified": "2026-04-20",
+      "version": "1.0"
+    },
+    "002-WST-MIL": {
+      "code_id": "002-WST-MIL",
+      "category": "002",
+      "phase": "WST",
+      "variation": "MIL",
+      "activity_name_ar": "نقل والتخلص من مخلفات الجلخ",
+      "activity_name_en": "Milled Material Disposal & Transport",
+      "project_ids": [
+        "road_maintenance",
+        "road_construction"
+      ],
+      "network_types": [
+        "R"
+      ],
+      "applicable_owners": [
+        "mot",
+        "amana_riyadh",
+        "amana_qassim",
+        "makkah",
+        "moh"
+      ],
+      "sequence_order": 8,
+      "dependencies": [
+        "002-MIL-ASP"
+      ],
+      "has_images": false,
+      "image_count": 0,
+      "page_count": 3,
+      "source_document": "002-WST-MIL.docx",
+      "tags": [
+        "waste",
+        "milling",
+        "disposal"
+      ],
+      "status": "active",
+      "created_date": "2026-04-20",
+      "last_modified": "2026-04-20",
+      "version": "1.0"
+    },
+    "003-PRM-COAT": {
+      "code_id": "003-PRM-COAT",
+      "category": "003",
+      "phase": "PRM",
+      "variation": "COAT",
+      "activity_name_ar": "تطبيق طبقة التشريب (Prime Coat)",
+      "activity_name_en": "Prime Coat Application",
+      "project_ids": [
+        "road_maintenance",
+        "road_construction"
+      ],
+      "network_types": [
+        "R"
+      ],
+      "applicable_owners": [
+        "mot",
+        "amana_riyadh",
+        "amana_qassim",
+        "makkah",
+        "moh"
+      ],
+      "sequence_order": 9,
+      "dependencies": [
+        "002-WST-MIL"
+      ],
+      "has_images": true,
+      "image_count": 2,
+      "page_count": 3,
+      "source_document": "003-PRM-COAT.docx",
+      "tags": [
+        "prime coat",
+        "road",
+        "bitumen"
+      ],
+      "status": "active",
+      "created_date": "2026-04-20",
+      "last_modified": "2026-04-20",
+      "version": "1.0"
+    },
+    "003-ASP-BASE": {
+      "code_id": "003-ASP-BASE",
+      "category": "003",
+      "phase": "ASP",
+      "variation": "BASE",
+      "activity_name_ar": "فرد وضغط طبقة الأساس الأسفلتية",
+      "activity_name_en": "Asphalt Base Course Laying & Compaction",
+      "project_ids": [
+        "road_maintenance",
+        "road_construction"
+      ],
+      "network_types": [
+        "R"
+      ],
+      "applicable_owners": [
+        "mot",
+        "amana_riyadh",
+        "amana_qassim",
+        "makkah",
+        "moh"
+      ],
+      "sequence_order": 10,
+      "dependencies": [
+        "003-PRM-COAT"
+      ],
+      "has_images": true,
+      "image_count": 4,
+      "page_count": 6,
+      "source_document": "003-ASP-BASE.docx",
+      "tags": [
+        "asphalt",
+        "base course",
+        "road"
+      ],
+      "status": "active",
+      "created_date": "2026-04-20",
+      "last_modified": "2026-04-20",
+      "version": "1.0"
+    },
+    "003-ASP-WER": {
+      "code_id": "003-ASP-WER",
+      "category": "003",
+      "phase": "ASP",
+      "variation": "WER",
+      "activity_name_ar": "فرد وضغط طبقة التآكل الأسفلتية",
+      "activity_name_en": "Asphalt Wearing Course Laying & Compaction",
+      "project_ids": [
+        "road_maintenance",
+        "road_construction"
+      ],
+      "network_types": [
+        "R"
+      ],
+      "applicable_owners": [
+        "mot",
+        "amana_riyadh",
+        "amana_qassim",
+        "makkah",
+        "moh"
+      ],
+      "sequence_order": 11,
+      "dependencies": [
+        "003-ASP-BASE"
+      ],
+      "has_images": true,
+      "image_count": 4,
+      "page_count": 6,
+      "source_document": "003-ASP-WER.docx",
+      "tags": [
+        "asphalt",
+        "wearing course",
+        "road",
+        "surface"
+      ],
+      "status": "active",
+      "created_date": "2026-04-20",
+      "last_modified": "2026-04-20",
+      "version": "1.0"
+    },
+    "003-CRB-STN": {
+      "code_id": "003-CRB-STN",
+      "category": "003",
+      "phase": "CRB",
+      "variation": "STN",
+      "activity_name_ar": "تركيب حجارة الحافة والرصيف",
+      "activity_name_en": "Curb Stones & Edge Restraints Installation",
+      "project_ids": [
+        "road_maintenance",
+        "road_construction"
+      ],
+      "network_types": [
+        "R"
+      ],
+      "applicable_owners": [
+        "mot",
+        "amana_riyadh",
+        "amana_qassim",
+        "makkah",
+        "moh"
+      ],
+      "sequence_order": 12,
+      "dependencies": [
+        "003-ASP-BASE"
+      ],
+      "has_images": true,
+      "image_count": 2,
+      "page_count": 3,
+      "source_document": "003-CRB-STN.docx",
+      "tags": [
+        "curb",
+        "stone",
+        "road",
+        "edge"
+      ],
+      "status": "active",
+      "created_date": "2026-04-20",
+      "last_modified": "2026-04-20",
+      "version": "1.0"
+    },
+    "004-TST-CMP": {
+      "code_id": "004-TST-CMP",
+      "category": "004",
+      "phase": "TST",
+      "variation": "CMP",
+      "activity_name_ar": "اختبار الدك والضغط",
+      "activity_name_en": "Compaction Testing (Marshall & Proctor)",
+      "project_ids": [
+        "road_maintenance",
+        "road_construction"
+      ],
+      "network_types": [
+        "R"
+      ],
+      "applicable_owners": [
+        "mot",
+        "amana_riyadh",
+        "amana_qassim",
+        "makkah",
+        "moh"
+      ],
+      "sequence_order": 13,
+      "dependencies": [
+        "003-ASP-WER"
+      ],
+      "has_images": true,
+      "image_count": 2,
+      "page_count": 4,
+      "source_document": "004-TST-CMP.docx",
+      "tags": [
+        "testing",
+        "compaction",
+        "road",
+        "quality"
+      ],
+      "status": "active",
+      "created_date": "2026-04-20",
+      "last_modified": "2026-04-20",
+      "version": "1.0"
+    },
+    "004-TST-THK": {
+      "code_id": "004-TST-THK",
+      "category": "004",
+      "phase": "TST",
+      "variation": "THK",
+      "activity_name_ar": "اختبار السماكة والكثافة",
+      "activity_name_en": "Thickness & Density Testing",
+      "project_ids": [
+        "road_maintenance",
+        "road_construction"
+      ],
+      "network_types": [
+        "R"
+      ],
+      "applicable_owners": [
+        "mot",
+        "amana_riyadh",
+        "amana_qassim",
+        "makkah",
+        "moh"
+      ],
+      "sequence_order": 14,
+      "dependencies": [
+        "003-ASP-WER"
+      ],
+      "has_images": true,
+      "image_count": 2,
+      "page_count": 3,
+      "source_document": "004-TST-THK.docx",
+      "tags": [
+        "testing",
+        "thickness",
+        "density",
+        "road"
+      ],
+      "status": "active",
+      "created_date": "2026-04-20",
+      "last_modified": "2026-04-20",
+      "version": "1.0"
+    },
+    "005-MRK-RD": {
+      "code_id": "005-MRK-RD",
+      "category": "005",
+      "phase": "MRK",
+      "variation": "RD",
+      "activity_name_ar": "دهان ورسم علامات الطريق والمسارات",
+      "activity_name_en": "Road Markings & Lane Painting",
+      "project_ids": [
+        "road_maintenance",
+        "road_construction"
+      ],
+      "network_types": [
+        "R"
+      ],
+      "applicable_owners": [
+        "mot",
+        "amana_riyadh",
+        "amana_qassim",
+        "makkah",
+        "moh"
+      ],
+      "sequence_order": 15,
+      "dependencies": [
+        "004-TST-CMP"
+      ],
+      "has_images": true,
+      "image_count": 3,
+      "page_count": 4,
+      "source_document": "005-MRK-RD.docx",
+      "tags": [
+        "marking",
+        "road",
+        "painting",
+        "lanes"
+      ],
+      "status": "active",
+      "created_date": "2026-04-20",
+      "last_modified": "2026-04-20",
+      "version": "1.0"
+    },
+    "005-SGN-TRF": {
+      "code_id": "005-SGN-TRF",
+      "category": "005",
+      "phase": "SGN",
+      "variation": "TRF",
+      "activity_name_ar": "توريد وتركيب اللوحات والعلامات المرورية",
+      "activity_name_en": "Traffic Signs Supply & Installation",
+      "project_ids": [
+        "road_maintenance",
+        "road_construction"
+      ],
+      "network_types": [
+        "R"
+      ],
+      "applicable_owners": [
+        "mot",
+        "amana_riyadh",
+        "amana_qassim",
+        "makkah",
+        "moh"
+      ],
+      "sequence_order": 16,
+      "dependencies": [
+        "005-MRK-RD"
+      ],
+      "has_images": true,
+      "image_count": 3,
+      "page_count": 3,
+      "source_document": "005-SGN-TRF.docx",
+      "tags": [
+        "signs",
+        "traffic",
+        "road"
+      ],
+      "status": "active",
+      "created_date": "2026-04-20",
+      "last_modified": "2026-04-20",
+      "version": "1.0"
+    },
+    "005-SAF-BAR": {
+      "code_id": "005-SAF-BAR",
+      "category": "005",
+      "phase": "SAF",
+      "variation": "BAR",
+      "activity_name_ar": "تركيب الحواجز والدرابزينات الأمنية",
+      "activity_name_en": "Safety Barriers & Guardrails Installation",
+      "project_ids": [
+        "road_maintenance",
+        "road_construction"
+      ],
+      "network_types": [
+        "R"
+      ],
+      "applicable_owners": [
+        "mot",
+        "amana_riyadh",
+        "amana_qassim",
+        "makkah",
+        "moh"
+      ],
+      "sequence_order": 17,
+      "dependencies": [
+        "003-ASP-WER"
+      ],
+      "has_images": true,
+      "image_count": 2,
+      "page_count": 3,
+      "source_document": "005-SAF-BAR.docx",
+      "tags": [
+        "safety",
+        "barriers",
+        "guardrails",
+        "road"
+      ],
+      "status": "active",
+      "created_date": "2026-04-20",
+      "last_modified": "2026-04-20",
+      "version": "1.0"
+    },
+    "001-SOI-INV": {
+      "code_id": "001-SOI-INV",
+      "category": "001",
+      "phase": "SOI",
+      "variation": "INV",
+      "activity_name_ar": "دراسة التربة والتحقيق الجيوتقني",
+      "activity_name_en": "Soil Investigation & Geotechnical Study",
+      "project_ids": [
+        "general_construction"
+      ],
+      "network_types": [
+        "C"
+      ],
+      "applicable_owners": [
+        "nhi",
+        "amana_riyadh",
+        "amana_qassim",
+        "mot",
+        "ksia",
+        "moh"
+      ],
+      "sequence_order": 2,
+      "dependencies": [
+        "001-SUR-BASE"
+      ],
+      "has_images": true,
+      "image_count": 3,
+      "page_count": 6,
+      "source_document": "001-SOI-INV.docx",
+      "tags": [
+        "soil",
+        "geotechnical",
+        "investigation",
+        "construction"
+      ],
+      "status": "active",
+      "created_date": "2026-04-20",
+      "last_modified": "2026-04-20",
+      "version": "1.0"
+    },
+    "002-EXC-FND": {
+      "code_id": "002-EXC-FND",
+      "category": "002",
+      "phase": "EXC",
+      "variation": "FND",
+      "activity_name_ar": "حفر الأساسات والقواعد",
+      "activity_name_en": "Foundation Excavation",
+      "project_ids": [
+        "general_construction"
+      ],
+      "network_types": [
+        "C"
+      ],
+      "applicable_owners": [
+        "nhi",
+        "amana_riyadh",
+        "amana_qassim",
+        "mot",
+        "ksia",
+        "moh"
+      ],
+      "sequence_order": 6,
+      "dependencies": [
+        "001-SOI-INV",
+        "001-APP-DES"
+      ],
+      "excavation_type": "FND",
+      "has_images": true,
+      "image_count": 3,
+      "page_count": 5,
+      "source_document": "002-EXC-FND.docx",
+      "tags": [
+        "excavation",
+        "foundation",
+        "construction"
+      ],
+      "status": "active",
+      "created_date": "2026-04-20",
+      "last_modified": "2026-04-20",
+      "version": "1.0"
+    },
+    "002-EXC-BLK": {
+      "code_id": "002-EXC-BLK",
+      "category": "002",
+      "phase": "EXC",
+      "variation": "BLK",
+      "activity_name_ar": "الحفر العام وتسوية الموقع",
+      "activity_name_en": "Bulk Excavation & Site Grading",
+      "project_ids": [
+        "general_construction"
+      ],
+      "network_types": [
+        "C"
+      ],
+      "applicable_owners": [
+        "nhi",
+        "amana_riyadh",
+        "amana_qassim",
+        "mot",
+        "ksia",
+        "moh"
+      ],
+      "sequence_order": 7,
+      "dependencies": [
+        "001-APP-DES"
+      ],
+      "excavation_type": "BLK",
+      "has_images": true,
+      "image_count": 2,
+      "page_count": 4,
+      "source_document": "002-EXC-BLK.docx",
+      "tags": [
+        "excavation",
+        "bulk",
+        "grading"
+      ],
+      "status": "active",
+      "created_date": "2026-04-20",
+      "last_modified": "2026-04-20",
+      "version": "1.0"
+    },
+    "003-FND-CON": {
+      "code_id": "003-FND-CON",
+      "category": "003",
+      "phase": "FND",
+      "variation": "CON",
+      "activity_name_ar": "أعمال خرسانة الأساسات",
+      "activity_name_en": "Foundation Concrete Works",
+      "project_ids": [
+        "general_construction"
+      ],
+      "network_types": [
+        "C"
+      ],
+      "applicable_owners": [
+        "nhi",
+        "amana_riyadh",
+        "amana_qassim",
+        "mot",
+        "ksia",
+        "moh"
+      ],
+      "sequence_order": 9,
+      "dependencies": [
+        "002-EXC-FND"
+      ],
+      "has_images": true,
+      "image_count": 4,
+      "page_count": 7,
+      "source_document": "003-FND-CON.docx",
+      "tags": [
+        "foundation",
+        "concrete",
+        "construction"
+      ],
+      "status": "active",
+      "created_date": "2026-04-20",
+      "last_modified": "2026-04-20",
+      "version": "1.0"
+    },
+    "003-RBR-WRK": {
+      "code_id": "003-RBR-WRK",
+      "category": "003",
+      "phase": "RBR",
+      "variation": "WRK",
+      "activity_name_ar": "أعمال حديد التسليح",
+      "activity_name_en": "Rebar & Steel Reinforcement Works",
+      "project_ids": [
+        "general_construction"
+      ],
+      "network_types": [
+        "C"
+      ],
+      "applicable_owners": [
+        "nhi",
+        "amana_riyadh",
+        "amana_qassim",
+        "mot",
+        "ksia",
+        "moh"
+      ],
+      "sequence_order": 10,
+      "dependencies": [
+        "003-FND-CON"
+      ],
+      "has_images": true,
+      "image_count": 3,
+      "page_count": 5,
+      "source_document": "003-RBR-WRK.docx",
+      "tags": [
+        "rebar",
+        "steel",
+        "reinforcement"
+      ],
+      "status": "active",
+      "created_date": "2026-04-20",
+      "last_modified": "2026-04-20",
+      "version": "1.0"
+    },
+    "003-STR-CON": {
+      "code_id": "003-STR-CON",
+      "category": "003",
+      "phase": "STR",
+      "variation": "CON",
+      "activity_name_ar": "أعمال الخرسانة الإنشائية",
+      "activity_name_en": "Structural Concrete Works",
+      "project_ids": [
+        "general_construction"
+      ],
+      "network_types": [
+        "C"
+      ],
+      "applicable_owners": [
+        "nhi",
+        "amana_riyadh",
+        "amana_qassim",
+        "mot",
+        "ksia",
+        "moh"
+      ],
+      "sequence_order": 11,
+      "dependencies": [
+        "003-RBR-WRK"
+      ],
+      "has_images": true,
+      "image_count": 4,
+      "page_count": 8,
+      "source_document": "003-STR-CON.docx",
+      "tags": [
+        "structural",
+        "concrete",
+        "construction"
+      ],
+      "status": "active",
+      "created_date": "2026-04-20",
+      "last_modified": "2026-04-20",
+      "version": "1.0"
+    },
+    "003-MAS-BLK": {
+      "code_id": "003-MAS-BLK",
+      "category": "003",
+      "phase": "MAS",
+      "variation": "BLK",
+      "activity_name_ar": "أعمال البناء بالطوب والبلوك",
+      "activity_name_en": "Masonry & Blockwork",
+      "project_ids": [
+        "general_construction"
+      ],
+      "network_types": [
+        "C"
+      ],
+      "applicable_owners": [
+        "nhi",
+        "amana_riyadh",
+        "amana_qassim",
+        "mot",
+        "ksia",
+        "moh"
+      ],
+      "sequence_order": 12,
+      "dependencies": [
+        "003-STR-CON"
+      ],
+      "has_images": true,
+      "image_count": 2,
+      "page_count": 4,
+      "source_document": "003-MAS-BLK.docx",
+      "tags": [
+        "masonry",
+        "blockwork",
+        "construction"
+      ],
+      "status": "active",
+      "created_date": "2026-04-20",
+      "last_modified": "2026-04-20",
+      "version": "1.0"
+    },
+    "003-STL-STR": {
+      "code_id": "003-STL-STR",
+      "category": "003",
+      "phase": "STL",
+      "variation": "STR",
+      "activity_name_ar": "أعمال الهياكل الفولاذية",
+      "activity_name_en": "Structural Steel Works",
+      "project_ids": [
+        "general_construction"
+      ],
+      "network_types": [
+        "C"
+      ],
+      "applicable_owners": [
+        "nhi",
+        "amana_riyadh",
+        "amana_qassim",
+        "mot",
+        "ksia",
+        "moh"
+      ],
+      "sequence_order": 13,
+      "dependencies": [
+        "003-FND-CON"
+      ],
+      "has_images": true,
+      "image_count": 3,
+      "page_count": 6,
+      "source_document": "003-STL-STR.docx",
+      "tags": [
+        "steel",
+        "structural",
+        "construction"
+      ],
+      "status": "active",
+      "created_date": "2026-04-20",
+      "last_modified": "2026-04-20",
+      "version": "1.0"
+    },
+    "004-TST-CON": {
+      "code_id": "004-TST-CON",
+      "category": "004",
+      "phase": "TST",
+      "variation": "CON",
+      "activity_name_ar": "اختبارات الخرسانة ومراقبة الجودة",
+      "activity_name_en": "Concrete Testing & Quality Control",
+      "project_ids": [
+        "general_construction"
+      ],
+      "network_types": [
+        "C"
+      ],
+      "applicable_owners": [
+        "nhi",
+        "amana_riyadh",
+        "amana_qassim",
+        "mot",
+        "ksia",
+        "moh"
+      ],
+      "sequence_order": 14,
+      "dependencies": [
+        "003-STR-CON"
+      ],
+      "has_images": true,
+      "image_count": 3,
+      "page_count": 5,
+      "source_document": "004-TST-CON.docx",
+      "tags": [
+        "testing",
+        "concrete",
+        "quality"
+      ],
+      "status": "active",
+      "created_date": "2026-04-20",
+      "last_modified": "2026-04-20",
+      "version": "1.0"
+    },
+    "004-INS-ELE": {
+      "code_id": "004-INS-ELE",
+      "category": "004",
+      "phase": "INS",
+      "variation": "ELE",
+      "activity_name_ar": "تركيب الأنظمة الكهربائية والإنارة",
+      "activity_name_en": "Electrical Systems & Lighting Installation",
+      "project_ids": [
+        "general_construction"
+      ],
+      "network_types": [
+        "C"
+      ],
+      "applicable_owners": [
+        "nhi",
+        "amana_riyadh",
+        "amana_qassim",
+        "mot",
+        "ksia",
+        "moh"
+      ],
+      "sequence_order": 15,
+      "dependencies": [
+        "003-MAS-BLK"
+      ],
+      "has_images": true,
+      "image_count": 3,
+      "page_count": 6,
+      "source_document": "004-INS-ELE.docx",
+      "tags": [
+        "electrical",
+        "installation",
+        "lighting"
+      ],
+      "status": "active",
+      "created_date": "2026-04-20",
+      "last_modified": "2026-04-20",
+      "version": "1.0"
+    },
+    "004-INS-FIN": {
+      "code_id": "004-INS-FIN",
+      "category": "004",
+      "phase": "INS",
+      "variation": "FIN",
+      "activity_name_ar": "أعمال التشطيبات والإنهاء",
+      "activity_name_en": "Finishes & Architectural Works",
+      "project_ids": [
+        "general_construction"
+      ],
+      "network_types": [
+        "C"
+      ],
+      "applicable_owners": [
+        "nhi",
+        "amana_riyadh",
+        "amana_qassim",
+        "mot",
+        "ksia",
+        "moh"
+      ],
+      "sequence_order": 16,
+      "dependencies": [
+        "003-MAS-BLK"
+      ],
+      "has_images": true,
+      "image_count": 4,
+      "page_count": 7,
+      "source_document": "004-INS-FIN.docx",
+      "tags": [
+        "finishes",
+        "architectural",
+        "construction"
+      ],
+      "status": "active",
+      "created_date": "2026-04-20",
+      "last_modified": "2026-04-20",
+      "version": "1.0"
+    },
+    "005-CLN-STE": {
+      "code_id": "005-CLN-STE",
+      "category": "005",
+      "phase": "CLN",
+      "variation": "STE",
+      "activity_name_ar": "تنظيف الموقع وإزالة المخلفات النهائية",
+      "activity_name_en": "Final Site Cleanup & Waste Removal",
+      "project_ids": [
+        "general_construction"
+      ],
+      "network_types": [
+        "C"
+      ],
+      "applicable_owners": [
+        "nhi",
+        "amana_riyadh",
+        "amana_qassim",
+        "mot",
+        "ksia",
+        "moh"
+      ],
+      "sequence_order": 18,
+      "dependencies": [
+        "004-TST-CON"
+      ],
+      "has_images": false,
+      "image_count": 0,
+      "page_count": 2,
+      "source_document": "005-CLN-STE.docx",
+      "tags": [
+        "cleanup",
+        "site",
+        "waste"
+      ],
+      "status": "active",
+      "created_date": "2026-04-20",
+      "last_modified": "2026-04-20",
+      "version": "1.0"
+    },
+    "003-PIP-TRN": {
+      "code_id": "003-PIP-TRN",
+      "category": "003",
+      "phase": "PIP",
+      "variation": "TRN",
+      "activity_name_ar": "تركيب خط نقل المياه الرئيسي",
+      "activity_name_en": "Main Water Transmission Pipeline Installation",
+      "project_ids": [
+        "water_transmission"
+      ],
+      "network_types": [
+        "T"
+      ],
+      "applicable_owners": [
+        "swa",
+        "nwc",
+        "amana_riyadh"
+      ],
+      "sequence_order": 11,
+      "dependencies": [
+        "002-WST-EXC"
+      ],
+      "has_images": true,
+      "image_count": 5,
+      "page_count": 8,
+      "source_document": "003-PIP-TRN.docx",
+      "tags": [
+        "pipeline",
+        "transmission",
+        "water",
+        "main line"
+      ],
+      "status": "active",
+      "created_date": "2026-04-20",
+      "last_modified": "2026-04-20",
+      "version": "1.0"
+    },
+    "003-ANC-BLK": {
+      "code_id": "003-ANC-BLK",
+      "category": "003",
+      "phase": "ANC",
+      "variation": "BLK",
+      "activity_name_ar": "أعمال كتل الارتكاز والتثبيت",
+      "activity_name_en": "Anchor Blocks & Thrust Blocks",
+      "project_ids": [
+        "water_transmission"
+      ],
+      "network_types": [
+        "T"
+      ],
+      "applicable_owners": [
+        "swa",
+        "nwc",
+        "amana_riyadh"
+      ],
+      "sequence_order": 12,
+      "dependencies": [
+        "003-PIP-TRN"
+      ],
+      "has_images": true,
+      "image_count": 2,
+      "page_count": 4,
+      "source_document": "003-ANC-BLK.docx",
+      "tags": [
+        "anchor",
+        "thrust block",
+        "pipeline"
+      ],
+      "status": "active",
+      "created_date": "2026-04-20",
+      "last_modified": "2026-04-20",
+      "version": "1.0"
+    },
+    "003-AIR-VLV": {
+      "code_id": "003-AIR-VLV",
+      "category": "003",
+      "phase": "AIR",
+      "variation": "VLV",
+      "activity_name_ar": "تركيب صمامات تنفيس الهواء",
+      "activity_name_en": "Air Release Valves Installation",
+      "project_ids": [
+        "water_transmission"
+      ],
+      "network_types": [
+        "T"
+      ],
+      "applicable_owners": [
+        "swa",
+        "nwc",
+        "amana_riyadh"
+      ],
+      "sequence_order": 13,
+      "dependencies": [
+        "003-PIP-TRN"
+      ],
+      "has_images": true,
+      "image_count": 2,
+      "page_count": 3,
+      "source_document": "003-AIR-VLV.docx",
+      "tags": [
+        "air valve",
+        "valve",
+        "pipeline"
+      ],
+      "status": "active",
+      "created_date": "2026-04-20",
+      "last_modified": "2026-04-20",
+      "version": "1.0"
+    },
+    "004-TST-PRE": {
+      "code_id": "004-TST-PRE",
+      "category": "004",
+      "phase": "TST",
+      "variation": "PRE",
+      "activity_name_ar": "اختبار ضغط خط النقل",
+      "activity_name_en": "Transmission Line Pressure Testing",
+      "project_ids": [
+        "water_transmission"
+      ],
+      "network_types": [
+        "T"
+      ],
+      "applicable_owners": [
+        "swa",
+        "nwc",
+        "amana_riyadh"
+      ],
+      "sequence_order": 14,
+      "dependencies": [
+        "003-ANC-BLK",
+        "003-AIR-VLV"
+      ],
+      "has_images": true,
+      "image_count": 2,
+      "page_count": 4,
+      "source_document": "004-TST-PRE.docx",
+      "tags": [
+        "testing",
+        "pressure",
+        "transmission",
+        "pipeline"
+      ],
+      "status": "active",
+      "created_date": "2026-04-20",
+      "last_modified": "2026-04-20",
+      "version": "1.0"
+    }
+  },
+  "variations": {
+    "BASE": {
+      "name_ar": "أساسي",
+      "name_en": "Basic"
+    },
+    "GOV": {
+      "name_ar": "حكومي",
+      "name_en": "Government"
+    },
+    "MUN": {
+      "name_ar": "بلدي",
+      "name_en": "Municipal"
+    },
+    "DES": {
+      "name_ar": "تصميم",
+      "name_en": "Design"
+    },
+    "HSE": {
+      "name_ar": "صحة وسلامة",
+      "name_en": "HSE"
+    },
+    "SITE": {
+      "name_ar": "موقع",
+      "name_en": "Site"
+    },
+    "FINE": {
+      "name_ar": "دقيق",
+      "name_en": "Fine"
+    },
+    "OPEN": {
+      "name_ar": "مكشوف",
+      "name_en": "Open"
+    },
+    "TUNNEL": {
+      "name_ar": "نفقي",
+      "name_en": "Tunnel"
+    },
+    "PAV": {
+      "name_ar": "أسفلت",
+      "name_en": "Pavement"
+    },
+    "EXC": {
+      "name_ar": "حفر",
+      "name_en": "Excavation"
+    },
+    "SEW": {
+      "name_ar": "صرف",
+      "name_en": "Sewage"
+    },
+    "WAT": {
+      "name_ar": "مياه",
+      "name_en": "Water"
+    },
+    "FLD": {
+      "name_ar": "حقلي",
+      "name_en": "Field"
+    },
+    "LEK": {
+      "name_ar": "تسرب",
+      "name_en": "Leakage"
+    },
+    "HYD": {
+      "name_ar": "هيدروستاتيكي",
+      "name_en": "Hydrostatic"
+    },
+    "INSTALL": {
+      "name_ar": "تركيب",
+      "name_en": "Installation"
+    },
+    "SND": {
+      "name_ar": "رمل",
+      "name_en": "Sand"
+    },
+    "SOL": {
+      "name_ar": "تربة",
+      "name_en": "Soil"
+    },
+    "ASP": {
+      "name_ar": "أسفلت",
+      "name_en": "Asphalt"
+    },
+    "LND": {
+      "name_ar": "مناظر",
+      "name_en": "Landscaping"
+    },
+    "DOC": {
+      "name_ar": "وثائق",
+      "name_en": "Documentation"
+    },
+    "FIN": {
+      "name_ar": "نهائي",
+      "name_en": "Final"
+    }
+  },
+  "statistics": {
+    "total_active_codes": 64,
+    "total_deprecated_codes": 0,
+    "total_projects": 3,
+    "codes_by_category": {
+      "001": 8,
+      "002": 8,
+      "003": 5,
+      "004": 5,
+      "005": 8
+    },
+    "codes_by_project": {
+      "wastewater": 32,
+      "water_supply": 28,
+      "asphalt": 18
+    },
+    "average_pages_per_code": 3.8,
+    "total_estimated_pages": 130,
+    "last_updated": "2026-04-20",
+    "last_expanded": "2026-04-20"
+  }
+}

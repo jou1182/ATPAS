@@ -1,0 +1,98 @@
+{
+  "project_metadata": {
+    "project_id": "general_construction",
+    "name_ar": "الإنشاءات العامة والمرافق",
+    "name_en": "General Construction & Facilities",
+    "network_type": "C",
+    "description_ar": "إنشاء المباني والمرافق الحكومية والبنية التحتية العامة",
+    "description_en": "Construction of buildings, government facilities and general infrastructure",
+    "created_date": "2026-04-20",
+    "last_modified": "2026-04-20",
+    "version": "1.0",
+    "total_codes_defined": 18,
+    "status": "active"
+  },
+
+  "activity_sequence": [
+    { "sequence_num": 1,  "code_id": "001-SUR-BASE",  "phase_name_ar": "المسح",              "mandatory": true,  "dependencies": [],                          "pages": 5 },
+    { "sequence_num": 2,  "code_id": "001-SOI-INV",   "phase_name_ar": "دراسة التربة",       "mandatory": true,  "dependencies": ["001-SUR-BASE"],            "pages": 6 },
+    { "sequence_num": 3,  "code_id": "001-PRM-GOV",   "phase_name_ar": "الرخص الحكومية",    "mandatory": true,  "dependencies": ["001-SUR-BASE"],            "pages": 3 },
+    { "sequence_num": 4,  "code_id": "001-APP-DES",   "phase_name_ar": "اعتماد المخططات",   "mandatory": true,  "dependencies": ["001-PRM-GOV"],             "pages": 4 },
+    { "sequence_num": 5,  "code_id": "001-APP-MRL",   "phase_name_ar": "اعتماد المواد",      "mandatory": true,  "dependencies": ["001-APP-DES"],             "pages": 3 },
+    { "sequence_num": 6,  "code_id": "001-APP-HSE",   "phase_name_ar": "السلامة المهنية",   "mandatory": true,  "dependencies": ["001-APP-DES"],             "pages": 3 },
+    { "sequence_num": 7,  "code_id": "002-MAT-SITE",  "phase_name_ar": "نقل المواد",         "mandatory": true,  "dependencies": ["001-APP-HSE"],             "pages": 3 },
+    { "sequence_num": 8,  "code_id": "002-EXC-BLK",   "phase_name_ar": "الحفر العام",        "mandatory": true,  "dependencies": ["001-APP-DES"],             "pages": 4 },
+    { "sequence_num": 9,  "code_id": "002-EXC-FND",   "phase_name_ar": "حفر الأساسات",       "mandatory": true,  "dependencies": ["002-EXC-BLK"],             "pages": 5 },
+    { "sequence_num": 10, "code_id": "002-WST-EXC",   "phase_name_ar": "التخلص من المخلفات","mandatory": true,  "dependencies": ["002-EXC-FND"],             "pages": 3 },
+    { "sequence_num": 11, "code_id": "003-FND-CON",   "phase_name_ar": "خرسانة الأساسات",   "mandatory": true,  "dependencies": ["002-EXC-FND"],             "pages": 7 },
+    { "sequence_num": 12, "code_id": "003-RBR-WRK",   "phase_name_ar": "حديد التسليح",       "mandatory": true,  "dependencies": ["003-FND-CON"],             "pages": 5 },
+    { "sequence_num": 13, "code_id": "003-STR-CON",   "phase_name_ar": "الخرسانة الإنشائية","mandatory": true,  "dependencies": ["003-RBR-WRK"],             "pages": 8 },
+    { "sequence_num": 14, "code_id": "003-MAS-BLK",   "phase_name_ar": "البناء بالبلوك",    "mandatory": false, "dependencies": ["003-STR-CON"],             "pages": 4 },
+    { "sequence_num": 15, "code_id": "003-STL-STR",   "phase_name_ar": "الهياكل الفولاذية", "mandatory": false, "dependencies": ["003-FND-CON"],             "pages": 6 },
+    { "sequence_num": 16, "code_id": "004-TST-CON",   "phase_name_ar": "اختبارات الخرسانة", "mandatory": true,  "dependencies": ["003-STR-CON"],             "pages": 5 },
+    { "sequence_num": 17, "code_id": "004-INS-ELE",   "phase_name_ar": "التمديدات الكهربائية","mandatory": true, "dependencies": ["003-MAS-BLK"],             "pages": 6 },
+    { "sequence_num": 18, "code_id": "004-INS-FIN",   "phase_name_ar": "التشطيبات",         "mandatory": true,  "dependencies": ["003-MAS-BLK"],             "pages": 7 },
+    { "sequence_num": 19, "code_id": "004-QC-INSTALL","phase_name_ar": "فحص جودة التركيب",  "mandatory": true,  "dependencies": ["004-TST-CON"],             "pages": 3 },
+    { "sequence_num": 20, "code_id": "005-CLN-STE",   "phase_name_ar": "تنظيف الموقع",      "mandatory": true,  "dependencies": ["004-INS-FIN"],             "pages": 2 },
+    { "sequence_num": 21, "code_id": "005-HND-DOC",   "phase_name_ar": "تسليم الوثائق",     "mandatory": true,  "dependencies": ["005-CLN-STE"],             "pages": 2 },
+    { "sequence_num": 22, "code_id": "005-HND-FIN",   "phase_name_ar": "التسليم النهائي",   "mandatory": true,  "dependencies": ["005-HND-DOC"],             "pages": 2 }
+  ],
+
+  "application_rules": {
+    "owner_specific_rules": {
+      "nhi": {
+        "required_codes": ["001-SOI-INV", "003-FND-CON", "004-TST-CON", "005-HND-DOC"],
+        "note": "الإسكان تشترط دراسة التربة والتسليم الكامل"
+      },
+      "ksia": {
+        "required_codes": ["001-SOI-INV", "001-APP-DES", "004-TST-CON", "004-QC-INSTALL"],
+        "note": "المطار يشترط معايير جودة صارمة"
+      },
+      "moh": {
+        "required_codes": ["001-SOI-INV", "004-TST-CON", "004-QC-INSTALL", "005-HND-DOC"],
+        "strict_requirements": true,
+        "note": "وزارة الإسكان تشترط مصفوفة امتثال كاملة"
+      }
+    }
+  },
+
+  "typical_proposals": {
+    "government_building": {
+      "description_ar": "مبنى حكومي (الحالة الأساسية)",
+      "description_en": "Government building (basic case)",
+      "typical_codes": [
+        "001-SUR-BASE", "001-SOI-INV", "001-PRM-GOV", "001-APP-DES",
+        "001-APP-MRL", "001-APP-HSE", "002-MAT-SITE",
+        "002-EXC-BLK", "002-EXC-FND", "002-WST-EXC",
+        "003-FND-CON", "003-RBR-WRK", "003-STR-CON", "003-MAS-BLK",
+        "004-TST-CON", "004-INS-ELE", "004-INS-FIN", "004-QC-INSTALL",
+        "005-CLN-STE", "005-HND-DOC", "005-HND-FIN"
+      ],
+      "total_pages": 92,
+      "estimated_duration_days": 180
+    },
+    "steel_structure": {
+      "description_ar": "منشأة فولاذية (هانجر أو مستودع)",
+      "description_en": "Steel structure (hangar or warehouse)",
+      "typical_codes": [
+        "001-SUR-BASE", "001-SOI-INV", "001-PRM-GOV", "001-APP-DES",
+        "001-APP-MRL", "001-APP-HSE", "002-MAT-SITE",
+        "002-EXC-BLK", "002-EXC-FND", "002-WST-EXC",
+        "003-FND-CON", "003-RBR-WRK", "003-STL-STR",
+        "004-TST-CON", "004-INS-ELE", "004-QC-INSTALL",
+        "005-CLN-STE", "005-HND-DOC", "005-HND-FIN"
+      ],
+      "total_pages": 84,
+      "estimated_duration_days": 120
+    }
+  },
+
+  "statistics": {
+    "total_codes_in_project": 18,
+    "mandatory_codes": 15,
+    "optional_codes": 3,
+    "mutually_exclusive_groups": 0,
+    "minimum_proposal_codes": 15,
+    "maximum_proposal_codes": 22
+  }
+}

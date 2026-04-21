@@ -1,0 +1,49 @@
+{
+  "owner_id": "mot",
+  "owner_name_ar": "وزارة النقل والخدمات اللوجستية",
+  "owner_name_en": "Ministry of Transport and Logistic Services",
+  "owner_code": "MOT",
+  "applicable_networks": ["R", "A"],
+  "default_language": "ar",
+
+  "mandatory_codes": [
+    "001-SUR-BASE",
+    "001-TRF-MGT",
+    "001-PRM-GOV",
+    "001-APP-DES",
+    "001-APP-HSE",
+    "002-PAV-EVL",
+    "004-QC-MATS",
+    "004-TST-CMP",
+    "004-TST-THK",
+    "005-MRK-RD",
+    "005-HND-DOC"
+  ],
+  "forbidden_codes": [],
+
+  "mandatory_sections": [
+    "traffic_management",
+    "safety",
+    "quality_control",
+    "pavement_testing",
+    "road_markings"
+  ],
+
+  "specific_requirements": {
+    "requires_compliance_matrix": false,
+    "requires_heritage_clause": false,
+    "requires_detailed_reporting": true,
+    "requires_audit_trail": true,
+    "requires_as_built_drawings": true,
+    "requires_traffic_management_plan": true,
+    "requires_pavement_design": true,
+    "compaction_test_frequency": "every_500m",
+    "thickness_test_frequency": "every_500m"
+  },
+
+  "style_guide": "templates/style_templates/mot_style.json",
+  "contact": "projects@mot.gov.sa",
+  "created_date": "2026-04-20",
+  "last_modified": "2026-04-20",
+  "version": "1.0"
+}

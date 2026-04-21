@@ -1,0 +1,60 @@
+{
+  "owner_id": "ksia",
+  "owner_name_ar": "مطار الملك سلمان الدولي",
+  "owner_name_en": "King Salman International Airport",
+  "owner_code": "KSIA",
+  "applicable_networks": ["C", "R", "A"],
+  "default_language": "ar",
+
+  "mandatory_codes": [
+    "001-SUR-BASE",
+    "001-SOI-INV",
+    "001-PRM-GOV",
+    "001-APP-DES",
+    "001-APP-MRL",
+    "001-APP-HSE",
+    "004-TST-CON",
+    "004-QC-INSTALL",
+    "005-HND-DOC",
+    "005-HND-FIN"
+  ],
+  "forbidden_codes": [],
+
+  "mandatory_sections": [
+    "quality_control",
+    "safety",
+    "structural_design",
+    "material_approval",
+    "testing",
+    "handover_documentation",
+    "airside_safety"
+  ],
+
+  "specific_requirements": {
+    "requires_compliance_matrix": true,
+    "requires_heritage_clause": false,
+    "requires_detailed_reporting": true,
+    "requires_audit_trail": true,
+    "requires_as_built_drawings": true,
+    "requires_soil_investigation_report": true,
+    "requires_material_approval": true,
+    "requires_structural_calculations": true,
+    "requires_airside_safety_plan": true,
+    "strict_requirements": true,
+    "quality_standard": "ISO_9001",
+    "security_clearance_required": true,
+    "compliance_matrix_sections": [
+      "specifications_compliance",
+      "material_standards",
+      "testing_requirements",
+      "airside_safety_compliance",
+      "documentation_requirements"
+    ]
+  },
+
+  "style_guide": "templates/style_templates/ksia_style.json",
+  "contact": "projects@ksia.sa",
+  "created_date": "2026-04-20",
+  "last_modified": "2026-04-20",
+  "version": "1.0"
+}

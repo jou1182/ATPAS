@@ -1,0 +1,21 @@
+# Al-Rawaf Technical Proposal Automation System (ATPAS)
+# Python Dependencies
+
+# Word document processing
+python-docx>=0.8.11
+
+# Image processing and manipulation
+Pillow>=9.0.0
+
+# GUI framework
+PyQt5>=5.15.0
+
+# Excel support (for reports)
+openpyxl>=3.0.10
+
+# Development and testing
+pytest>=7.0.0
+pytest-cov>=4.0.0
+
+# Code quality
+pylint>=2.15.0

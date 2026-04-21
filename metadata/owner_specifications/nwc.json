@@ -1,0 +1,37 @@
+{
+  "owner_id": "nwc",
+  "owner_name_ar": "الشركة الوطنية للمياه",
+  "owner_name_en": "National Water Company",
+  "owner_code": "NWC",
+  "applicable_networks": ["S", "W"],
+  "default_language": "ar",
+
+  "mandatory_codes": [
+    "001-SUR-BASE",
+    "001-PRM-GOV",
+    "001-APP-DES",
+    "004-QC-INSTALL"
+  ],
+  "forbidden_codes": ["001-PRM-MUN"],
+
+  "mandatory_sections": [
+    "safety",
+    "quality_control",
+    "environmental_compliance",
+    "site_management"
+  ],
+
+  "specific_requirements": {
+    "requires_compliance_matrix": false,
+    "requires_heritage_clause": false,
+    "requires_detailed_reporting": false,
+    "requires_audit_trail": true,
+    "requires_as_built_drawings": true
+  },
+
+  "style_guide": "templates/style_templates/nwc_style.json",
+  "contact": "nwc@company.sa",
+  "created_date": "2026-04-20",
+  "last_modified": "2026-04-20",
+  "version": "1.0"
+}

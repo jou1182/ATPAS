@@ -1,0 +1,80 @@
+{
+  "project_metadata": {
+    "project_id": "water_transmission",
+    "name_ar": "خطوط نقل المياه الرئيسية",
+    "name_en": "Main Water Transmission Lines",
+    "network_type": "T",
+    "description_ar": "تركيب وصيانة خطوط نقل المياه ذات القطر الكبير",
+    "description_en": "Installation and maintenance of large-diameter water transmission pipelines",
+    "created_date": "2026-04-20",
+    "last_modified": "2026-04-20",
+    "version": "1.0",
+    "total_codes_defined": 22,
+    "status": "active"
+  },
+
+  "activity_sequence": [
+    { "sequence_num": 1,  "code_id": "001-SUR-BASE",  "phase_name_ar": "المسح العام",         "mandatory": true,  "dependencies": [],                      "pages": 5 },
+    { "sequence_num": 2,  "code_id": "001-SUR-NET",   "phase_name_ar": "مسح مسار الخط",      "mandatory": true,  "dependencies": ["001-SUR-BASE"],        "pages": 4 },
+    { "sequence_num": 3,  "code_id": "001-PRM-GOV",   "phase_name_ar": "الرخص الحكومية",     "mandatory": true,  "dependencies": ["001-SUR-BASE"],        "pages": 3 },
+    { "sequence_num": 4,  "code_id": "001-PRM-ENV",   "phase_name_ar": "الموافقة البيئية",   "mandatory": true,  "dependencies": ["001-PRM-GOV"],         "pages": 2 },
+    { "sequence_num": 5,  "code_id": "001-APP-DES",   "phase_name_ar": "اعتماد المخططات",    "mandatory": true,  "dependencies": ["001-PRM-GOV"],         "pages": 4 },
+    { "sequence_num": 6,  "code_id": "001-APP-MRL",   "phase_name_ar": "اعتماد المواد",       "mandatory": true,  "dependencies": ["001-APP-DES"],         "pages": 3 },
+    { "sequence_num": 7,  "code_id": "001-APP-HSE",   "phase_name_ar": "السلامة المهنية",    "mandatory": true,  "dependencies": ["001-APP-DES"],         "pages": 3 },
+    { "sequence_num": 8,  "code_id": "002-MAT-SITE",  "phase_name_ar": "نقل المواد",          "mandatory": true,  "dependencies": ["001-APP-HSE"],         "pages": 3 },
+    { "sequence_num": 9,  "code_id": "002-EXC-OPEN",  "phase_name_ar": "الحفر المكشوف",      "mandatory": true,  "dependencies": ["002-MAT-SITE"],        "pages": 8 },
+    { "sequence_num": 10, "code_id": "002-WST-EXC",   "phase_name_ar": "نقل مخلفات الحفر",  "mandatory": true,  "dependencies": ["002-EXC-OPEN"],        "pages": 3 },
+    { "sequence_num": 11, "code_id": "003-PIP-TRN",   "phase_name_ar": "تركيب خط النقل",    "mandatory": true,  "dependencies": ["002-WST-EXC"],         "pages": 8 },
+    { "sequence_num": 12, "code_id": "003-WLD-FLD",   "phase_name_ar": "اللحام الحقلي",      "mandatory": true,  "dependencies": ["003-PIP-TRN"],         "pages": 5 },
+    { "sequence_num": 13, "code_id": "003-ANC-BLK",   "phase_name_ar": "كتل الارتكاز",       "mandatory": true,  "dependencies": ["003-PIP-TRN"],         "pages": 4 },
+    { "sequence_num": 14, "code_id": "003-AIR-VLV",   "phase_name_ar": "صمامات تنفيس الهواء","mandatory": true, "dependencies": ["003-PIP-TRN"],         "pages": 3 },
+    { "sequence_num": 15, "code_id": "004-TST-PRE",   "phase_name_ar": "اختبار الضغط",       "mandatory": true,  "dependencies": ["003-ANC-BLK","003-AIR-VLV"], "pages": 4 },
+    { "sequence_num": 16, "code_id": "004-TST-LEK",   "phase_name_ar": "اختبار التسرب",      "mandatory": true,  "dependencies": ["003-PIP-TRN"],         "pages": 3 },
+    { "sequence_num": 17, "code_id": "004-QC-INSTALL","phase_name_ar": "فحص جودة التركيب",  "mandatory": true,  "dependencies": ["003-PIP-TRN"],         "pages": 3 },
+    { "sequence_num": 18, "code_id": "005-BKF-SND",   "phase_name_ar": "الردم بالرمل",       "mandatory": true,  "dependencies": ["004-TST-LEK"],         "pages": 3 },
+    { "sequence_num": 19, "code_id": "005-BKF-SOL",   "phase_name_ar": "الردم بالتراب",      "mandatory": true,  "dependencies": ["005-BKF-SND"],         "pages": 4 },
+    { "sequence_num": 20, "code_id": "005-RST-ASP",   "phase_name_ar": "إعادة الأسفلت",      "mandatory": true,  "dependencies": ["005-BKF-SOL"],         "pages": 5 },
+    { "sequence_num": 21, "code_id": "005-HND-DOC",   "phase_name_ar": "تسليم الوثائق",      "mandatory": true,  "dependencies": ["005-RST-ASP"],         "pages": 2 },
+    { "sequence_num": 22, "code_id": "005-HND-FIN",   "phase_name_ar": "التسليم النهائي",    "mandatory": true,  "dependencies": ["005-HND-DOC"],         "pages": 2 }
+  ],
+
+  "application_rules": {
+    "owner_specific_rules": {
+      "swa": {
+        "required_codes": ["001-SUR-NET", "001-PRM-ENV", "004-TST-PRE", "004-TST-LEK", "004-QC-INSTALL"],
+        "note": "الهيئة السعودية للمياه تشترط الفحوصات الكاملة والموافقة البيئية"
+      },
+      "nwc": {
+        "required_codes": ["001-SUR-NET", "004-TST-PRE", "004-TST-LEK", "004-QC-INSTALL"],
+        "note": "NWC تشترط اختبارات الضغط والتسرب"
+      }
+    }
+  },
+
+  "typical_proposals": {
+    "main_line": {
+      "description_ar": "خط نقل رئيسي (القطر الكبير)",
+      "description_en": "Main transmission line (large diameter)",
+      "typical_codes": [
+        "001-SUR-BASE", "001-SUR-NET", "001-PRM-GOV", "001-PRM-ENV",
+        "001-APP-DES", "001-APP-MRL", "001-APP-HSE",
+        "002-MAT-SITE", "002-EXC-OPEN", "002-WST-EXC",
+        "003-PIP-TRN", "003-WLD-FLD", "003-ANC-BLK", "003-AIR-VLV",
+        "004-TST-PRE", "004-TST-LEK", "004-QC-INSTALL",
+        "005-BKF-SND", "005-BKF-SOL", "005-RST-ASP",
+        "005-HND-DOC", "005-HND-FIN"
+      ],
+      "total_pages": 91,
+      "estimated_duration_days": 180
+    }
+  },
+
+  "statistics": {
+    "total_codes_in_project": 22,
+    "mandatory_codes": 20,
+    "optional_codes": 2,
+    "mutually_exclusive_groups": 0,
+    "minimum_proposal_codes": 20,
+    "maximum_proposal_codes": 22
+  }
+}

@@ -1,0 +1,279 @@
+{
+  "project_metadata": {
+    "project_id": "asphalt",
+    "name_ar": "نظام الطرق والأسفلت",
+    "name_en": "Roads and Asphalt System",
+    "network_type": "A",
+    "description_ar": "تشييد وتجديد شبكات الطرق والممرات - الإصدار التجريبي",
+    "description_en": "Road construction and rehabilitation networks - Pilot version",
+    "created_date": "2026-04-20",
+    "last_modified": "2026-04-20",
+    "version": "1.0",
+    "total_codes_defined": 18,
+    "status": "active"
+  },
+
+  "activity_sequence": [
+    {
+      "sequence_num": 1,
+      "code_id": "001-SUR-BASE",
+      "phase_name_ar": "المسح والتثبيت",
+      "activity_name_ar": "مسح وتثبيت نقاط عامة",
+      "activity_name_en": "General Surveying & Point Establishment",
+      "pages": 5,
+      "mandatory": true,
+      "dependencies": [],
+      "description": "المسح الشامل للموقع"
+    },
+
+    {
+      "sequence_num": 2,
+      "code_id": "001-PRM-GOV",
+      "phase_name_ar": "الرخص والموافقات",
+      "activity_name_ar": "الحصول على رخص حكومية",
+      "activity_name_en": "Government Permits",
+      "pages": 3,
+      "mandatory": true,
+      "dependencies": ["001-SUR-BASE"],
+      "description": "رخص من الجهات الحكومية"
+    },
+
+    {
+      "sequence_num": 3,
+      "code_id": "001-APP-DES",
+      "phase_name_ar": "الاعتمادات",
+      "activity_name_ar": "اعتماد المخططات التفصيلية",
+      "activity_name_en": "Design Approval",
+      "pages": 4,
+      "mandatory": true,
+      "dependencies": ["001-PRM-GOV"],
+      "description": "اعتماد الرسومات الهندسية"
+    },
+
+    {
+      "sequence_num": 4,
+      "code_id": "001-APP-MRL",
+      "phase_name_ar": "الاعتمادات",
+      "activity_name_ar": "اعتماد المواد والموارد",
+      "activity_name_en": "Material & Resource Approval",
+      "pages": 3,
+      "mandatory": true,
+      "dependencies": ["001-APP-DES"],
+      "description": "اعتماد المواد الأسفلتية"
+    },
+
+    {
+      "sequence_num": 5,
+      "code_id": "001-APP-HSE",
+      "phase_name_ar": "الاعتمادات",
+      "activity_name_ar": "خطة الصحة والسلامة",
+      "activity_name_en": "HSE Plan Approval",
+      "pages": 3,
+      "mandatory": true,
+      "dependencies": ["001-APP-DES"],
+      "description": "خطة الصحة والسلامة"
+    },
+
+    {
+      "sequence_num": 6,
+      "code_id": "002-MAT-SITE",
+      "phase_name_ar": "نقل المواد",
+      "activity_name_ar": "نقل المواد إلى موقع العمل",
+      "activity_name_en": "Material Transfer to Site",
+      "pages": 3,
+      "mandatory": true,
+      "dependencies": ["001-APP-HSE"],
+      "description": "نقل المواد الأسفلتية والمعدات"
+    },
+
+    {
+      "sequence_num": 7,
+      "code_id": "002-EXC-PAV",
+      "phase_name_ar": "قطع الأسفلت",
+      "activity_name_ar": "قطع الأسفلت الموجود وإزالته",
+      "activity_name_en": "Asphalt Cutting & Removal",
+      "pages": 4,
+      "mandatory": true,
+      "dependencies": ["002-MAT-SITE"],
+      "note": "النوع الوحيد للحفر في مشاريع الأسفلت",
+      "description": "إزالة الطبقة الأسفلتية القديمة"
+    },
+
+    {
+      "sequence_num": 8,
+      "code_id": "002-WST-EXC",
+      "phase_name_ar": "إدارة المخلفات",
+      "activity_name_ar": "نقل مخلفات الأسفلت",
+      "activity_name_en": "Asphalt Waste Removal",
+      "pages": 3,
+      "mandatory": true,
+      "dependencies": ["002-EXC-PAV"],
+      "description": "نقل مخلفات الأسفلت القديم"
+    },
+
+    {
+      "sequence_num": 9,
+      "code_id": "004-QC-MATS",
+      "phase_name_ar": "فحص الجودة",
+      "activity_name_ar": "فحص المواد الأسفلتية",
+      "activity_name_en": "Asphalt Material Inspection",
+      "pages": 3,
+      "mandatory": true,
+      "dependencies": ["002-MAT-SITE"],
+      "description": "التحقق من مواصفات المواد الأسفلتية"
+    },
+
+    {
+      "sequence_num": 10,
+      "code_id": "005-BKF-BASE",
+      "phase_name_ar": "إعداد الأساس",
+      "activity_name_ar": "إعداد الأساس للأسفلت",
+      "activity_name_en": "Base Preparation",
+      "pages": 3,
+      "mandatory": true,
+      "dependencies": ["002-WST-EXC"],
+      "description": "إعداد الأساس الحجري"
+    },
+
+    {
+      "sequence_num": 11,
+      "code_id": "005-BKF-SOL",
+      "phase_name_ar": "الردم",
+      "activity_name_ar": "ردم تربة وضغط",
+      "activity_name_en": "Soil Compaction",
+      "pages": 4,
+      "mandatory": true,
+      "dependencies": ["005-BKF-BASE"],
+      "description": "ضغط التربة تحت الأساس"
+    },
+
+    {
+      "sequence_num": 12,
+      "code_id": "005-RST-ASP",
+      "phase_name_ar": "الأسفلت",
+      "activity_name_ar": "وضع طبقات الأسفلت",
+      "activity_name_en": "Asphalt Laying",
+      "pages": 5,
+      "mandatory": true,
+      "dependencies": ["005-BKF-SOL"],
+      "description": "وضع طبقات الأسفلت الثلاثة"
+    },
+
+    {
+      "sequence_num": 13,
+      "code_id": "005-RST-PAV",
+      "phase_name_ar": "استعادة السطح",
+      "activity_name_ar": "استعادة الرصيف والأرصفة",
+      "activity_name_en": "Pavement Restoration",
+      "pages": 2,
+      "mandatory": false,
+      "dependencies": ["005-RST-ASP"],
+      "description": "استعادة أرصفة المشاة"
+    },
+
+    {
+      "sequence_num": 14,
+      "code_id": "005-HND-DOC",
+      "phase_name_ar": "التسليم",
+      "activity_name_ar": "تسليم الوثائق",
+      "activity_name_en": "Documentation Handover",
+      "pages": 2,
+      "mandatory": true,
+      "dependencies": ["005-RST-ASP"],
+      "description": "تسليم جميع الوثائق"
+    },
+
+    {
+      "sequence_num": 15,
+      "code_id": "005-HND-FIN",
+      "phase_name_ar": "التسليم",
+      "activity_name_ar": "التسليم النهائي والقبول",
+      "activity_name_en": "Final Handover & Acceptance",
+      "pages": 2,
+      "mandatory": true,
+      "dependencies": ["005-HND-DOC"],
+      "description": "التسليم النهائي"
+    }
+  ],
+
+  "application_rules": {
+    "excavation_selection": {
+      "rule": "نوع الحفر للأسفلت واحد: قطع الأسفلت فقط",
+      "fixed_code": "002-EXC-PAV",
+      "note": "لا توجد خيارات أخرى للحفر في مشاريع الأسفلت"
+    },
+
+    "owner_specific_rules": {
+      "Makkah": {
+        "required_codes": ["001-SUR-BASE", "001-PRM-GOV", "001-PRM-MUN", "001-APP-DES"],
+        "note": "مكة تطلب رخصة بلدية إضافية"
+      },
+      "MOH": {
+        "required_codes": ["001-SUR-BASE", "001-PRM-GOV", "001-APP-DES", "004-QC-MATS", "005-HND-DOC"],
+        "strict_requirements": true,
+        "note": "MOH تطلب توثيق دقيق جداً"
+      }
+    }
+  },
+
+  "typical_proposals": {
+    "street_expansion": {
+      "description_ar": "توسيع شارع (الحالة الأساسية)",
+      "description_en": "Street expansion (Basic case)",
+      "typical_codes": [
+        "001-SUR-BASE",
+        "001-PRM-GOV",
+        "001-APP-DES",
+        "001-APP-MRL",
+        "001-APP-HSE",
+        "002-MAT-SITE",
+        "002-EXC-PAV",
+        "002-WST-EXC",
+        "004-QC-MATS",
+        "005-BKF-BASE",
+        "005-BKF-SOL",
+        "005-RST-ASP",
+        "005-HND-DOC",
+        "005-HND-FIN"
+      ],
+      "total_pages": 51,
+      "estimated_duration_days": 45
+    },
+
+    "full_rehabilitation": {
+      "description_ar": "تأهيل شامل مع أرصفة",
+      "description_en": "Full rehabilitation with sidewalks",
+      "typical_codes": [
+        "001-SUR-BASE",
+        "001-PRM-GOV",
+        "001-APP-DES",
+        "001-APP-MRL",
+        "001-APP-HSE",
+        "002-MAT-SITE",
+        "002-MAT-STORE",
+        "002-EXC-PAV",
+        "002-WST-EXC",
+        "004-QC-MATS",
+        "005-BKF-BASE",
+        "005-BKF-SOL",
+        "005-RST-ASP",
+        "005-RST-PAV",
+        "005-HND-DOC",
+        "005-HND-FIN"
+      ],
+      "total_pages": 55,
+      "estimated_duration_days": 60
+    }
+  },
+
+  "statistics": {
+    "total_codes_in_project": 18,
+    "mandatory_codes": 12,
+    "optional_codes": 3,
+    "mutually_exclusive_groups": 0,
+    "minimum_proposal_codes": 12,
+    "maximum_proposal_codes": 18,
+    "no_pipe_installation": true,
+    "no_pressure_testing": true
+  }
+}

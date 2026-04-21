@@ -1,0 +1,50 @@
+{
+  "style_id": "swa",
+  "owner": "Saudi Water Authority",
+  "scheme": "blue_cyan",
+
+  "fonts": {
+    "body": { "family": "Times New Roman", "size": 12, "bold": false },
+    "heading1": { "family": "Times New Roman", "size": 16, "bold": true },
+    "heading2": { "family": "Times New Roman", "size": 14, "bold": true },
+    "heading3": { "family": "Times New Roman", "size": 13, "bold": true },
+    "caption": { "family": "Times New Roman", "size": 10, "bold": false, "italic": true }
+  },
+
+  "colors": {
+    "primary": "#004F9F",
+    "secondary": "#FFFFFF",
+    "accent": "#0080CC",
+    "text": "#000000",
+    "heading": "#004F9F"
+  },
+
+  "margins_cm": {
+    "top": 2.5,
+    "bottom": 2.5,
+    "left": 3.0,
+    "right": 2.5
+  },
+
+  "header": {
+    "enabled": true,
+    "text_ar": "الهيئة السعودية للمياه - عرض فني",
+    "text_en": "Saudi Water Authority - Technical Proposal",
+    "show_logo": true,
+    "logo_path": "assets/swa_logo.png",
+    "line_below": true
+  },
+
+  "footer": {
+    "enabled": true,
+    "text_ar": "سري - للاستخدام الداخلي فقط",
+    "show_page_number": true,
+    "page_format": "صفحة {n} من {total}",
+    "line_above": true
+  },
+
+  "page_numbering": true,
+  "table_of_contents": true,
+  "rtl_direction": true,
+  "language": "ar"
+}

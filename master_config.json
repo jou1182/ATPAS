@@ -1,0 +1,1007 @@
+{
+  "system": {
+    "name": "Al-Rawaf Technical Proposal Automation System",
+    "short_name": "ATPAS",
+    "version": "1.0.0",
+    "build_number": 1,
+    "status": "development",
+    "last_updated": "2026-04-20T14:30:00Z",
+    "maintainer": "Dr. Youssef Seleim",
+    "organization": "Al-Rawaf Contracting Co.",
+    "description_ar": "نظام أتمتة ذكي لبناء العروض الفنية من خلال أكواد هرمية مرنة",
+    "description_en": "Smart automation system for building technical proposals using hierarchical flexible codes"
+  },
+  "projects": {
+    "wastewater": {
+      "project_id": "wastewater",
+      "name_ar": "نظام الصرف الصحي",
+      "name_en": "Wastewater System",
+      "description_ar": "شبكات جمع ومعالجة مياه الصرف الصحي",
+      "description_en": "Wastewater collection and treatment networks",
+      "network_type": "S",
+      "network_type_name": "Sewage",
+      "source_document": "templates/source_documents/Wastewater_Master.docx",
+      "metadata_file": "metadata/projects/wastewater.json",
+      "sections_file": "templates/extracted_sections/wastewater_sections.json",
+      "total_codes": 85,
+      "applicable_owners": [
+        "nwc",
+        "makkah",
+        "moh",
+        "amana_eastern",
+        "amana_jeddah",
+        "amana_madinah",
+        "modon",
+        "royal_commission_jubail",
+        "yanbu_project"
+      ],
+      "typical_page_range": [
+        30,
+        100
+      ],
+      "created_date": "2026-04-01",
+      "last_modified": "2026-04-20",
+      "status": "active"
+    },
+    "water_supply": {
+      "project_id": "water_supply",
+      "name_ar": "نظام إمدادات المياه",
+      "name_en": "Water Supply System",
+      "description_ar": "شبكات نقل وتوزيع مياه الشرب",
+      "description_en": "Water transmission and distribution networks",
+      "network_type": "W",
+      "network_type_name": "Water",
+      "source_document": "templates/source_documents/Water_Supply_Master.docx",
+      "metadata_file": "metadata/projects/water_supply.json",
+      "sections_file": "templates/extracted_sections/water_supply_sections.json",
+      "total_codes": 90,
+      "applicable_owners": [
+        "nwc",
+        "makkah",
+        "swa",
+        "amana_eastern",
+        "amana_jeddah",
+        "amana_madinah",
+        "modon",
+        "royal_commission_jubail",
+        "yanbu_project"
+      ],
+      "typical_page_range": [
+        40,
+        120
+      ],
+      "created_date": "2026-04-01",
+      "last_modified": "2026-04-20",
+      "status": "active"
+    },
+    "asphalt": {
+      "project_id": "asphalt",
+      "name_ar": "نظام الطرق والأسفلت",
+      "name_en": "Roads and Asphalt System",
+      "description_ar": "تشييد وتجديد شبكات الطرق والممرات",
+      "description_en": "Road construction and rehabilitation networks",
+      "network_type": "A",
+      "network_type_name": "Asphalt",
+      "source_document": "templates/source_documents/Asphalt_Master.docx",
+      "metadata_file": "metadata/projects/asphalt.json",
+      "sections_file": "templates/extracted_sections/asphalt_sections.json",
+      "total_codes": 75,
+      "applicable_owners": [
+        "makkah",
+        "moh",
+        "amana_riyadh",
+        "amana_qassim",
+        "amana_eastern",
+        "amana_jeddah",
+        "amana_madinah",
+        "baladiya_rabigh"
+      ],
+      "typical_page_range": [
+        25,
+        80
+      ],
+      "created_date": "2026-04-01",
+      "last_modified": "2026-04-20",
+      "status": "active"
+    },
+    "road_maintenance": {
+      "project_id": "road_maintenance",
+      "name_ar": "صيانة الطرق والأرصفة",
+      "name_en": "Roads and Pavement Maintenance",
+      "description_ar": "صيانة وتأهيل شبكات الطرق والأرصفة",
+      "description_en": "Maintenance and rehabilitation of roads and pavements",
+      "network_type": "R",
+      "network_type_name": "Roads",
+      "source_document": "templates/source_documents/Road_Maintenance_Master.docx",
+      "metadata_file": "road_maintenance_project_metadata.json",
+      "sections_file": "templates/extracted_sections/road_maintenance_sections.json",
+      "total_codes": 20,
+      "applicable_owners": [
+        "mot",
+        "amana_riyadh",
+        "amana_qassim",
+        "amana_eastern",
+        "amana_jeddah",
+        "amana_madinah",
+        "sar",
+        "baladiya_rabigh"
+      ],
+      "typical_page_range": [
+        60,
+        90
+      ],
+      "created_date": "2026-04-20",
+      "last_modified": "2026-04-20",
+      "status": "active"
+    },
+    "general_construction": {
+      "project_id": "general_construction",
+      "name_ar": "الإنشاءات العامة والمرافق",
+      "name_en": "General Construction and Facilities",
+      "description_ar": "إنشاء المباني والمرافق الحكومية والبنية التحتية العامة",
+      "description_en": "Construction of buildings, government facilities and general infrastructure",
+      "network_type": "C",
+      "network_type_name": "Construction",
+      "source_document": "templates/source_documents/General_Construction_Master.docx",
+      "metadata_file": "general_construction_project_metadata.json",
+      "sections_file": "templates/extracted_sections/general_construction_sections.json",
+      "total_codes": 18,
+      "applicable_owners": [
+        "nhi",
+        "ksia",
+        "moh",
+        "modon",
+        "royal_commission_jubail",
+        "royal_court",
+        "air_force",
+        "amana_riyadh_royal",
+        "sar"
+      ],
+      "typical_page_range": [
+        80,
+        100
+      ],
+      "created_date": "2026-04-20",
+      "last_modified": "2026-04-20",
+      "status": "active"
+    },
+    "water_transmission": {
+      "project_id": "water_transmission",
+      "name_ar": "خطوط نقل المياه الرئيسية",
+      "name_en": "Main Water Transmission Lines",
+      "description_ar": "تركيب وصيانة خطوط نقل المياه ذات القطر الكبير",
+      "description_en": "Installation and maintenance of large-diameter water transmission pipelines",
+      "network_type": "T",
+      "network_type_name": "Transmission",
+      "source_document": "templates/source_documents/Water_Transmission_Master.docx",
+      "metadata_file": "water_transmission_project_metadata.json",
+      "sections_file": "templates/extracted_sections/water_transmission_sections.json",
+      "total_codes": 22,
+      "applicable_owners": [
+        "swa",
+        "nwc",
+        "yanbu_project",
+        "royal_commission_jubail"
+      ],
+      "typical_page_range": [
+        85,
+        100
+      ],
+      "created_date": "2026-04-20",
+      "last_modified": "2026-04-20",
+      "status": "active"
+    }
+  },
+  "code_ranges": {
+    "001": {
+      "category_name_ar": "الأعمال التحضيرية",
+      "category_name_en": "Preparatory Works",
+      "range": "001-020",
+      "description": "جميع الأعمال التحضيرية والتخطيطية"
+    },
+    "002": {
+      "category_name_ar": "الحفر والمخلفات",
+      "category_name_en": "Excavation & Waste",
+      "range": "002-050",
+      "description": "أعمال الحفر بأنواعها وإدارة المخلفات"
+    },
+    "003": {
+      "category_name_ar": "التركيب والتوصيل",
+      "category_name_en": "Installation & Assembly",
+      "range": "003-080",
+      "description": "تركيب الأنابيب والمعدات والوصلات"
+    },
+    "004": {
+      "category_name_ar": "الاختبارات والفحوصات",
+      "category_name_en": "Testing & Inspection",
+      "range": "004-090",
+      "description": "اختبارات الجودة والضغط والسلامة"
+    },
+    "005": {
+      "category_name_ar": "الإنهاء والتسليم",
+      "category_name_en": "Completion & Handover",
+      "range": "005-099",
+      "description": "الردم واستعادة السطح والتسليم النهائي"
+    }
+  },
+  "phases": {
+    "SUR": {
+      "phase_code": "SUR",
+      "phase_name_ar": "المسح والتثبيت",
+      "phase_name_en": "Surveying",
+      "category": "001"
+    },
+    "PRM": {
+      "phase_code": "PRM",
+      "phase_name_ar": "الرخص والموافقات",
+      "phase_name_en": "Permits",
+      "category": "001"
+    },
+    "APP": {
+      "phase_code": "APP",
+      "phase_name_ar": "الاعتمادات",
+      "phase_name_en": "Approvals",
+      "category": "001"
+    },
+    "MAT": {
+      "phase_code": "MAT",
+      "phase_name_ar": "نقل المواد",
+      "phase_name_en": "Material Transfer",
+      "category": "002"
+    },
+    "EXC": {
+      "phase_code": "EXC",
+      "phase_name_ar": "الحفر",
+      "phase_name_en": "Excavation",
+      "category": "002"
+    },
+    "WST": {
+      "phase_code": "WST",
+      "phase_name_ar": "إدارة المخلفات",
+      "phase_name_en": "Waste Management",
+      "category": "002"
+    },
+    "PIP": {
+      "phase_code": "PIP",
+      "phase_name_ar": "تركيب الأنابيب",
+      "phase_name_en": "Pipe Installation",
+      "category": "003"
+    },
+    "WLD": {
+      "phase_code": "WLD",
+      "phase_name_ar": "اللحام والوصلات",
+      "phase_name_en": "Welding",
+      "category": "003"
+    },
+    "TST": {
+      "phase_code": "TST",
+      "phase_name_ar": "الاختبارات",
+      "phase_name_en": "Testing",
+      "category": "004"
+    },
+    "QC": {
+      "phase_code": "QC",
+      "phase_name_ar": "فحص الجودة",
+      "phase_name_en": "Quality Control",
+      "category": "004"
+    },
+    "BKF": {
+      "phase_code": "BKF",
+      "phase_name_ar": "الردم",
+      "phase_name_en": "Backfilling",
+      "category": "005"
+    },
+    "RST": {
+      "phase_code": "RST",
+      "phase_name_ar": "استعادة السطح",
+      "phase_name_en": "Surface Restoration",
+      "category": "005"
+    },
+    "HND": {
+      "phase_code": "HND",
+      "phase_name_ar": "التسليم النهائي",
+      "phase_name_en": "Handover",
+      "category": "005"
+    },
+    "TRF": {
+      "phase_code": "TRF",
+      "phase_name_ar": "إدارة المرور",
+      "phase_name_en": "Traffic Management",
+      "category": "001"
+    },
+    "RDS": {
+      "phase_code": "RDS",
+      "phase_name_ar": "فحص الطريق",
+      "phase_name_en": "Road Inspection",
+      "category": "001"
+    },
+    "SOI": {
+      "phase_code": "SOI",
+      "phase_name_ar": "دراسة التربة",
+      "phase_name_en": "Soil Investigation",
+      "category": "001"
+    },
+    "PAV": {
+      "phase_code": "PAV",
+      "phase_name_ar": "تقييم الرصيف",
+      "phase_name_en": "Pavement Evaluation",
+      "category": "002"
+    },
+    "MIL": {
+      "phase_code": "MIL",
+      "phase_name_ar": "جلخ الأسفلت",
+      "phase_name_en": "Milling",
+      "category": "002"
+    },
+    "FND": {
+      "phase_code": "FND",
+      "phase_name_ar": "الأساسات",
+      "phase_name_en": "Foundations",
+      "category": "003"
+    },
+    "RBR": {
+      "phase_code": "RBR",
+      "phase_name_ar": "حديد التسليح",
+      "phase_name_en": "Rebar Work",
+      "category": "003"
+    },
+    "STR": {
+      "phase_code": "STR",
+      "phase_name_ar": "الخرسانة الإنشائية",
+      "phase_name_en": "Structural Concrete",
+      "category": "003"
+    },
+    "MAS": {
+      "phase_code": "MAS",
+      "phase_name_ar": "البناء بالبلوك",
+      "phase_name_en": "Masonry",
+      "category": "003"
+    },
+    "STL": {
+      "phase_code": "STL",
+      "phase_name_ar": "الهياكل الفولاذية",
+      "phase_name_en": "Steel Structures",
+      "category": "003"
+    },
+    "ANC": {
+      "phase_code": "ANC",
+      "phase_name_ar": "كتل الارتكاز",
+      "phase_name_en": "Anchor Blocks",
+      "category": "003"
+    },
+    "AIR": {
+      "phase_code": "AIR",
+      "phase_name_ar": "صمامات التهوية",
+      "phase_name_en": "Air Valves",
+      "category": "003"
+    },
+    "ASP": {
+      "phase_code": "ASP",
+      "phase_name_ar": "طبقات الأسفلت",
+      "phase_name_en": "Asphalt Layers",
+      "category": "003"
+    },
+    "CRB": {
+      "phase_code": "CRB",
+      "phase_name_ar": "حجارة الحافة",
+      "phase_name_en": "Curb Stones",
+      "category": "003"
+    },
+    "INS": {
+      "phase_code": "INS",
+      "phase_name_ar": "التمديدات والتشطيبات",
+      "phase_name_en": "Installations and Finishes",
+      "category": "004"
+    },
+    "MRK": {
+      "phase_code": "MRK",
+      "phase_name_ar": "دهانات الطريق",
+      "phase_name_en": "Road Markings",
+      "category": "005"
+    },
+    "SGN": {
+      "phase_code": "SGN",
+      "phase_name_ar": "اللوحات المرورية",
+      "phase_name_en": "Traffic Signs",
+      "category": "005"
+    },
+    "SAF": {
+      "phase_code": "SAF",
+      "phase_name_ar": "الحواجز الأمنية",
+      "phase_name_en": "Safety Barriers",
+      "category": "005"
+    },
+    "CLN": {
+      "phase_code": "CLN",
+      "phase_name_ar": "تنظيف الموقع",
+      "phase_name_en": "Site Cleanup",
+      "category": "005"
+    }
+  },
+  "network_types": {
+    "S": {
+      "code": "S",
+      "name_ar": "صرف صحي",
+      "name_en": "Sewage",
+      "description": "شبكات الصرف الصحي"
+    },
+    "W": {
+      "code": "W",
+      "name_ar": "مياه",
+      "name_en": "Water",
+      "description": "شبكات المياه"
+    },
+    "A": {
+      "code": "A",
+      "name_ar": "أسفلت",
+      "name_en": "Asphalt",
+      "description": "شبكات الطرق والأسفلت"
+    },
+    "R": {
+      "code": "R",
+      "name_ar": "طرق",
+      "name_en": "Roads",
+      "description": "صيانة وتأهيل شبكات الطرق والأرصفة"
+    },
+    "C": {
+      "code": "C",
+      "name_ar": "إنشاءات",
+      "name_en": "Construction",
+      "description": "إنشاء المباني والمرافق العامة"
+    },
+    "T": {
+      "code": "T",
+      "name_ar": "نقل مياه",
+      "name_en": "Transmission",
+      "description": "خطوط نقل المياه الرئيسية"
+    }
+  },
+  "excavation_types": {
+    "FINE": {
+      "code": "FINE",
+      "name_ar": "حفر دقيق",
+      "name_en": "Fine Excavation",
+      "description": "حفر لأنابيب صغيرة (d < 400mm)",
+      "depth_range": "0.5-1.5m",
+      "applicable_networks": [
+        "S",
+        "W"
+      ]
+    },
+    "OPEN": {
+      "code": "OPEN",
+      "name_ar": "حفر مكشوف",
+      "name_en": "Open Excavation",
+      "description": "حفر لأنابيب رئيسية (d > 600mm)",
+      "depth_range": "1.5-4m",
+      "applicable_networks": [
+        "S",
+        "W"
+      ]
+    },
+    "TUNNEL": {
+      "code": "TUNNEL",
+      "name_ar": "حفر نفقي",
+      "name_en": "Tunneling",
+      "description": "حفر نفقي بطريقة TBM (d > 1000mm)",
+      "depth_range": ">4m",
+      "applicable_networks": [
+        "S",
+        "W"
+      ]
+    },
+    "PAV": {
+      "code": "PAV",
+      "name_ar": "قطع أسفلت",
+      "name_en": "Asphalt Cutting",
+      "description": "قطع الأسفلت الموجود",
+      "depth_range": "0.05-0.15m",
+      "applicable_networks": [
+        "A"
+      ]
+    }
+  },
+  "owner_specifications": {
+    "nwc": {
+      "owner_id": "nwc",
+      "owner_name_ar": "الشركة الوطنية للمياه",
+      "owner_name_en": "National Water Company",
+      "owner_code": "NWC",
+      "applicable_networks": [
+        "S",
+        "W"
+      ],
+      "default_language": "ar",
+      "mandatory_sections": [
+        "safety",
+        "quality_control",
+        "environmental_compliance",
+        "site_management"
+      ],
+      "preferred_codes_prefix": "NWC",
+      "style_guide": "nwc_style.json",
+      "typical_codes_range": "001-090",
+      "specific_requirements": {
+        "header_format": "NWC Standard Header",
+        "footer_format": "NWC Standard Footer",
+        "color_scheme": "blue_white",
+        "font_family": "Times New Roman",
+        "font_size_body": 12,
+        "font_size_heading": 14,
+        "logo_required": true
+      },
+      "contact": "nwc@company.sa",
+      "created_date": "2026-04-01"
+    },
+    "makkah": {
+      "owner_id": "makkah",
+      "owner_name_ar": "أمانة العاصمة المقدسة",
+      "owner_name_en": "Makkah Municipality",
+      "owner_code": "MAK",
+      "applicable_networks": [
+        "S",
+        "W",
+        "A"
+      ],
+      "default_language": "ar",
+      "mandatory_sections": [
+        "environmental_compliance",
+        "heritage_protection",
+        "safety",
+        "cultural_sensitivity"
+      ],
+      "preferred_codes_prefix": "MAK",
+      "style_guide": "makkah_style.json",
+      "typical_codes_range": "001-090",
+      "specific_requirements": {
+        "header_format": "Makkah Official Header",
+        "footer_format": "Makkah Official Footer",
+        "color_scheme": "green_gold",
+        "font_family": "Arial",
+        "font_size_body": 11,
+        "font_size_heading": 13,
+        "logo_required": true,
+        "heritage_clause": "Required"
+      },
+      "contact": "projects@makkah.gov.sa",
+      "created_date": "2026-04-01"
+    },
+    "moh": {
+      "owner_id": "moh",
+      "owner_name_ar": "وزارة الإسكان",
+      "owner_name_en": "Ministry of Housing",
+      "owner_code": "MOH",
+      "applicable_networks": [
+        "S",
+        "W",
+        "A"
+      ],
+      "default_language": "ar",
+      "mandatory_sections": [
+        "quality_control",
+        "safety",
+        "environmental_compliance",
+        "compliance_matrix",
+        "financial_tracking"
+      ],
+      "preferred_codes_prefix": "MOH",
+      "style_guide": "moh_style.json",
+      "typical_codes_range": "001-090",
+      "specific_requirements": {
+        "header_format": "MOH Official Header",
+        "footer_format": "MOH Official Footer",
+        "color_scheme": "gray_red",
+        "font_family": "Times New Roman",
+        "font_size_body": 12,
+        "font_size_heading": 14,
+        "logo_required": true,
+        "compliance_matrix": "Required",
+        "detailed_reporting": true
+      },
+      "contact": "projects@housing.gov.sa",
+      "created_date": "2026-04-01"
+    },
+    "mot": {
+      "owner_id": "mot",
+      "owner_name_ar": "وزارة النقل والخدمات اللوجستية",
+      "owner_name_en": "Ministry of Transport and Logistic Services",
+      "owner_code": "MOT",
+      "applicable_networks": [
+        "R",
+        "A"
+      ],
+      "default_language": "ar",
+      "mandatory_sections": [
+        "traffic_management",
+        "safety",
+        "quality_control",
+        "pavement_testing",
+        "road_markings"
+      ],
+      "preferred_codes_prefix": "MOT",
+      "style_guide": "mot_style.json",
+      "typical_codes_range": "001-090",
+      "specific_requirements": {
+        "color_scheme": "green_white",
+        "font_family": "Times New Roman",
+        "font_size_body": 12,
+        "font_size_heading": 14,
+        "logo_required": true,
+        "traffic_management_plan": "Required"
+      },
+      "contact": "projects@mot.gov.sa",
+      "created_date": "2026-04-20"
+    },
+    "nhi": {
+      "owner_id": "nhi",
+      "owner_name_ar": "الشركة الوطنية للإسكان",
+      "owner_name_en": "National Housing Company",
+      "owner_code": "NHI",
+      "applicable_networks": [
+        "C"
+      ],
+      "default_language": "ar",
+      "mandatory_sections": [
+        "soil_investigation",
+        "foundation_design",
+        "structural_concrete",
+        "quality_control",
+        "safety",
+        "handover_documentation"
+      ],
+      "preferred_codes_prefix": "NHI",
+      "style_guide": "nhi_style.json",
+      "typical_codes_range": "001-090",
+      "specific_requirements": {
+        "color_scheme": "navy_white",
+        "font_family": "Times New Roman",
+        "font_size_body": 12,
+        "font_size_heading": 14,
+        "logo_required": true,
+        "soil_investigation": "Required",
+        "detailed_reporting": true
+      },
+      "contact": "projects@nhi.gov.sa",
+      "created_date": "2026-04-20"
+    },
+    "amana_riyadh": {
+      "owner_id": "amana_riyadh",
+      "owner_name_ar": "أمانة منطقة الرياض",
+      "owner_name_en": "Riyadh Region Municipality",
+      "owner_code": "AMANA-RYD",
+      "applicable_networks": [
+        "R",
+        "A",
+        "S",
+        "W"
+      ],
+      "default_language": "ar",
+      "mandatory_sections": [
+        "traffic_management",
+        "safety",
+        "road_markings",
+        "traffic_signs",
+        "site_cleanup"
+      ],
+      "preferred_codes_prefix": "AMANA-RYD",
+      "style_guide": "amana_riyadh_style.json",
+      "typical_codes_range": "001-090",
+      "specific_requirements": {
+        "color_scheme": "teal_white",
+        "font_family": "Times New Roman",
+        "font_size_body": 12,
+        "font_size_heading": 14,
+        "logo_required": true,
+        "traffic_management_plan": "Required",
+        "road_markings": "Required",
+        "traffic_signs": "Required"
+      },
+      "contact": "projects@alriyadh.gov.sa",
+      "created_date": "2026-04-20"
+    },
+    "amana_qassim": {
+      "owner_id": "amana_qassim",
+      "owner_name_ar": "أمانة منطقة القصيم",
+      "owner_name_en": "Qassim Region Municipality",
+      "owner_code": "AMANA-QSM",
+      "applicable_networks": [
+        "R",
+        "A",
+        "S",
+        "W"
+      ],
+      "default_language": "ar",
+      "mandatory_sections": [
+        "traffic_management",
+        "safety",
+        "road_markings",
+        "site_cleanup"
+      ],
+      "preferred_codes_prefix": "AMANA-QSM",
+      "style_guide": "amana_qassim_style.json",
+      "typical_codes_range": "001-090",
+      "specific_requirements": {
+        "color_scheme": "maroon_white",
+        "font_family": "Times New Roman",
+        "font_size_body": 12,
+        "font_size_heading": 14,
+        "logo_required": true,
+        "traffic_management_plan": "Required",
+        "road_markings": "Required"
+      },
+      "contact": "projects@qassim.gov.sa",
+      "created_date": "2026-04-20"
+    },
+    "swa": {
+      "owner_id": "swa",
+      "owner_name_ar": "الهيئة السعودية للمياه",
+      "owner_name_en": "Saudi Water Authority",
+      "owner_code": "SWA",
+      "applicable_networks": [
+        "W",
+        "T"
+      ],
+      "default_language": "ar",
+      "mandatory_sections": [
+        "environmental_compliance",
+        "quality_control",
+        "pressure_testing",
+        "leak_testing",
+        "safety",
+        "handover_documentation"
+      ],
+      "preferred_codes_prefix": "SWA",
+      "style_guide": "swa_style.json",
+      "typical_codes_range": "001-090",
+      "specific_requirements": {
+        "color_scheme": "blue_cyan",
+        "font_family": "Times New Roman",
+        "font_size_body": 12,
+        "font_size_heading": 14,
+        "logo_required": true,
+        "compliance_matrix": "Required",
+        "environmental_approval": "Required",
+        "pressure_test_certificate": "Required"
+      },
+      "contact": "projects@swa.gov.sa",
+      "created_date": "2026-04-20"
+    },
+    "ksia": {
+      "owner_id": "ksia",
+      "owner_name_ar": "مطار الملك سلمان الدولي",
+      "owner_name_en": "King Salman International Airport",
+      "owner_code": "KSIA",
+      "applicable_networks": [
+        "C",
+        "R",
+        "A"
+      ],
+      "default_language": "ar",
+      "mandatory_sections": [
+        "quality_control",
+        "safety",
+        "structural_design",
+        "material_approval",
+        "testing",
+        "handover_documentation",
+        "airside_safety"
+      ],
+      "preferred_codes_prefix": "KSIA",
+      "style_guide": "ksia_style.json",
+      "typical_codes_range": "001-090",
+      "specific_requirements": {
+        "color_scheme": "darkblue_gold",
+        "font_family": "Times New Roman",
+        "font_size_body": 12,
+        "font_size_heading": 14,
+        "logo_required": true,
+        "compliance_matrix": "Required",
+        "detailed_reporting": true,
+        "security_clearance": "Required"
+      },
+      "contact": "projects@ksia.sa",
+      "created_date": "2026-04-20"
+    },
+    "amana_eastern": {
+      "owner_id": "amana_eastern",
+      "owner_name_ar": "أمانة المنطقة الشرقية",
+      "owner_name_en": "Eastern Province Municipality",
+      "applicable_networks": [
+        "R",
+        "A",
+        "S",
+        "W"
+      ],
+      "mandatory_codes": [],
+      "forbidden_codes": []
+    },
+    "amana_jeddah": {
+      "owner_id": "amana_jeddah",
+      "owner_name_ar": "أمانة محافظة جدة",
+      "owner_name_en": "Jeddah Municipality",
+      "applicable_networks": [
+        "R",
+        "A",
+        "S",
+        "W"
+      ],
+      "mandatory_codes": [],
+      "forbidden_codes": []
+    },
+    "amana_madinah": {
+      "owner_id": "amana_madinah",
+      "owner_name_ar": "أمانة منطقة المدينة المنورة",
+      "owner_name_en": "Madinah Region Municipality",
+      "applicable_networks": [
+        "R",
+        "A",
+        "S",
+        "W"
+      ],
+      "mandatory_codes": [],
+      "forbidden_codes": []
+    },
+    "modon": {
+      "owner_id": "modon",
+      "owner_name_ar": "هيئة المدن الصناعية",
+      "owner_name_en": "Saudi Industrial Property Authority",
+      "applicable_networks": [
+        "C",
+        "S",
+        "W"
+      ],
+      "mandatory_codes": [],
+      "forbidden_codes": []
+    },
+    "royal_commission_jubail": {
+      "owner_id": "royal_commission_jubail",
+      "owner_name_ar": "الهيئة الملكية للجبيل وينبع",
+      "owner_name_en": "Royal Commission for Jubail and Yanbu",
+      "applicable_networks": [
+        "C",
+        "S",
+        "W",
+        "T"
+      ],
+      "mandatory_codes": [],
+      "forbidden_codes": []
+    },
+    "sar": {
+      "owner_id": "sar",
+      "owner_name_ar": "السكك الحديدية السعودية - SAR",
+      "owner_name_en": "Saudi Arabian Railways",
+      "applicable_networks": [
+        "R",
+        "C"
+      ],
+      "mandatory_codes": [],
+      "forbidden_codes": []
+    },
+    "royal_court": {
+      "owner_id": "royal_court",
+      "owner_name_ar": "الشؤون الخاصة لخادم الحرمين الشريفين",
+      "owner_name_en": "Royal Court - Custodian of the Two Holy Mosques",
+      "applicable_networks": [
+        "C",
+        "R",
+        "A"
+      ],
+      "mandatory_codes": [],
+      "forbidden_codes": []
+    },
+    "air_force": {
+      "owner_id": "air_force",
+      "owner_name_ar": "القوات الجوية السعودية",
+      "owner_name_en": "Royal Saudi Air Force",
+      "applicable_networks": [
+        "C",
+        "R"
+      ],
+      "mandatory_codes": [],
+      "forbidden_codes": []
+    },
+    "yanbu_project": {
+      "owner_id": "yanbu_project",
+      "owner_name_ar": "الإدارة العامة لمشروع ينبع",
+      "owner_name_en": "Yanbu Project General Administration",
+      "applicable_networks": [
+        "W",
+        "T",
+        "S"
+      ],
+      "mandatory_codes": [],
+      "forbidden_codes": []
+    },
+    "baladiya_rabigh": {
+      "owner_id": "baladiya_rabigh",
+      "owner_name_ar": "بلدية محافظة رابغ",
+      "owner_name_en": "Rabigh Municipality",
+      "applicable_networks": [
+        "R",
+        "A",
+        "S"
+      ],
+      "mandatory_codes": [],
+      "forbidden_codes": []
+    },
+    "amana_riyadh_royal": {
+      "owner_id": "amana_riyadh_royal",
+      "owner_name_ar": "الهيئة الملكية لمدينة الرياض",
+      "owner_name_en": "Royal Commission for Riyadh City",
+      "applicable_networks": [
+        "R",
+        "A",
+        "C"
+      ],
+      "mandatory_codes": [],
+      "forbidden_codes": []
+    }
+  },
+  "ui_config": {
+    "window_title": "Al-Rawaf Proposal Builder v1.0",
+    "window_width": 1200,
+    "window_height": 800,
+    "theme": "light",
+    "language": "ar",
+    "default_project": "wastewater",
+    "default_owner": "nwc",
+    "show_tips": true,
+    "auto_save": true,
+    "auto_save_interval_seconds": 300
+  },
+  "paths": {
+    "base_directory": "./al_rawaf_proposal_system",
+    "config_directory": "config",
+    "metadata_directory": "metadata",
+    "templates_directory": "templates",
+    "source_documents": "templates/source_documents",
+    "extracted_sections": "templates/extracted_sections",
+    "output_directory": "output",
+    "logs_directory": "output/logs",
+    "audit_directory": "output/audit_trail",
+    "reports_directory": "output/reports"
+  },
+  "logging": {
+    "enabled": true,
+    "level": "INFO",
+    "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    "file_rotation": "daily",
+    "retention_days": 30
+  },
+  "validation": {
+    "strict_mode": true,
+    "check_dependencies": true,
+    "check_sequence": true,
+    "check_mandatory_sections": true,
+    "allow_warnings": true,
+    "allow_deprecated_codes": false
+  },
+  "performance": {
+    "max_codes_per_proposal": 300,
+    "max_file_size_mb": 500,
+    "processing_timeout_seconds": 300,
+    "image_quality": "high",
+    "image_dpi": 300
+  },
+  "security": {
+    "encryption_enabled": true,
+    "encryption_algorithm": "AES-256",
+    "audit_trail_enabled": true,
+    "backup_enabled": true,
+    "backup_location": "backups"
+  },
+  "version_info": {
+    "schema_version": "1.0",
+    "last_schema_update": "2026-04-20",
+    "compatible_versions": [
+      "1.0.0",
+      "1.0.1"
+    ],
+    "minimum_python_version": "3.9",
+    "required_libraries": [
+      "python-docx>=0.8.11",
+      "Pillow>=9.0.0",
+      "openpyxl>=3.7.0"
+    ]
+  }
+}

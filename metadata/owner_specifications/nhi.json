@@ -1,0 +1,52 @@
+{
+  "owner_id": "nhi",
+  "owner_name_ar": "الشركة الوطنية للإسكان",
+  "owner_name_en": "National Housing Company",
+  "owner_code": "NHI",
+  "applicable_networks": ["C"],
+  "default_language": "ar",
+
+  "mandatory_codes": [
+    "001-SUR-BASE",
+    "001-SOI-INV",
+    "001-PRM-GOV",
+    "001-APP-DES",
+    "001-APP-MRL",
+    "001-APP-HSE",
+    "003-FND-CON",
+    "003-RBR-WRK",
+    "003-STR-CON",
+    "004-TST-CON",
+    "004-QC-INSTALL",
+    "005-HND-DOC",
+    "005-HND-FIN"
+  ],
+  "forbidden_codes": [],
+
+  "mandatory_sections": [
+    "soil_investigation",
+    "foundation_design",
+    "structural_concrete",
+    "quality_control",
+    "safety",
+    "handover_documentation"
+  ],
+
+  "specific_requirements": {
+    "requires_compliance_matrix": false,
+    "requires_heritage_clause": false,
+    "requires_detailed_reporting": true,
+    "requires_audit_trail": true,
+    "requires_as_built_drawings": true,
+    "requires_soil_investigation_report": true,
+    "requires_structural_calculations": true,
+    "concrete_test_frequency": "every_50m3",
+    "warranty_period_years": 10
+  },
+
+  "style_guide": "templates/style_templates/nhi_style.json",
+  "contact": "projects@nhi.gov.sa",
+  "created_date": "2026-04-20",
+  "last_modified": "2026-04-20",
+  "version": "1.0"
+}

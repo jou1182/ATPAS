@@ -1,0 +1,358 @@
+{
+  "project_metadata": {
+    "project_id": "water_supply",
+    "name_ar": "نظام إمدادات المياه",
+    "name_en": "Water Supply System",
+    "network_type": "W",
+    "description_ar": "شبكات نقل وتوزيع مياه الشرب - الإصدار التجريبي",
+    "description_en": "Water transmission and distribution networks - Pilot version",
+    "created_date": "2026-04-20",
+    "last_modified": "2026-04-20",
+    "version": "1.0",
+    "total_codes_defined": 28,
+    "status": "active"
+  },
+
+  "activity_sequence": [
+    {
+      "sequence_num": 1,
+      "code_id": "001-SUR-BASE",
+      "phase_name_ar": "المسح والتثبيت",
+      "activity_name_ar": "مسح وتثبيت نقاط عامة",
+      "activity_name_en": "General Surveying & Point Establishment",
+      "pages": 5,
+      "mandatory": true,
+      "dependencies": [],
+      "description": "المسح الشامل للموقع وتثبيت نقاط المرجعية"
+    },
+
+    {
+      "sequence_num": 2,
+      "code_id": "001-SUR-NET",
+      "phase_name_ar": "المسح والتثبيت",
+      "activity_name_ar": "مسح الشبكة المحددة",
+      "activity_name_en": "Network Surveying & Alignment",
+      "pages": 4,
+      "mandatory": false,
+      "dependencies": ["001-SUR-BASE"],
+      "description": "مسح تفصيلي لمسار شبكة المياه"
+    },
+
+    {
+      "sequence_num": 3,
+      "code_id": "001-PRM-GOV",
+      "phase_name_ar": "الرخص والموافقات",
+      "activity_name_ar": "الحصول على رخص حكومية",
+      "activity_name_en": "Government Permits",
+      "pages": 3,
+      "mandatory": true,
+      "dependencies": ["001-SUR-BASE"],
+      "description": "رخص من الجهات الحكومية"
+    },
+
+    {
+      "sequence_num": 4,
+      "code_id": "001-PRM-ENV",
+      "phase_name_ar": "الرخص والموافقات",
+      "activity_name_ar": "الحصول على الموافقة البيئية",
+      "activity_name_en": "Environmental Approval",
+      "pages": 2,
+      "mandatory": true,
+      "dependencies": ["001-PRM-GOV"],
+      "description": "الموافقة البيئية"
+    },
+
+    {
+      "sequence_num": 5,
+      "code_id": "001-APP-DES",
+      "phase_name_ar": "الاعتمادات",
+      "activity_name_ar": "اعتماد المخططات التفصيلية",
+      "activity_name_en": "Design Approval",
+      "pages": 4,
+      "mandatory": true,
+      "dependencies": ["001-PRM-GOV"],
+      "description": "اعتماد الرسومات والمخططات الهندسية"
+    },
+
+    {
+      "sequence_num": 6,
+      "code_id": "001-APP-MRL",
+      "phase_name_ar": "الاعتمادات",
+      "activity_name_ar": "اعتماد المواد والموارد",
+      "activity_name_en": "Material & Resource Approval",
+      "pages": 3,
+      "mandatory": true,
+      "dependencies": ["001-APP-DES"],
+      "description": "اعتماد المواد المستخدمة"
+    },
+
+    {
+      "sequence_num": 7,
+      "code_id": "001-APP-HSE",
+      "phase_name_ar": "الاعتمادات",
+      "activity_name_ar": "خطة الصحة والسلامة",
+      "activity_name_en": "HSE Plan Approval",
+      "pages": 3,
+      "mandatory": true,
+      "dependencies": ["001-APP-DES"],
+      "description": "خطة الصحة والسلامة والبيئة"
+    },
+
+    {
+      "sequence_num": 8,
+      "code_id": "002-MAT-SITE",
+      "phase_name_ar": "نقل المواد",
+      "activity_name_ar": "نقل المواد إلى موقع العمل",
+      "activity_name_en": "Material Transfer to Site",
+      "pages": 3,
+      "mandatory": true,
+      "dependencies": ["001-APP-HSE"],
+      "description": "نقل آمن للمواد والمعدات"
+    },
+
+    {
+      "sequence_num": 9,
+      "code_id": "002-EXC-FINE",
+      "phase_name_ar": "الحفر",
+      "activity_name_ar": "حفر دقيق",
+      "activity_name_en": "Fine Excavation",
+      "pages": 6,
+      "mandatory": false,
+      "mutually_exclusive_group": "excavation_type",
+      "dependencies": ["002-MAT-SITE"],
+      "note": "اختر نوع الحفر المناسب"
+    },
+
+    {
+      "sequence_num": 9,
+      "code_id": "002-EXC-OPEN",
+      "phase_name_ar": "الحفر",
+      "activity_name_ar": "حفر مكشوف",
+      "activity_name_en": "Open Excavation",
+      "pages": 8,
+      "mandatory": false,
+      "mutually_exclusive_group": "excavation_type",
+      "dependencies": ["002-MAT-SITE"],
+      "note": "اختر نوع الحفر المناسب"
+    },
+
+    {
+      "sequence_num": 9,
+      "code_id": "002-EXC-TUNNEL",
+      "phase_name_ar": "الحفر",
+      "activity_name_ar": "حفر نفقي",
+      "activity_name_en": "Tunneling",
+      "pages": 12,
+      "mandatory": false,
+      "mutually_exclusive_group": "excavation_type",
+      "dependencies": ["002-MAT-SITE"],
+      "note": "اختر نوع الحفر المناسب"
+    },
+
+    {
+      "sequence_num": 10,
+      "code_id": "002-WST-EXC",
+      "phase_name_ar": "إدارة المخلفات",
+      "activity_name_ar": "نقل المخلفات من الحفر",
+      "activity_name_en": "Excavated Waste Removal",
+      "pages": 3,
+      "mandatory": true,
+      "dependencies_note": "يعتمد على نوع الحفر المختار"
+    },
+
+    {
+      "sequence_num": 11,
+      "code_id": "003-PIP-WAT",
+      "phase_name_ar": "تركيب الأنابيب",
+      "activity_name_ar": "تركيب أنابيب المياه",
+      "activity_name_en": "Water Pipe Installation",
+      "pages": 7,
+      "mandatory": true,
+      "dependencies_note": "يعتمد على نوع الحفر"
+    },
+
+    {
+      "sequence_num": 12,
+      "code_id": "003-WLD-FLD",
+      "phase_name_ar": "اللحام",
+      "activity_name_ar": "اللحام الحقلي",
+      "activity_name_en": "Field Welding",
+      "pages": 5,
+      "mandatory": false,
+      "dependencies": ["003-PIP-WAT"],
+      "description": "للأنابيب المعدنية فقط"
+    },
+
+    {
+      "sequence_num": 13,
+      "code_id": "004-TST-HYD",
+      "phase_name_ar": "الاختبارات",
+      "activity_name_ar": "الاختبار الهيدروستاتيكي",
+      "activity_name_en": "Hydrostatic Pressure Test",
+      "pages": 4,
+      "mandatory": true,
+      "dependencies": ["003-PIP-WAT"],
+      "description": "اختبار الضغط للتأكد من عدم التسرب"
+    },
+
+    {
+      "sequence_num": 14,
+      "code_id": "004-TST-LEK",
+      "phase_name_ar": "الاختبارات",
+      "activity_name_ar": "اختبار التسرب",
+      "activity_name_en": "Leakage Test",
+      "pages": 3,
+      "mandatory": true,
+      "dependencies": ["003-PIP-WAT"],
+      "description": "اختبار التسرب النهائي"
+    },
+
+    {
+      "sequence_num": 15,
+      "code_id": "004-QC-INSTALL",
+      "phase_name_ar": "فحص الجودة",
+      "activity_name_ar": "فحص جودة التركيب",
+      "activity_name_en": "Installation Quality Control",
+      "pages": 3,
+      "mandatory": true,
+      "dependencies": ["003-PIP-WAT"],
+      "description": "فحص شامل لجودة التركيب"
+    },
+
+    {
+      "sequence_num": 16,
+      "code_id": "005-BKF-SND",
+      "phase_name_ar": "الردم",
+      "activity_name_ar": "ردم رمل حول الأنابيب",
+      "activity_name_en": "Sand Backfilling",
+      "pages": 3,
+      "mandatory": true,
+      "dependencies": ["004-TST-LEK"],
+      "description": "ردم رمل لحماية الأنابيب"
+    },
+
+    {
+      "sequence_num": 17,
+      "code_id": "005-BKF-SOL",
+      "phase_name_ar": "الردم",
+      "activity_name_ar": "ردم تربة وضغط",
+      "activity_name_en": "Soil Backfilling & Compaction",
+      "pages": 4,
+      "mandatory": true,
+      "dependencies": ["005-BKF-SND"],
+      "description": "ردم تربة مع ضغط"
+    },
+
+    {
+      "sequence_num": 18,
+      "code_id": "005-RST-ASP",
+      "phase_name_ar": "استعادة السطح",
+      "activity_name_ar": "إعادة الأسفلت",
+      "activity_name_en": "Asphalt Restoration",
+      "pages": 5,
+      "mandatory": true,
+      "dependencies": ["005-BKF-SOL"],
+      "description": "إعادة الرصف"
+    },
+
+    {
+      "sequence_num": 19,
+      "code_id": "005-HND-DOC",
+      "phase_name_ar": "التسليم",
+      "activity_name_ar": "تسليم الوثائق",
+      "activity_name_en": "Documentation Handover",
+      "pages": 2,
+      "mandatory": true,
+      "dependencies": ["005-RST-ASP"],
+      "description": "تسليم جميع الوثائق"
+    },
+
+    {
+      "sequence_num": 20,
+      "code_id": "005-HND-TRN",
+      "phase_name_ar": "التسليم",
+      "activity_name_ar": "تدريب فريق التشغيل",
+      "activity_name_en": "Operation Team Training",
+      "pages": 3,
+      "mandatory": false,
+      "dependencies": ["005-HND-DOC"],
+      "description": "تدريب الفريق على تشغيل شبكة المياه"
+    },
+
+    {
+      "sequence_num": 21,
+      "code_id": "005-HND-FIN",
+      "phase_name_ar": "التسليم",
+      "activity_name_ar": "التسليم النهائي والقبول",
+      "activity_name_en": "Final Handover & Acceptance",
+      "pages": 2,
+      "mandatory": true,
+      "dependencies": ["005-HND-DOC"],
+      "description": "التسليم النهائي الرسمي"
+    }
+  ],
+
+  "application_rules": {
+    "excavation_selection": {
+      "rule": "اختر نوع واحد فقط من الحفر",
+      "options": [
+        { "code": "002-EXC-FINE", "for_pipes": "d < 400mm", "depth": "0.5-1.5m" },
+        { "code": "002-EXC-OPEN", "for_pipes": "d > 600mm", "depth": "1.5-4m" },
+        { "code": "002-EXC-TUNNEL", "for_pipes": "d > 1000mm", "depth": ">4m" }
+      ],
+      "mandatory": true
+    },
+
+    "owner_specific_rules": {
+      "NWC": {
+        "required_codes": ["001-SUR-BASE", "001-PRM-GOV", "001-APP-DES", "004-TST-HYD", "004-QC-INSTALL"],
+        "note": "NWC تطلب الاختبار الهيدروستاتيكي دائماً"
+      },
+      "Makkah": {
+        "required_codes": ["001-SUR-BASE", "001-PRM-GOV", "001-PRM-MUN", "001-APP-DES"],
+        "optional_codes": ["005-RST-LND"],
+        "note": "مكة تطلب رخصة بلدية إضافية"
+      }
+    }
+  },
+
+  "typical_proposals": {
+    "small_distribution": {
+      "description_ar": "شبكة توزيع صغيرة (حفر دقيق)",
+      "description_en": "Small distribution network (Fine excavation)",
+      "typical_codes": [
+        "001-SUR-BASE", "001-PRM-GOV", "001-APP-DES", "001-APP-HSE",
+        "002-MAT-SITE", "002-EXC-FINE", "002-WST-EXC",
+        "003-PIP-WAT", "004-TST-LEK", "004-QC-INSTALL",
+        "005-BKF-SND", "005-BKF-SOL", "005-RST-ASP",
+        "005-HND-DOC", "005-HND-FIN"
+      ],
+      "total_pages": 60,
+      "estimated_duration_days": 60
+    },
+
+    "main_transmission": {
+      "description_ar": "خط رئيسي (حفر مكشوف + لحام)",
+      "description_en": "Main transmission line (Open excavation + welding)",
+      "typical_codes": [
+        "001-SUR-BASE", "001-SUR-NET", "001-PRM-GOV", "001-PRM-ENV",
+        "001-APP-DES", "001-APP-MRL", "001-APP-HSE",
+        "002-MAT-SITE", "002-EXC-OPEN", "002-WST-EXC",
+        "003-PIP-WAT", "003-WLD-FLD", "004-TST-HYD", "004-TST-LEK", "004-QC-INSTALL",
+        "005-BKF-SND", "005-BKF-SOL", "005-RST-ASP",
+        "005-HND-DOC", "005-HND-TRN", "005-HND-FIN"
+      ],
+      "total_pages": 87,
+      "estimated_duration_days": 150
+    }
+  },
+
+  "statistics": {
+    "total_codes_in_project": 28,
+    "mandatory_codes": 15,
+    "optional_codes": 6,
+    "mutually_exclusive_groups": 1,
+    "minimum_proposal_codes": 14,
+    "maximum_proposal_codes": 28
+  }
+}

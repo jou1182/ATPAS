@@ -1,0 +1,359 @@
+{
+  "project_metadata": {
+    "project_id": "wastewater",
+    "name_ar": "نظام الصرف الصحي",
+    "name_en": "Wastewater System",
+    "network_type": "S",
+    "description_ar": "شبكات جمع ومعالجة مياه الصرف الصحي - نموذج تجريبي",
+    "description_en": "Wastewater collection and treatment networks - Pilot version",
+    "created_date": "2026-04-01",
+    "last_modified": "2026-04-20",
+    "version": "1.0",
+    "total_codes_defined": 32,
+    "status": "active"
+  },
+
+  "activity_sequence": [
+    {
+      "sequence_num": 1,
+      "code_id": "001-SUR-BASE",
+      "phase_name_ar": "المسح والتثبيت",
+      "activity_name_ar": "مسح وتثبيت نقاط عامة",
+      "activity_name_en": "General Surveying & Point Establishment",
+      "pages": 5,
+      "mandatory": true,
+      "dependencies": [],
+      "description": "النشاط الأول - المسح الشامل للموقع"
+    },
+
+    {
+      "sequence_num": 2,
+      "code_id": "001-PRM-GOV",
+      "phase_name_ar": "الرخص والموافقات",
+      "activity_name_ar": "الحصول على رخص حكومية",
+      "activity_name_en": "Government Permits",
+      "pages": 3,
+      "mandatory": true,
+      "dependencies": ["001-SUR-BASE"],
+      "description": "الحصول على كل الرخص الحكومية المطلوبة"
+    },
+
+    {
+      "sequence_num": 3,
+      "code_id": "001-APP-DES",
+      "phase_name_ar": "الاعتمادات",
+      "activity_name_ar": "اعتماد المخططات التفصيلية",
+      "activity_name_en": "Design Approval",
+      "pages": 4,
+      "mandatory": true,
+      "dependencies": ["001-PRM-GOV"],
+      "description": "اعتماد جميع الرسومات والمخططات الهندسية"
+    },
+
+    {
+      "sequence_num": 4,
+      "code_id": "001-APP-HSE",
+      "phase_name_ar": "الاعتمادات",
+      "activity_name_ar": "خطة الصحة والسلامة",
+      "activity_name_en": "HSE Plan Approval",
+      "pages": 3,
+      "mandatory": true,
+      "dependencies": ["001-APP-DES"],
+      "description": "خطة شاملة للصحة والسلامة المهنية والبيئة"
+    },
+
+    {
+      "sequence_num": 5,
+      "code_id": "002-MAT-SITE",
+      "phase_name_ar": "نقل المواد",
+      "activity_name_ar": "نقل المواد إلى موقع العمل",
+      "activity_name_en": "Material Transfer to Site",
+      "pages": 3,
+      "mandatory": true,
+      "dependencies": ["001-APP-HSE"],
+      "description": "نقل آمن وموثق للمواد والمعدات"
+    },
+
+    {
+      "sequence_num": 6,
+      "code_id": "002-EXC-FINE",
+      "phase_name_ar": "الحفر",
+      "activity_name_ar": "حفر دقيق لأنابيب صغيرة",
+      "activity_name_en": "Fine Excavation",
+      "pages": 6,
+      "mandatory": false,
+      "mutually_exclusive_group": "excavation_type",
+      "dependencies": ["002-MAT-SITE"],
+      "note": "اختر نوع الحفر (FINE أو OPEN أو TUNNEL)"
+    },
+
+    {
+      "sequence_num": 6,
+      "code_id": "002-EXC-OPEN",
+      "phase_name_ar": "الحفر",
+      "activity_name_ar": "حفر مكشوف لأنابيب رئيسية",
+      "activity_name_en": "Open Excavation",
+      "pages": 8,
+      "mandatory": false,
+      "mutually_exclusive_group": "excavation_type",
+      "dependencies": ["002-MAT-SITE"],
+      "note": "اختر نوع الحفر (FINE أو OPEN أو TUNNEL)"
+    },
+
+    {
+      "sequence_num": 6,
+      "code_id": "002-EXC-TUNNEL",
+      "phase_name_ar": "الحفر",
+      "activity_name_ar": "حفر نفقي (طريقة TBM)",
+      "activity_name_en": "Tunneling",
+      "pages": 12,
+      "mandatory": false,
+      "mutually_exclusive_group": "excavation_type",
+      "dependencies": ["002-MAT-SITE"],
+      "note": "اختر نوع الحفر (FINE أو OPEN أو TUNNEL)"
+    },
+
+    {
+      "sequence_num": 7,
+      "code_id": "002-WST-EXC",
+      "phase_name_ar": "إدارة المخلفات",
+      "activity_name_ar": "نقل المخلفات من الحفر",
+      "activity_name_en": "Excavated Waste Removal",
+      "pages": 3,
+      "mandatory": true,
+      "dependencies_note": "يعتمد على أي من طرق الحفر المختارة",
+      "description": "نقل وتصريف آمن للمخلفات"
+    },
+
+    {
+      "sequence_num": 8,
+      "code_id": "003-PIP-SEW",
+      "phase_name_ar": "تركيب الأنابيب",
+      "activity_name_ar": "تركيب أنابيب الصرف الصحي",
+      "activity_name_en": "Sewage Pipe Installation",
+      "pages": 7,
+      "mandatory": true,
+      "dependencies_note": "يعتمد على أنواع الحفر (FINE و/أو OPEN)",
+      "description": "تركيب آني للأنابيب حسب المخططات المعتمدة"
+    },
+
+    {
+      "sequence_num": 9,
+      "code_id": "004-TST-LEK",
+      "phase_name_ar": "الاختبارات",
+      "activity_name_ar": "اختبار التسرب",
+      "activity_name_en": "Leakage Test",
+      "pages": 3,
+      "mandatory": true,
+      "dependencies": ["003-PIP-SEW"],
+      "description": "اختبار التسرب - التأكد من سلامة الوصلات"
+    },
+
+    {
+      "sequence_num": 10,
+      "code_id": "004-QC-INSTALL",
+      "phase_name_ar": "فحص الجودة",
+      "activity_name_ar": "فحص جودة التركيب",
+      "activity_name_en": "Installation Quality Control",
+      "pages": 3,
+      "mandatory": true,
+      "dependencies": ["003-PIP-SEW"],
+      "description": "فحص شامل لجودة التركيب"
+    },
+
+    {
+      "sequence_num": 11,
+      "code_id": "005-BKF-SND",
+      "phase_name_ar": "الردم",
+      "activity_name_ar": "ردم رمل حول الأنابيب",
+      "activity_name_en": "Sand Backfilling",
+      "pages": 3,
+      "mandatory": true,
+      "dependencies": ["004-TST-LEK"],
+      "description": "ردم رمل لحماية الأنابيب"
+    },
+
+    {
+      "sequence_num": 12,
+      "code_id": "005-BKF-SOL",
+      "phase_name_ar": "الردم",
+      "activity_name_ar": "ردم تربة وضغط",
+      "activity_name_en": "Soil Backfilling & Compaction",
+      "pages": 4,
+      "mandatory": true,
+      "dependencies": ["005-BKF-SND"],
+      "description": "ردم تربة مع ضغط حسب المواصفات"
+    },
+
+    {
+      "sequence_num": 13,
+      "code_id": "005-RST-ASP",
+      "phase_name_ar": "استعادة السطح",
+      "activity_name_ar": "إعادة الأسفلت",
+      "activity_name_en": "Asphalt Restoration",
+      "pages": 5,
+      "mandatory": true,
+      "dependencies": ["005-BKF-SOL"],
+      "description": "إعادة رصف الطريق - 3 طبقات"
+    },
+
+    {
+      "sequence_num": 14,
+      "code_id": "005-HND-DOC",
+      "phase_name_ar": "التسليم",
+      "activity_name_ar": "تسليم الوثائق والرسومات",
+      "activity_name_en": "Documentation Handover",
+      "pages": 2,
+      "mandatory": true,
+      "dependencies": ["005-RST-ASP"],
+      "description": "تسليم جميع الوثائق والرسومات"
+    },
+
+    {
+      "sequence_num": 15,
+      "code_id": "005-HND-FIN",
+      "phase_name_ar": "التسليم",
+      "activity_name_ar": "التسليم النهائي والقبول",
+      "activity_name_en": "Final Handover & Acceptance",
+      "pages": 2,
+      "mandatory": true,
+      "dependencies": ["005-HND-DOC"],
+      "description": "التسليم النهائي الرسمي للمشروع"
+    }
+  ],
+
+  "application_rules": {
+    "excavation_selection": {
+      "rule": "اختر نوع واحد فقط من الحفر",
+      "options": [
+        { "code": "002-EXC-FINE", "for_pipes": "d < 400mm", "depth": "0.5-1.5m" },
+        { "code": "002-EXC-OPEN", "for_pipes": "d > 600mm", "depth": "1.5-4m" },
+        { "code": "002-EXC-TUNNEL", "for_pipes": "d > 1000mm", "depth": ">4m" }
+      ],
+      "mandatory": true
+    },
+
+    "owner_specific_rules": {
+      "NWC": {
+        "owner_name": "الشركة الوطنية للمياه",
+        "required_codes": [
+          "001-SUR-BASE",
+          "001-PRM-GOV",
+          "001-APP-DES",
+          "004-QC-INSTALL"
+        ],
+        "forbidden_codes": ["001-PRM-MUN"],
+        "style_guide": "NWC Official"
+      },
+      "Makkah": {
+        "owner_name": "أمانة العاصمة المقدسة",
+        "required_codes": [
+          "001-SUR-BASE",
+          "001-PRM-GOV",
+          "001-PRM-MUN",
+          "001-APP-DES"
+        ],
+        "optional_codes": ["005-RST-LND"],
+        "style_guide": "Makkah Official"
+      },
+      "MOH": {
+        "owner_name": "وزارة الإسكان",
+        "required_codes": [
+          "001-SUR-BASE",
+          "001-PRM-GOV",
+          "001-APP-DES",
+          "004-QC-INSTALL",
+          "005-HND-DOC"
+        ],
+        "strict_requirements": true,
+        "style_guide": "MOH Official"
+      }
+    }
+  },
+
+  "typical_proposals": {
+    "small_network": {
+      "description_ar": "شبكة صغيرة (حفر دقيق)",
+      "description_en": "Small network (Fine excavation)",
+      "typical_codes": [
+        "001-SUR-BASE",
+        "001-PRM-GOV",
+        "001-APP-DES",
+        "001-APP-HSE",
+        "002-MAT-SITE",
+        "002-EXC-FINE",
+        "002-WST-EXC",
+        "003-PIP-SEW",
+        "004-TST-LEK",
+        "004-QC-INSTALL",
+        "005-BKF-SND",
+        "005-BKF-SOL",
+        "005-RST-ASP",
+        "005-HND-DOC",
+        "005-HND-FIN"
+      ],
+      "total_pages": 58,
+      "estimated_duration_days": 45
+    },
+
+    "main_line": {
+      "description_ar": "خط رئيسي (حفر مكشوف)",
+      "description_en": "Main line (Open excavation)",
+      "typical_codes": [
+        "001-SUR-BASE",
+        "001-PRM-GOV",
+        "001-APP-DES",
+        "001-APP-HSE",
+        "002-MAT-SITE",
+        "002-EXC-OPEN",
+        "002-WST-EXC",
+        "003-PIP-SEW",
+        "004-TST-LEK",
+        "004-QC-INSTALL",
+        "005-BKF-SND",
+        "005-BKF-SOL",
+        "005-RST-ASP",
+        "005-HND-DOC",
+        "005-HND-FIN"
+      ],
+      "total_pages": 63,
+      "estimated_duration_days": 120
+    },
+
+    "deep_tunnel": {
+      "description_ar": "نفق عميق (حفر نفقي)",
+      "description_en": "Deep tunnel (Tunneling)",
+      "typical_codes": [
+        "001-SUR-BASE",
+        "001-PRM-GOV",
+        "001-APP-DES",
+        "001-APP-HSE",
+        "002-MAT-SITE",
+        "002-EXC-TUNNEL",
+        "002-WST-EXC",
+        "003-PIP-SEW",
+        "004-TST-LEK",
+        "004-QC-INSTALL",
+        "005-BKF-SND",
+        "005-BKF-SOL",
+        "005-RST-ASP",
+        "005-HND-DOC",
+        "005-HND-FIN"
+      ],
+      "total_pages": 75,
+      "estimated_duration_days": 200
+    }
+  },
+
+  "statistics": {
+    "total_codes_in_project": 32,
+    "mandatory_codes": 14,
+    "optional_codes": 1,
+    "mutually_exclusive_groups": 1,
+    "minimum_proposal_codes": 14,
+    "maximum_proposal_codes": 32,
+    "average_pages_small": 58,
+    "average_pages_medium": 63,
+    "average_pages_large": 75
+  }
+}
