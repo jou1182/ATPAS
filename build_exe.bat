@@ -1,41 +1,37 @@
 @echo off
-chcp 65001 > nul
 setlocal enabledelayedexpansion
 
-REM ── تأكّد أن الـ bat يعمل من مجلد المشروع دائماً ──────────────────
+REM -- Always run from project folder --
 cd /d "%~dp0"
 
 echo ============================================================
-echo    ATPAS v3.1 - بناء ملف EXE التنفيذي
+echo    ATPAS v3.1 - Build EXE
 echo    %DATE%  %TIME%
 echo ============================================================
 echo.
 
-REM ── معلومات آخر بناء (للمقارنة) ──────────────────────────────────
+REM -- Show last build info --
 if exist dist\ATPAS\ATPAS.exe (
     for %%F in (dist\ATPAS\ATPAS.exe) do (
-        echo   آخر EXE موجود: %%~tF  ^(الحجم: %%~zF بايت^)
+        echo   Last EXE: %%~tF   Size: %%~zF bytes
     )
-    if exist version.json (
-        type version.json | findstr /i "build_date build_time"
-    )
-    echo   ^(سيتم استبداله بالكامل الآن^)
+    echo   Will be replaced now.
 ) else (
-    echo   لا يوجد EXE سابق - بناء جديد
+    echo   No previous EXE found - fresh build.
 )
 echo.
 
-REM ── 1. إغلاق أي نسخة تشغيل حالية لفك القفل عن الملف ──────────────
-echo [1/6] إغلاق أي نسخة ATPAS مفتوحة...
+REM -- 1. Kill any running instance --
+echo [1/6] Closing any running ATPAS instance...
 taskkill /f /im ATPAS.exe >nul 2>&1
 timeout /t 2 /nobreak >nul
 
-REM ── 2. حذف البناء السابق (بـ PowerShell لتجاوز قيود الصلاحيات) ────
-echo [2/6] حذف البناء السابق...
+REM -- 2. Delete previous build (PowerShell to bypass permission errors) --
+echo [2/6] Deleting previous build...
 if exist dist\ATPAS (
     powershell -Command "Remove-Item -Path 'dist\ATPAS' -Recurse -Force -ErrorAction SilentlyContinue"
     if exist dist\ATPAS (
-        echo [خطأ] تعذّر حذف dist\ATPAS - اغلق أي برنامج يستخدم الملف
+        echo [ERROR] Cannot delete dist\ATPAS - make sure ATPAS.exe is not running.
         pause
         exit /b 1
     )
@@ -44,88 +40,79 @@ if exist build (
     powershell -Command "Remove-Item -Path 'build' -Recurse -Force -ErrorAction SilentlyContinue"
 )
 
-REM ── 3. مسح __pycache__ لضمان أحدث كود ────────────────────────────
-echo [3/6] مسح ملفات الكاش القديمة...
+REM -- 3. Clear __pycache__ --
+echo [3/6] Clearing cache files...
 for /d /r . %%d in (__pycache__) do (
     if exist "%%d" rmdir /s /q "%%d" >nul 2>&1
 )
 
-REM ── 4. كتابة طابع البناء في version.json ───────────────────────────
-echo [4/6] كتابة طابع تاريخ ووقت البناء...
+REM -- 4. Write build stamp to version.json --
+echo [4/6] Writing build timestamp...
 
-REM استخراج التاريخ والوقت بصيغة موحدة
 for /f "tokens=1-3 delims=/" %%a in ("%DATE:~0,10%") do (
     set BUILD_DATE=%%c-%%a-%%b
 )
-
-REM تنسيق الوقت
 set BUILD_TIME=%TIME:~0,8%
 set BUILD_TIME=%BUILD_TIME: =0%
-
-REM بناء رقم الإصدار الكامل: 3.1.YYYYMMDD
 set BUILD_TAG=3.1.%DATE:~6,4%%DATE:~0,2%%DATE:~3,2%
 
-REM كتابة ملف version.json
 (
 echo {
 echo   "version": "3.1",
 echo   "build_date": "%DATE:~6,4%-%DATE:~0,2%-%DATE:~3,2%",
 echo   "build_time": "%BUILD_TIME%",
-echo   "build_label": "الرواف ATPAS v3.1 — مبني في %DATE:~6,4%/%DATE:~0,2%/%DATE:~3,2%",
+echo   "build_label": "ATPAS v3.1 built on %DATE:~6,4%/%DATE:~0,2%/%DATE:~3,2%",
 echo   "build_tag": "%BUILD_TAG%"
 echo }
 ) > version.json
 
-echo    version.json كُتب بنجاح: v3.1 — %DATE%
+echo    version.json written: v3.1 -- %DATE%
 echo.
 
-REM ── 5. إنشاء مجلدات الإخراج ────────────────────────────────────────
+REM -- 5. Create output directories --
 if not exist output\generated_documents mkdir output\generated_documents
 if not exist output\audit_trail          mkdir output\audit_trail
 if not exist output\logs                 mkdir output\logs
 if not exist output\reports              mkdir output\reports
 
-REM ── 6. البناء ───────────────────────────────────────────────────────
-echo [5/6] جاري البناء (قد يستغرق 2-4 دقائق)...
+REM -- 6. Build --
+echo [5/6] Building EXE (may take 2-4 minutes)...
 echo.
 pyinstaller atpas.spec --noconfirm --clean
 
 if errorlevel 1 (
     echo.
     echo ============================================================
-    echo [خطأ] فشل البناء - راجع الأخطاء أعلاه
+    echo [ERROR] Build failed - check errors above
     echo ============================================================
     pause
     exit /b 1
 )
 
-REM ── 7. التحقق من نجاح البناء ───────────────────────────────────────
-echo [6/6] التحقق من الملف الناتج...
+REM -- 7. Verify output --
+echo [6/6] Verifying output...
 if not exist "dist\ATPAS\ATPAS.exe" (
-    echo [خطأ] الملف dist\ATPAS\ATPAS.exe غير موجود رغم نجاح PyInstaller!
+    echo [ERROR] dist\ATPAS\ATPAS.exe not found after build!
     pause
     exit /b 1
 )
 
-REM احسب حجم الملف
 for %%A in ("dist\ATPAS\ATPAS.exe") do set EXE_SIZE=%%~zA
 set /a EXE_MB=!EXE_SIZE! / 1048576
 
 echo.
 echo ============================================================
-echo   [نجح البناء] ✓
-echo   الملف:   dist\ATPAS\ATPAS.exe
-echo   الإصدار: v3.1 — %DATE%  %TIME:~0,8%
-echo   الحجم:   !EXE_MB! MB
+echo   [SUCCESS] Build complete!
+echo   File:    dist\ATPAS\ATPAS.exe
+echo   Version: v3.1 -- %DATE%  %TIME:~0,8%
+echo   Size:    !EXE_MB! MB
 echo.
-echo   ⚠️  للتوزيع على أجهزة أخرى:
-echo       انسخ مجلد dist\ATPAS بالكامل (ليس ملف EXE فقط)
-echo       عند كل تحديث في الكود: أعد تشغيل هذا الملف أولاً
+echo   NOTE: To distribute, copy the entire dist\ATPAS folder,
+echo         not just the EXE file.
 echo ============================================================
 echo.
 
-REM سؤال: هل تريد تشغيل التطبيق الآن؟
-set /p LAUNCH="تشغيل التطبيق الآن؟ (y/n): "
+set /p LAUNCH="Launch the app now? (y/n): "
 if /i "!LAUNCH!"=="y" start "" "dist\ATPAS\ATPAS.exe"
 
 pause
