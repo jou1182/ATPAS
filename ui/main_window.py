@@ -48,6 +48,7 @@ from engine.error_handler import arabic_message
 from engine.logger import setup_logging
 from engine.validator import Validator
 from ui.build_progress import BuildProgressDialog
+from ui.build_history import BuildHistoryManager, BuildHistoryDialog
 from ui.checkbox_selector import CheckboxSelectorWidget
 from ui.header_widget import HeaderWidget
 from ui.help_dialog import HelpDialog
@@ -260,7 +261,10 @@ class MainWindow(QMainWindow):
         self._preview_panel.auto_fix_requested.connect(self._on_auto_fix)
         self._preview_panel.build_requested.connect(self._on_build_requested)
         self._presets_panel.preset_applied.connect(self._on_preset_applied)
+        self._presets_panel.save_requested.connect(self._on_save_preset)
+        self._presets_panel.history_requested.connect(self._on_show_history)
         self._header.help_requested.connect(self._on_help_requested)
+        self._history_manager = BuildHistoryManager()
         self._wire_shortcuts()
 
         # Trigger initial load using whichever project/owner is pre-selected
@@ -346,6 +350,74 @@ class MainWindow(QMainWindow):
             f"✅ تم تطبيق الـ Preset — المشروع: {proj_label} | "
             f"الجهة: {owner_id} | {len(code_ids)} كود مُختار",
             hold_ms=7_000,
+        )
+
+    def _on_save_preset(self) -> None:
+        """Save current project/owner/codes selection as a named preset."""
+        import json
+        from PyQt5.QtWidgets import QInputDialog
+
+        pids = self._project_selector.current_project_ids()
+        oid  = self._project_selector.current_owner_id()
+        codes = self._checkbox_selector.get_selected_codes() if self._checkbox_selector else []
+
+        if not pids or not oid:
+            from PyQt5.QtWidgets import QMessageBox
+            QMessageBox.information(self, "تنبيه", "اختر مشروعاً وجهةً أولاً.")
+            return
+        if not codes:
+            from PyQt5.QtWidgets import QMessageBox
+            QMessageBox.information(self, "تنبيه", "اختر أكواداً أولاً قبل الحفظ.")
+            return
+
+        name, ok = QInputDialog.getText(
+            self, "حفظ كـ Preset", "اسم الـ Preset:",
+        )
+        name = name.strip()
+        if not ok or not name:
+            return
+
+        # Load existing presets, add new entry, save
+        try:
+            presets_data = self.presets_data
+            presets = presets_data.setdefault("presets", {})
+            import time as _time
+            key = f"saved_{int(_time.time())}"
+            presets[key] = {
+                "name_ar":        name,
+                "group":          "محفوظة",
+                "icon":           "💾",
+                "project_ids":    pids,
+                "owner_id":       oid,
+                "codes":          codes,
+                "description_ar": f"حُفظ تلقائياً — {len(codes)} كود",
+            }
+            with open(self._presets_path, "w", encoding="utf-8") as f:
+                json.dump(presets_data, f, ensure_ascii=False, indent=2)
+            self._presets_panel.refresh(presets_data)
+            self._show_status(
+                f'✅ تم حفظ Preset "{name}" بنجاح ({len(codes)} كود)',
+                hold_ms=6_000,
+            )
+        except Exception as exc:  # noqa: BLE001
+            self._logger.exception("Failed saving preset: %s", exc)
+            from PyQt5.QtWidgets import QMessageBox
+            QMessageBox.warning(self, "خطأ", f"تعذّر الحفظ:\n{exc}")
+
+    def _on_show_history(self) -> None:
+        """Open Build History dialog."""
+        dialog = BuildHistoryDialog(manager=self._history_manager, parent=self)
+        dialog.restore_requested.connect(self._on_history_restore)
+        dialog.exec_()
+
+    def _on_history_restore(self, project_id: str, owner_id: str, codes: list) -> None:
+        """Re-apply a previous build's project/owner/codes selection."""
+        self._project_selector.apply_preset([project_id], owner_id)
+        self._checkbox_selector.add_codes(codes)
+        self._show_status(
+            f"↩ تم استعادة البناء — {len(codes)} كود — "
+            f"{project_id} / {owner_id}",
+            hold_ms=6_000,
         )
 
     def _on_build_requested(self) -> None:

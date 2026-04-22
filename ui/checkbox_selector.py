@@ -42,6 +42,26 @@ from PyQt5.QtWidgets import (
 )
 from ui.motion import motion_single_shot, prefers_reduced_motion
 
+_PROJECT_NAMES: dict[str, str] = {
+    "wastewater":           "صرف صحي",
+    "water_supply":         "مياه شرب",
+    "asphalt":              "أسفلت",
+    "road_maintenance":     "صيانة طرق",
+    "general_construction": "إنشاءات عامة",
+    "water_transmission":   "ناقل مياه",
+}
+_OWNER_NAMES: dict[str, str] = {
+    "nwc":           "NWC",
+    "makkah":        "أمانة مكة",
+    "moh":           "وزارة الصحة",
+    "mot":           "وزارة النقل",
+    "nhi":           "NHI",
+    "amana_riyadh":  "أمانة الرياض",
+    "amana_qassim":  "أمانة القصيم",
+    "swa":           "SWA",
+    "ksia":          "KSIA",
+}
+
 _CATEGORY_NAMES: dict[str, str] = {
     "001": "الأعمال التحضيرية",
     "002": "الحفر والمخلفات",
@@ -481,17 +501,52 @@ class CheckboxSelectorWidget(QGroupBox):
             item.setChecked(True)
             item.setEnabled(False)
             item.setStyleSheet(_MANDATORY_STYLE)
-            item.setToolTip("هذا الكود إلزامي لهذه الجهة")
+            tip_prefix = "🔒 إلزامي — "
         elif is_custom:
             item.setChecked(True)
             item.setStyleSheet(_CUSTOM_STYLE)
-            item.setToolTip("كود مخصص مضاف يدوياً لهذه الجلسة")
+            tip_prefix = "✏️ مخصص — "
         elif is_exclusive:
             item.setStyleSheet(_EXCLUSIVE_STYLE)
-            item.setToolTip("هذا الكود من مجموعة حصرية — اختر نوع حفر واحداً فقط")
+            tip_prefix = "⚠️ حصري (اختر نوعاً واحداً) — "
+        else:
+            tip_prefix = ""
 
+        item.setToolTip(tip_prefix + self._build_tooltip(code_id, code_data))
         item.stateChanged.connect(self._on_checkbox_changed)
         return item
+
+    @staticmethod
+    def _build_tooltip(code_id: str, code_data: dict) -> str:
+        """Build a rich multi-line tooltip for a code item."""
+        name_ar  = code_data.get("activity_name_ar", code_id)
+        name_en  = code_data.get("activity_name_en", "")
+        pages    = _safe_int(code_data.get("page_count"), 0)
+        images   = _safe_int(code_data.get("image_count"), 0)
+        deps     = code_data.get("dependencies", [])
+        projects = [_PROJECT_NAMES.get(p, p) for p in code_data.get("project_ids", [])]
+        owners   = [_OWNER_NAMES.get(o, o)   for o in code_data.get("applicable_owners", [])]
+
+        lines = [f"{code_id}", f"{name_ar}"]
+        if name_en:
+            lines.append(name_en)
+        lines.append("─" * 34)
+
+        page_str = f"📄 {pages} صفحة"
+        img_str  = f"   🖼 {images} صورة" if images else ""
+        lines.append(page_str + img_str)
+
+        if deps:
+            lines.append(f"🔗 يتطلب: {', '.join(deps)}")
+        else:
+            lines.append("🔗 لا تبعيات")
+
+        if projects:
+            lines.append(f"🏗️  {' • '.join(projects)}")
+        if owners:
+            lines.append(f"🏢  {' • '.join(owners)}")
+
+        return "\n".join(lines)
 
     # ------------------------------------------------------------------
     # Search — debounced (150 ms)

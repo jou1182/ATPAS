@@ -43,6 +43,7 @@ from PyQt5.QtWidgets import (
 from engine.builder import Builder
 from ui.motion import motion_ms, motion_single_shot, prefers_reduced_motion
 from ui.build_report import BuildReportDialog
+from ui.build_history import BuildHistoryManager
 
 
 class BuildWorker(QThread):
@@ -122,9 +123,12 @@ class BuildProgressDialog(QDialog):
         self._build_start_time: float = 0.0   # set in start_build()
         self._elapsed_seconds: float = 0.0    # computed in _on_finished()
 
-        # Keep a reference to codes for BuildReportDialog
+        # Keep a reference to codes for BuildReportDialog + history
         self._codes = codes
         self._selected_codes = selected_codes
+        self._project_id = project_id
+        self._owner_id   = owner_id
+        self._history_mgr = BuildHistoryManager()
 
         # Smooth progress-bar animation — reused for every step
         # (initialised after the progress bar widget is created below)
@@ -275,6 +279,27 @@ class BuildProgressDialog(QDialog):
 
         if success:
             self._elapsed_seconds = time.monotonic() - self._build_start_time
+
+            # ── حفظ في سجل البنات ───────────────────────────────────────
+            page_count = sum(
+                int(c.get("page_count", 0))
+                for c in self._codes.values()
+                if c.get("code_id") in self._selected_codes
+                or (isinstance(c, dict) and c.get("code_id") in self._selected_codes)
+            )
+            # simpler: count pages from selected codes directly
+            page_count = sum(
+                int(self._codes.get(cid, {}).get("page_count", 0))
+                for cid in self._selected_codes
+            )
+            self._history_mgr.save_entry(
+                project_id=self._project_id,
+                owner_id=self._owner_id,
+                codes=self._selected_codes,
+                output_file=str(self._output_path),
+                elapsed_seconds=self._elapsed_seconds,
+                page_count=page_count,
+            )
 
             self._progress_bar.setValue(100)
             self._status_label.setText("✅ العرض الفني جاهز للتقديم")

@@ -43,7 +43,11 @@ class PresetsPanelWidget(QWidget):
     """Collapsible strip of grouped preset-apply buttons."""
 
     # Emitted when user clicks a preset button
-    preset_applied = pyqtSignal(list, str, list)   # project_ids, owner_id, code_ids
+    preset_applied   = pyqtSignal(list, str, list)   # project_ids, owner_id, code_ids
+    # Emitted when user clicks "Save Preset" — main_window handles the data collection
+    save_requested   = pyqtSignal()
+    # Emitted when user clicks "History"
+    history_requested = pyqtSignal()
 
     def __init__(self, presets_data: dict[str, Any], parent: QWidget | None = None) -> None:
         super().__init__(parent)
@@ -75,9 +79,7 @@ class PresetsPanelWidget(QWidget):
         title_lbl.setStyleSheet("color: #C8912A; font-weight: 700; font-size: 13px; background: transparent;")
         title_lbl.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
 
-        self._toggle_btn = QPushButton("▲ إخفاء")
-        self._toggle_btn.setFixedWidth(80)
-        self._toggle_btn.setStyleSheet("""
+        _btn_style = """
             QPushButton {
                 background: transparent;
                 color: #A8BCC8;
@@ -87,11 +89,31 @@ class PresetsPanelWidget(QWidget):
                 padding: 2px 8px;
             }
             QPushButton:hover { background: #3D5570; color: white; }
-        """)
+        """
+
+        self._toggle_btn = QPushButton("▲ إخفاء")
+        self._toggle_btn.setFixedWidth(80)
+        self._toggle_btn.setStyleSheet(_btn_style)
         self._toggle_btn.clicked.connect(self._toggle_panel)
+
+        save_btn = QPushButton("💾 حفظ")
+        save_btn.setFixedWidth(70)
+        save_btn.setToolTip("حفظ الاختيار الحالي كـ Preset جديد")
+        save_btn.setStyleSheet(_btn_style)
+        save_btn.setCursor(Qt.PointingHandCursor)
+        save_btn.clicked.connect(self.save_requested.emit)
+
+        hist_btn = QPushButton("📋 سجل")
+        hist_btn.setFixedWidth(70)
+        hist_btn.setToolTip("عرض آخر 10 بنات مع إمكانية إعادة التطبيق")
+        hist_btn.setStyleSheet(_btn_style)
+        hist_btn.setCursor(Qt.PointingHandCursor)
+        hist_btn.clicked.connect(self.history_requested.emit)
 
         header_layout.addWidget(title_lbl)
         header_layout.addStretch()
+        header_layout.addWidget(save_btn)
+        header_layout.addWidget(hist_btn)
         header_layout.addWidget(self._toggle_btn)
         outer.addWidget(header)
 
@@ -249,6 +271,18 @@ class PresetsPanelWidget(QWidget):
     # ------------------------------------------------------------------
     # Toggle
     # ------------------------------------------------------------------
+
+    def refresh(self, new_presets_data: dict) -> None:
+        """Reload panel content after saving a new preset."""
+        self._presets = new_presets_data.get("presets", {})
+        # Clear old content and rebuild
+        old_layout = self._content.layout()
+        while old_layout.count():
+            item = old_layout.takeAt(0)
+            w = item.widget()
+            if w:
+                w.deleteLater()
+        self._build_group_boxes(old_layout)
 
     def _toggle_panel(self) -> None:
         self._expanded = not self._expanded
