@@ -376,15 +376,49 @@ class HelpDialog(QDialog):
         layout.addWidget(tabs, stretch=1)
 
         # ── أزرار ──────────────────────────────────────────────────────
-        btn_box = QDialogButtonBox(QDialogButtonBox.Close)
-        btn_box.rejected.connect(self.accept)
-        btn_box.button(QDialogButtonBox.Close).setText("إغلاق")
-        btn_box.button(QDialogButtonBox.Close).setStyleSheet("""
-            background: #152433; color: white;
-            padding: 6px 24px; border-radius: 5px;
-            font-weight: 700; font-size: 12px;
+        from PyQt5.QtWidgets import QHBoxLayout, QPushButton
+
+        btn_row = QHBoxLayout()
+
+        # زر "أعد عرض دليل البداية" — يحذف ملف الترحيب ويفتح الشاشة مجدداً
+        welcome_btn = QPushButton("🏁 أعد عرض دليل البداية")
+        welcome_btn.setToolTip("يحذف علامة 'شاهدت الترحيب' ويفتح شاشة البداية الآن")
+        welcome_btn.setStyleSheet("""
+            QPushButton {
+                background: #1C3045; color: #C9921B;
+                border: none; border-radius: 5px;
+                padding: 6px 16px; font-size: 12px; font-weight: 700;
+            }
+            QPushButton:hover { background: #152433; }
         """)
-        layout.addWidget(btn_box)
+        welcome_btn.clicked.connect(self._reshow_welcome)
+
+        close_btn = QPushButton("إغلاق")
+        close_btn.setStyleSheet("""
+            QPushButton {
+                background: #152433; color: white;
+                border: none; border-radius: 5px;
+                padding: 6px 24px; font-size: 12px; font-weight: 700;
+            }
+            QPushButton:hover { background: #1C3045; }
+        """)
+        close_btn.clicked.connect(self.accept)
+
+        btn_row.addWidget(welcome_btn)
+        btn_row.addStretch()
+        btn_row.addWidget(close_btn)
+        layout.addLayout(btn_row)
+
+    def _reshow_welcome(self) -> None:
+        """احذف ملف الترحيب وأعد عرض شاشة البداية فوراً."""
+        from ui.welcome_overlay import WelcomeDialog, _get_marker_path
+        marker = _get_marker_path()
+        try:
+            marker.unlink(missing_ok=True)
+        except OSError:
+            pass
+        self.accept()                          # أغلق نافذة المساعدة
+        WelcomeDialog(self.parent()).exec_()   # أظهر شاشة الترحيب
 
     @staticmethod
     def _make_browser(html: str) -> QTextBrowser:
