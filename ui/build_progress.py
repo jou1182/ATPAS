@@ -21,6 +21,7 @@ from __future__ import annotations
 import os
 import subprocess
 import sys
+import time
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -41,6 +42,7 @@ from PyQt5.QtWidgets import (
 
 from engine.builder import Builder
 from ui.motion import motion_ms, motion_single_shot, prefers_reduced_motion
+from ui.build_report import BuildReportDialog
 
 
 class BuildWorker(QThread):
@@ -95,6 +97,9 @@ class BuildWorker(QThread):
 class BuildProgressDialog(QDialog):
     """Modal progress dialog shown while BuildWorker is running."""
 
+    #: يُطلق عند طلب المستخدم بناء عرض جديد من تقرير البناء
+    new_build_requested = pyqtSignal()
+
     def __init__(
         self,
         codes: dict[str, Any],
@@ -114,6 +119,12 @@ class BuildProgressDialog(QDialog):
         # which can break exec_().  We block closing via closeEvent() instead.
 
         self._build_running = False
+        self._build_start_time: float = 0.0   # set in start_build()
+        self._elapsed_seconds: float = 0.0    # computed in _on_finished()
+
+        # Keep a reference to codes for BuildReportDialog
+        self._codes = codes
+        self._selected_codes = selected_codes
 
         # Smooth progress-bar animation — reused for every step
         # (initialised after the progress bar widget is created below)
@@ -161,6 +172,18 @@ class BuildProgressDialog(QDialog):
         self._folder_btn.setVisible(False)
         self._folder_btn.clicked.connect(self._open_folder)
 
+        self._report_btn = QPushButton("📊 تقرير البناء")
+        self._report_btn.setVisible(False)
+        self._report_btn.setStyleSheet(
+            "QPushButton {"
+            "  background: #152433; color: #C9921B;"
+            "  border: none; border-radius: 6px;"
+            "  padding: 6px 16px; font-size: 12px; font-weight: 700;"
+            "}"
+            "QPushButton:hover { background: #1C3045; }"
+        )
+        self._report_btn.clicked.connect(self._open_report_dialog)
+
         self._close_btn = QPushButton("إغلاق")
         self._close_btn.setEnabled(False)
         self._close_btn.clicked.connect(self.accept)
@@ -169,6 +192,7 @@ class BuildProgressDialog(QDialog):
         action_row.addWidget(self._open_btn)
         action_row.addWidget(self._folder_btn)
         action_row.addStretch()
+        action_row.addWidget(self._report_btn)
         action_row.addWidget(self._close_btn)
 
         # ── Layout ─────────────────────────────────────────────────────
@@ -198,6 +222,7 @@ class BuildProgressDialog(QDialog):
 
     def start_build(self) -> None:
         self._build_running = True
+        self._build_start_time = time.monotonic()
         self._worker.start()
 
     # ------------------------------------------------------------------
@@ -249,6 +274,8 @@ class BuildProgressDialog(QDialog):
         # NOTE: No setWindowFlags() here — it would recreate the HWND and break exec_()
 
         if success:
+            self._elapsed_seconds = time.monotonic() - self._build_start_time
+
             self._progress_bar.setValue(100)
             self._status_label.setText("✅ العرض الفني جاهز للتقديم")
             self._status_label.setStyleSheet(
@@ -275,8 +302,10 @@ class BuildProgressDialog(QDialog):
             self._log.addItem(QListWidgetItem(f"✓ الملف: {abs_path}"))
 
             # Reveal action buttons with staggered fade-in
-            self._fade_in(self._open_btn,   delay_ms=120)
-            self._fade_in(self._folder_btn, delay_ms=220)
+            # Report button appears last (highlighted, draws attention)
+            self._fade_in(self._open_btn,    delay_ms=120)
+            self._fade_in(self._folder_btn,  delay_ms=220)
+            self._fade_in(self._report_btn,  delay_ms=340)
         else:
             self._progress_bar.setStyleSheet(
                 "QProgressBar::chunk { background: #C62828; }"
@@ -320,6 +349,23 @@ class BuildProgressDialog(QDialog):
             motion_single_shot(delay_ms, _start)
         else:
             _start()
+
+    # ------------------------------------------------------------------
+    # Build report
+    # ------------------------------------------------------------------
+
+    def _open_report_dialog(self) -> None:
+        """Close this dialog and open the detailed post-build report."""
+        report = BuildReportDialog(
+            output_path=self._output_path,
+            selected_codes=self._selected_codes,
+            registry_codes=self._codes,
+            elapsed_seconds=self._elapsed_seconds,
+            parent=self.parent(),
+        )
+        report.new_build_requested.connect(self.new_build_requested.emit)
+        self.accept()       # close progress dialog first
+        report.exec_()      # then open report (uses parent = MainWindow)
 
     # ------------------------------------------------------------------
     # File / folder openers

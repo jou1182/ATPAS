@@ -1,0 +1,7 @@
+{
+  "version": "3.1",
+  "build_date": "dev",
+  "build_time": "dev",
+  "build_label": "Development (python main.py)",
+  "git_note": "Run build_exe.bat to stamp a real build date"
+}

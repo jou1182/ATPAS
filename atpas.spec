@@ -31,6 +31,7 @@ datas = [
     ('codes_registry.json',  '.'),
     ('master_config.json',   '.'),
     ('presets.json',         '.'),
+    ('version.json',         '.'),   # build stamp — written by build_exe.bat
     # Owner spec JSON files
     ('metadata',             'metadata'),
     # Style templates + source document stubs

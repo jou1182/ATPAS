@@ -50,9 +50,11 @@ from engine.validator import Validator
 from ui.build_progress import BuildProgressDialog
 from ui.checkbox_selector import CheckboxSelectorWidget
 from ui.header_widget import HeaderWidget
+from ui.help_dialog import HelpDialog
 from ui.preview_panel import PreviewPanelWidget
 from ui.presets_panel import PresetsPanelWidget
 from ui.project_selector import ProjectSelectorWidget
+from ui.welcome_overlay import show_if_first_run
 from ui.motion import motion_ms, motion_single_shot, prefers_reduced_motion
 from utils.json_manager import load_json
 
@@ -258,6 +260,7 @@ class MainWindow(QMainWindow):
         self._preview_panel.auto_fix_requested.connect(self._on_auto_fix)
         self._preview_panel.build_requested.connect(self._on_build_requested)
         self._presets_panel.preset_applied.connect(self._on_preset_applied)
+        self._header.help_requested.connect(self._on_help_requested)
         self._wire_shortcuts()
 
         # Trigger initial load using whichever project/owner is pre-selected
@@ -377,6 +380,8 @@ class MainWindow(QMainWindow):
             output_dir=output_dir,
             parent=self,
         )
+        # «بناء عرض جديد» في تقرير البناء يُعيد الإطلاق مباشرةً
+        dialog.new_build_requested.connect(self._on_build_requested)
         dialog.start_build()
         dialog.exec_()
 
@@ -436,10 +441,22 @@ class MainWindow(QMainWindow):
         self._focus_search_action.triggered.connect(self._focus_code_search)
         self.addAction(self._focus_search_action)
 
+        # F1 → فتح نافذة المساعدة
+        self._help_action = QAction(self)
+        self._help_action.setShortcut(QKeySequence("F1"))
+        self._help_action.setShortcutContext(Qt.WindowShortcut)
+        self._help_action.triggered.connect(self._on_help_requested)
+        self.addAction(self._help_action)
+
     def _focus_code_search(self) -> None:
         """Focus code search box from anywhere in the main window."""
         if self._checkbox_selector is not None:
             self._checkbox_selector.focus_search()
+
+    def _on_help_requested(self, tab_index: int = 0) -> None:
+        """Open the help dialog (F1 or header button)."""
+        dialog = HelpDialog(parent=self, tab_index=tab_index)
+        dialog.exec_()
 
     def _show_status(
         self,
@@ -463,6 +480,9 @@ class MainWindow(QMainWindow):
         return list(owner_specs.get(owner_id, {}).get("mandatory_codes", []))
 
     def _show_startup_issues_if_any(self) -> None:
+        # أظهر شاشة الترحيب للمستخدم الجديد (مرة واحدة فقط)
+        QTimer.singleShot(400, lambda: show_if_first_run(parent=self))
+
         if not self._startup_errors:
             return
         details = "\n".join(f"• {item}" for item in self._startup_errors)
