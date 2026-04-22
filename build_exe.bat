@@ -28,19 +28,21 @@ echo.
 REM ── 1. إغلاق أي نسخة تشغيل حالية لفك القفل عن الملف ──────────────
 echo [1/6] إغلاق أي نسخة ATPAS مفتوحة...
 taskkill /f /im ATPAS.exe >nul 2>&1
-timeout /t 1 /nobreak >nul
+timeout /t 2 /nobreak >nul
 
-REM ── 2. حذف البناء السابق ───────────────────────────────────────────
+REM ── 2. حذف البناء السابق (بـ PowerShell لتجاوز قيود الصلاحيات) ────
 echo [2/6] حذف البناء السابق...
 if exist dist\ATPAS (
-    rmdir /s /q dist\ATPAS
+    powershell -Command "Remove-Item -Path 'dist\ATPAS' -Recurse -Force -ErrorAction SilentlyContinue"
     if exist dist\ATPAS (
-        echo [خطأ] تعذّر حذف dist\ATPAS - تأكّد أن ATPAS.exe ليس قيد التشغيل
+        echo [خطأ] تعذّر حذف dist\ATPAS - اغلق أي برنامج يستخدم الملف
         pause
         exit /b 1
     )
 )
-if exist build\ATPAS rmdir /s /q build\ATPAS
+if exist build (
+    powershell -Command "Remove-Item -Path 'build' -Recurse -Force -ErrorAction SilentlyContinue"
+)
 
 REM ── 3. مسح __pycache__ لضمان أحدث كود ────────────────────────────
 echo [3/6] مسح ملفات الكاش القديمة...
