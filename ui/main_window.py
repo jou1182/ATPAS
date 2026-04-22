@@ -30,6 +30,7 @@ from pathlib import Path
 from typing import Any
 
 from PyQt5.QtCore import QEasingCurve, QPropertyAnimation, Qt, QTimer
+from PyQt5.QtCore import QSettings
 from PyQt5.QtGui import QKeySequence
 from PyQt5.QtWidgets import (
     QAction,
@@ -47,6 +48,7 @@ from engine.dependency_resolver import DependencyResolver
 from engine.error_handler import arabic_message
 from engine.logger import setup_logging
 from engine.validator import Validator
+from ui.backup_manager import BackupDialog, create_backup
 from ui.build_progress import BuildProgressDialog
 from ui.build_history import BuildHistoryManager, BuildHistoryDialog
 from ui.import_wizard import ImportWizardDialog
@@ -125,10 +127,13 @@ class MainWindow(QMainWindow):
         self._status_hold_until = 0.0
         self._focus_search_action: QAction | None = None
 
+        self._settings = QSettings("Rawaf", "ATPAS")
+
         self._load_startup_data()
         self._build_engine()
         self._configure_window()
         self._build_layout()
+        self._restore_window_geometry()
         self._show_startup_issues_if_any()
 
     def showEvent(self, event) -> None:  # type: ignore[override]
@@ -138,6 +143,21 @@ class MainWindow(QMainWindow):
             return
         self._startup_anim_started = True
         motion_single_shot(50, self._play_startup_choreography)
+        # Offer to restore draft session (after UI is visible)
+        motion_single_shot(800, self._maybe_restore_draft)
+
+    def closeEvent(self, event) -> None:  # type: ignore[override]
+        """Save window geometry and draft session before closing."""
+        self._settings.setValue("geometry", self.saveGeometry())
+        self._settings.setValue("windowState", self.saveState())
+        self._save_draft_session()
+        # Auto-backup on close if enabled
+        if self._settings.value("autoBackupOnClose", False, type=bool):
+            try:
+                create_backup("auto")
+            except Exception:  # noqa: BLE001
+                pass
+        super().closeEvent(event)
 
     # ------------------------------------------------------------------
     # Startup
@@ -266,6 +286,7 @@ class MainWindow(QMainWindow):
         self._presets_panel.history_requested.connect(self._on_show_history)
         self._header.help_requested.connect(self._on_help_requested)
         self._header.import_requested.connect(self._on_import_wizard)
+        self._header.backup_requested.connect(self._on_backup)
         self._history_manager = BuildHistoryManager()
         self._wire_shortcuts()
 
@@ -529,6 +550,15 @@ class MainWindow(QMainWindow):
         self._import_action.triggered.connect(self._on_import_wizard)
         self.addAction(self._import_action)
 
+        # Ctrl+B → فتح نافذة النسخ الاحتياطي
+        self._backup_action = QAction(self)
+        self._backup_action.setShortcut(QKeySequence("Ctrl+B"))
+        self._backup_action.setShortcutContext(Qt.WindowShortcut)
+        self._backup_action.triggered.connect(self._on_backup)
+        self.addAction(self._backup_action)
+
+        # Ctrl+E → تصدير CSV (يُفعَّل من PreviewPanel مباشرةً — هنا للتوثيق فقط)
+
     def _focus_code_search(self) -> None:
         """Focus code search box from anywhere in the main window."""
         if self._checkbox_selector is not None:
@@ -559,6 +589,82 @@ class MainWindow(QMainWindow):
         """Read mandatory_codes from owner_specifications in config_data."""
         owner_specs = self.config_data.get("owner_specifications", {})
         return list(owner_specs.get(owner_id, {}).get("mandatory_codes", []))
+
+    def _on_backup(self) -> None:
+        """BKL-013: Open the Backup & Restore dialog."""
+        dialog = BackupDialog(parent=self)
+        dialog.restore_requested.connect(self._reload_after_import)
+        dialog.exec_()
+
+    # ------------------------------------------------------------------
+    # Window state persistence (QSettings)
+    # ------------------------------------------------------------------
+
+    def _restore_window_geometry(self) -> None:
+        """Restore saved window size and position."""
+        geom = self._settings.value("geometry")
+        state = self._settings.value("windowState")
+        if geom:
+            self.restoreGeometry(geom)
+        if state:
+            self.restoreState(state)
+
+    # ------------------------------------------------------------------
+    # Draft session save / restore
+    # ------------------------------------------------------------------
+
+    _DRAFT_KEY_PIDS   = "draft/project_ids"
+    _DRAFT_KEY_OID    = "draft/owner_id"
+    _DRAFT_KEY_CODES  = "draft/selected_codes"
+    _DRAFT_KEY_EXISTS = "draft/exists"
+
+    def _save_draft_session(self) -> None:
+        """Persist current selection to QSettings so it can be restored next launch."""
+        if self._project_selector is None or self._checkbox_selector is None:
+            return
+        pids  = self._project_selector.current_project_ids()
+        oid   = self._project_selector.current_owner_id()
+        codes = self._checkbox_selector.get_selected_codes()
+        if not pids or not oid:
+            self._settings.setValue(self._DRAFT_KEY_EXISTS, False)
+            return
+        self._settings.setValue(self._DRAFT_KEY_PIDS,   pids)
+        self._settings.setValue(self._DRAFT_KEY_OID,    oid)
+        self._settings.setValue(self._DRAFT_KEY_CODES,  codes)
+        self._settings.setValue(self._DRAFT_KEY_EXISTS, True)
+
+    def _maybe_restore_draft(self) -> None:
+        """Offer to restore the last session if a draft exists and codes were selected."""
+        if not self._settings.value(self._DRAFT_KEY_EXISTS, False, type=bool):
+            return
+        codes = self._settings.value(self._DRAFT_KEY_CODES, [])
+        if not codes:
+            return
+
+        oid  = self._settings.value(self._DRAFT_KEY_OID,  "")
+        pids = self._settings.value(self._DRAFT_KEY_PIDS, [])
+        if isinstance(pids, str):
+            pids = [pids]
+        n = len(codes)
+
+        reply = QMessageBox.question(
+            self,
+            "استعادة الجلسة السابقة",
+            f"تم العثور على اختيار محفوظ من الجلسة الأخيرة:\n\n"
+            f"    {n} كود  |  {' + '.join(pids)}  |  {oid}\n\n"
+            f"هل تريد استعادة هذا الاختيار؟",
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.Yes,
+        )
+        if reply == QMessageBox.Yes:
+            self._project_selector.apply_preset(pids, oid)
+            self._checkbox_selector.add_codes(codes)
+            self._show_status(
+                f"↩ تم استعادة الجلسة السابقة — {n} كود",
+                hold_ms=6_000,
+            )
+        # Clear draft either way — don't ask again
+        self._settings.setValue(self._DRAFT_KEY_EXISTS, False)
 
     def _on_import_wizard(self) -> None:
         """BKL-012: Open Import Wizard for adding codes and managing owners."""

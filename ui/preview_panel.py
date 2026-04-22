@@ -13,17 +13,21 @@
 
 from __future__ import annotations
 
+import csv
+from pathlib import Path
 from typing import Any
 
 from PyQt5.QtCore import QEasingCurve, QPropertyAnimation, Qt, pyqtSignal
 from PyQt5.QtGui import QColor
 from PyQt5.QtWidgets import (
+    QFileDialog,
     QGraphicsOpacityEffect,
     QGroupBox,
     QHBoxLayout,
     QLabel,
     QListWidget,
     QListWidgetItem,
+    QMessageBox,
     QPushButton,
     QSizePolicy,
     QVBoxLayout,
@@ -90,7 +94,7 @@ class PreviewPanelWidget(QWidget):
         self._validation_list.setMaximumHeight(140)
         val_layout.addWidget(self._validation_list)
 
-        # Buttons
+        # Buttons — top row: auto-fix + build
         btn_layout = QHBoxLayout()
         self._autofix_btn = QPushButton("إصلاح تلقائي")
         self._autofix_btn.setEnabled(False)
@@ -112,11 +116,41 @@ class PreviewPanelWidget(QWidget):
         btn_layout.addWidget(self._autofix_btn)
         btn_layout.addWidget(self._build_btn)
 
+        # Secondary row: CSV export
+        export_row = QHBoxLayout()
+        self._export_btn = QPushButton("📊  تصدير CSV")
+        self._export_btn.setEnabled(False)
+        self._export_btn.setToolTip(
+            "تصدير قائمة الأكواد المختارة إلى ملف CSV\n"
+            "(يمكن فتحه في Excel للمراجعة أو المقارنة)"
+        )
+        self._export_btn.setCursor(Qt.PointingHandCursor)
+        self._export_btn.setStyleSheet("""
+            QPushButton {
+                background: transparent;
+                color: #1B6B9A;
+                border: 1px solid #1B6B9A60;
+                border-radius: 5px;
+                font-size: 11px;
+                padding: 4px 14px;
+            }
+            QPushButton:hover  { background: #E3F1FA; border-color: #1B6B9A; }
+            QPushButton:pressed { background: #C8E5F5; }
+            QPushButton:disabled { color: #AAB8C4; border-color: #DDEAF4; }
+        """)
+        self._export_btn.clicked.connect(self._on_export_csv)
+        export_row.addStretch()
+        export_row.addWidget(self._export_btn)
+
+        # Keep a reference to current selected codes for the export action
+        self._current_selected: list[str] = []
+
         root = QVBoxLayout(self)
         root.addWidget(self._summary_label)
         root.addWidget(codes_box, stretch=3)
         root.addWidget(val_box, stretch=2)
         root.addLayout(btn_layout)
+        root.addLayout(export_row)
 
     # ------------------------------------------------------------------
     # Public API
@@ -129,6 +163,7 @@ class PreviewPanelWidget(QWidget):
         warnings: list[str],
     ) -> None:
         """Refresh all sections from current selection + validation results."""
+        self._current_selected = list(selected_codes)
         self._refresh_codes_list(selected_codes)
         self._refresh_validation(errors, warnings)
         self._refresh_summary(selected_codes, errors)
@@ -137,6 +172,7 @@ class PreviewPanelWidget(QWidget):
         now_autofix = len(warnings) > 0
         self._build_btn.setEnabled(now_enabled)
         self._autofix_btn.setEnabled(now_autofix)
+        self._export_btn.setEnabled(len(selected_codes) > 0)
 
         # Pulse attention when build button transitions disabled → enabled
         if now_enabled and not self._build_btn_was_enabled:
@@ -202,13 +238,67 @@ class PreviewPanelWidget(QWidget):
         anim.start(QPropertyAnimation.DeleteWhenStopped)
 
     def clear(self) -> None:
+        self._current_selected = []
         self._codes_list.clear()
         self._validation_list.clear()
         self._summary_label.setText("لم يتم اختيار أكواد بعد")
         self._build_btn.setEnabled(False)
         self._autofix_btn.setEnabled(False)
+        self._export_btn.setEnabled(False)
         self._build_btn_was_enabled = False
         self._autofix_btn_was_enabled = False
+
+    def _on_export_csv(self) -> None:
+        """Export selected codes to a UTF-8 CSV file."""
+        if not self._current_selected:
+            return
+
+        default_name = f"ATPAS_codes_{len(self._current_selected)}.csv"
+        path, _ = QFileDialog.getSaveFileName(
+            self,
+            "تصدير قائمة الأكواد",
+            str(Path.home() / "Desktop" / default_name),
+            "CSV Files (*.csv);;All Files (*)",
+        )
+        if not path:
+            return
+
+        try:
+            with open(path, "w", newline="", encoding="utf-8-sig") as f:
+                writer = csv.writer(f)
+                writer.writerow([
+                    "رقم",
+                    "كود",
+                    "الاسم العربي",
+                    "الاسم الإنجليزي",
+                    "الفئة",
+                    "الشبكة",
+                    "الصفحات",
+                    "الترتيب",
+                    "محتوى حقيقي",
+                ])
+                for i, cid in enumerate(self._sorted_codes(self._current_selected), 1):
+                    c = self._codes.get(cid, {})
+                    has_content = _CONTENT_LIB.exists(cid)
+                    writer.writerow([
+                        i,
+                        cid,
+                        c.get("activity_name_ar", ""),
+                        c.get("activity_name_en", ""),
+                        c.get("category", ""),
+                        c.get("network", ""),
+                        _safe_int(c.get("page_count"), 0),
+                        _safe_int(c.get("sequence_order"), 0),
+                        "نعم" if has_content else "لا",
+                    ])
+
+            QMessageBox.information(
+                self,
+                "تم التصدير",
+                f"تم تصدير {len(self._current_selected)} كود إلى:\n{path}",
+            )
+        except Exception as exc:  # noqa: BLE001
+            QMessageBox.critical(self, "خطأ", f"تعذّر التصدير:\n{exc}")
 
     # ------------------------------------------------------------------
     # Private helpers
