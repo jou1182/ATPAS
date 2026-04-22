@@ -161,6 +161,8 @@ class HeaderWidget(QWidget):
 
     #: يُطلق عند الضغط على زر المساعدة — MainWindow يستمع ويفتح HelpDialog
     help_requested = pyqtSignal()
+    #: يُطلق عند الضغط على زر الاستيراد — MainWindow يفتح ImportWizardDialog
+    import_requested = pyqtSignal()
 
     def __init__(self, active_codes: int = 0, parent: QWidget | None = None) -> None:
         super().__init__(parent)
@@ -252,28 +254,49 @@ class HeaderWidget(QWidget):
         ver_lbl.setAlignment(Qt.AlignCenter)
         layout.addWidget(ver_lbl)
 
-        # ── زر المساعدة ❓ ──────────────────────────────────────────────
-        help_btn = QPushButton("❓  مساعدة", self)
-        help_btn.setToolTip("فتح دليل المساعدة (F1)")
-        help_btn.setCursor(Qt.PointingHandCursor)
-        help_btn.setStyleSheet("""
-            QPushButton {
-                color: #C9921B;
+        # ── زر الاستيراد 📥 ─────────────────────────────────────────────
+        _hdr_btn_style = """
+            QPushButton {{
+                color: {fg};
                 background: transparent;
-                border: 1px solid #C9921B70;
+                border: 1px solid {border};
                 border-radius: 5px;
                 padding: 5px 14px;
                 font-size: 12px;
                 font-weight: 700;
-            }
-            QPushButton:hover {
-                background: #C9921B20;
-                border-color: #C9921B;
-            }
-            QPushButton:pressed {
-                background: #C9921B40;
-            }
-        """)
+            }}
+            QPushButton:hover {{
+                background: {hover_bg};
+                border-color: {hover_border};
+            }}
+            QPushButton:pressed {{
+                background: {pressed_bg};
+            }}
+        """
+        import_btn = QPushButton("📥  استيراد", self)
+        import_btn.setToolTip("استيراد أكواد جديدة أو إدارة الجهات المالكة (Ctrl+I)")
+        import_btn.setCursor(Qt.PointingHandCursor)
+        import_btn.setStyleSheet(_hdr_btn_style.format(
+            fg="#5CB8E8",
+            border="#5CB8E870",
+            hover_bg="#5CB8E820",
+            hover_border="#5CB8E8",
+            pressed_bg="#5CB8E840",
+        ))
+        import_btn.clicked.connect(self.import_requested.emit)
+        layout.addWidget(import_btn)
+
+        # ── زر المساعدة ❓ ──────────────────────────────────────────────
+        help_btn = QPushButton("❓  مساعدة", self)
+        help_btn.setToolTip("فتح دليل المساعدة (F1)")
+        help_btn.setCursor(Qt.PointingHandCursor)
+        help_btn.setStyleSheet(_hdr_btn_style.format(
+            fg="#C9921B",
+            border="#C9921B70",
+            hover_bg="#C9921B20",
+            hover_border="#C9921B",
+            pressed_bg="#C9921B40",
+        ))
         help_btn.clicked.connect(self.help_requested.emit)
         layout.addWidget(help_btn)
 

@@ -49,6 +49,7 @@ from engine.logger import setup_logging
 from engine.validator import Validator
 from ui.build_progress import BuildProgressDialog
 from ui.build_history import BuildHistoryManager, BuildHistoryDialog
+from ui.import_wizard import ImportWizardDialog
 from ui.checkbox_selector import CheckboxSelectorWidget
 from ui.header_widget import HeaderWidget
 from ui.help_dialog import HelpDialog
@@ -264,6 +265,7 @@ class MainWindow(QMainWindow):
         self._presets_panel.save_requested.connect(self._on_save_preset)
         self._presets_panel.history_requested.connect(self._on_show_history)
         self._header.help_requested.connect(self._on_help_requested)
+        self._header.import_requested.connect(self._on_import_wizard)
         self._history_manager = BuildHistoryManager()
         self._wire_shortcuts()
 
@@ -520,6 +522,13 @@ class MainWindow(QMainWindow):
         self._help_action.triggered.connect(self._on_help_requested)
         self.addAction(self._help_action)
 
+        # Ctrl+I → فتح معالج الاستيراد
+        self._import_action = QAction(self)
+        self._import_action.setShortcut(QKeySequence("Ctrl+I"))
+        self._import_action.setShortcutContext(Qt.WindowShortcut)
+        self._import_action.triggered.connect(self._on_import_wizard)
+        self.addAction(self._import_action)
+
     def _focus_code_search(self) -> None:
         """Focus code search box from anywhere in the main window."""
         if self._checkbox_selector is not None:
@@ -550,6 +559,44 @@ class MainWindow(QMainWindow):
         """Read mandatory_codes from owner_specifications in config_data."""
         owner_specs = self.config_data.get("owner_specifications", {})
         return list(owner_specs.get(owner_id, {}).get("mandatory_codes", []))
+
+    def _on_import_wizard(self) -> None:
+        """BKL-012: Open Import Wizard for adding codes and managing owners."""
+        dialog = ImportWizardDialog(
+            registry_data=self.registry_data,
+            config_data=self.config_data,
+            parent=self,
+        )
+        dialog.data_changed.connect(self._reload_after_import)
+        dialog.exec_()
+
+    def _reload_after_import(self) -> None:
+        """Reload all data sources after an import/owner edit without restart."""
+        self._load_startup_data()
+        self._build_engine()
+
+        # Refresh checkbox selector with new codes data
+        if self._checkbox_selector is not None:
+            self._checkbox_selector._all_codes = self.registry_data.get("codes", {})
+            self._checkbox_selector._container_cache.clear()
+
+        # Re-trigger selection to rebuild checkbox list with fresh data
+        if self._project_selector is not None:
+            pids = self._project_selector.current_project_ids()
+            oid = self._project_selector.current_owner_id()
+            if pids and oid:
+                self._on_selection_changed(pids, oid)
+
+        # Update animated counter
+        active = sum(
+            1
+            for c in self.registry_data.get("codes", {}).values()
+            if c.get("status") == "active"
+        )
+        if self._header is not None:
+            self._header.update_counter(active)
+
+        self._show_status("✅ تم تحديث البيانات بنجاح", hold_ms=8_000)
 
     def _show_startup_issues_if_any(self) -> None:
         # أظهر شاشة الترحيب للمستخدم الجديد (مرة واحدة فقط)
