@@ -222,22 +222,33 @@ class HeaderWidget(QWidget):
         build_time = self._build_info.get("build_time", "")
         build_label = self._build_info.get("build_label", "")
 
-        ver_lbl = QLabel(f"v{_VERSION}", self)
         if build_date == "dev":
-            tooltip_text = "وضع التطوير — شغّل build_exe.bat لبناء نسخة الإنتاج"
+            # وضع تطوير — خلفية حمراء تحذيرية لا يمكن تجاهلها
+            ver_lbl = QLabel(f"⚠ DEV v{_VERSION}", self)
+            ver_lbl.setToolTip(
+                "⚠ وضع التطوير — هذا الكود يعمل مباشرة من Python\n"
+                "لبناء EXE جاهز للتوزيع: شغّل build_exe.bat\n"
+                "التغييرات الجديدة تظهر فوراً بدون إعادة بناء."
+            )
+            ver_lbl.setStyleSheet("""
+                color: #FFFFFF; background: #C62828;
+                font-size: 11px; font-weight: 800;
+                padding: 4px 12px; border-radius: 5px; letter-spacing: 0.5px;
+                border: 2px solid #FF5252;
+            """)
         else:
-            tooltip_text = (
+            ver_lbl = QLabel(f"v{_VERSION}", self)
+            ver_lbl.setToolTip(
                 f"الإصدار: {_VERSION}\n"
                 f"تاريخ البناء: {build_date}\n"
                 f"وقت البناء: {build_time}\n"
                 f"{build_label}"
             )
-        ver_lbl.setToolTip(tooltip_text)
-        ver_lbl.setStyleSheet("""
-            color: #152433; background: #C9921B;
-            font-size: 11px; font-weight: 800;
-            padding: 4px 12px; border-radius: 5px; letter-spacing: 0.5px;
-        """)
+            ver_lbl.setStyleSheet("""
+                color: #152433; background: #C9921B;
+                font-size: 11px; font-weight: 800;
+                padding: 4px 12px; border-radius: 5px; letter-spacing: 0.5px;
+            """)
         ver_lbl.setAlignment(Qt.AlignCenter)
         layout.addWidget(ver_lbl)
 

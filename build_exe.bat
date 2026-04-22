@@ -11,6 +11,20 @@ echo    %DATE%  %TIME%
 echo ============================================================
 echo.
 
+REM ── معلومات آخر بناء (للمقارنة) ──────────────────────────────────
+if exist dist\ATPAS\ATPAS.exe (
+    for %%F in (dist\ATPAS\ATPAS.exe) do (
+        echo   آخر EXE موجود: %%~tF  ^(الحجم: %%~zF بايت^)
+    )
+    if exist version.json (
+        type version.json | findstr /i "build_date build_time"
+    )
+    echo   ^(سيتم استبداله بالكامل الآن^)
+) else (
+    echo   لا يوجد EXE سابق - بناء جديد
+)
+echo.
+
 REM ── 1. إغلاق أي نسخة تشغيل حالية لفك القفل عن الملف ──────────────
 echo [1/6] إغلاق أي نسخة ATPAS مفتوحة...
 taskkill /f /im ATPAS.exe >nul 2>&1
