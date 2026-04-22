@@ -34,47 +34,39 @@ from PyQt5.QtWidgets import (
 # محتوى التبويبات (HTML عربي موجّه من اليمين لليسار)
 # ─────────────────────────────────────────────────────────────────────────────
 
-_STYLE_BASE = """
+# _STYLE_BASE: هيكل HTML كامل مع <html dir="rtl"> لضمان RTL في Qt
+_STYLE_BASE = """<!DOCTYPE html>
+<html dir="rtl"><head><meta charset="utf-8">
 <style>
-  body  { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px;
-          color: #1a1a1a; direction: rtl; text-align: right;
-          margin: 8px 12px; padding: 0; }
-  p     { text-align: right; direction: rtl; margin: 6px 0; }
-  h2    { color: #152433; border-bottom: 2px solid #C9921B;
-          padding-bottom: 6px; margin-top: 18px; font-size: 15px;
-          text-align: right; direction: rtl; }
-  h3    { color: #1C3045; margin-top: 14px; font-size: 13px;
-          text-align: right; direction: rtl; }
-  .step { background: #EEF5FB; border-right: 4px solid #1C3045;
-          border-radius: 6px; padding: 10px 14px; margin: 8px 0;
-          direction: rtl; text-align: right; }
-  .num  { background: #152433; color: #C9921B; border-radius: 50%;
-          display: inline-block; width: 24px; height: 24px;
-          text-align: center; font-weight: 800; line-height: 24px;
-          margin-left: 8px; }
-  .tip  { background: #FFF8E7; border-right: 4px solid #C9921B;
-          border-radius: 6px; padding: 8px 12px; margin: 8px 0;
-          font-size: 12px; direction: rtl; text-align: right; }
-  .warn { background: #FFF3E0; border-right: 4px solid #E65100;
-          border-radius: 6px; padding: 8px 12px; margin: 8px 0;
-          direction: rtl; text-align: right; }
-  .ok   { background: #E8F5E9; border-right: 4px solid #2E7D32;
-          border-radius: 6px; padding: 8px 12px; margin: 8px 0;
-          direction: rtl; text-align: right; }
-  table { width: 100%; border-collapse: collapse; margin: 10px 0;
-          direction: rtl; }
-  th    { background: #152433; color: #C9921B; padding: 8px 12px;
-          font-weight: 700; text-align: right; }
-  td    { padding: 7px 12px; border-bottom: 1px solid #E0E0E0;
-          text-align: right; }
-  tr:nth-child(even) td { background: #F5F5F5; }
-  kbd   { background: #E8E8E8; border: 1px solid #999; border-radius: 4px;
-          padding: 2px 7px; font-size: 12px; font-family: Consolas, monospace; }
-  .badge { background: #C9921B; color: white; border-radius: 4px;
-           padding: 2px 8px; font-size: 11px; font-weight: 700; }
-  li    { text-align: right; direction: rtl; margin: 4px 0; }
-  ul, ol { padding-right: 20px; padding-left: 0; direction: rtl; }
-</style>
+  body  { font-family:'Segoe UI',Arial,sans-serif; font-size:13px;
+          color:#1a1a1a; direction:rtl; text-align:right;
+          margin:8px 12px; padding:0; }
+  h2    { color:#152433; border-bottom:2px solid #C9921B;
+          padding-bottom:6px; margin-top:18px; font-size:15px; }
+  h3    { color:#1C3045; margin-top:14px; font-size:13px; }
+  p     { margin:6px 0; }
+  .step { background:#EEF5FB; border-right:4px solid #1C3045;
+          border-radius:6px; padding:10px 14px; margin:8px 0; }
+  .num  { background:#152433; color:#C9921B; border-radius:50%;
+          display:inline-block; width:24px; height:24px;
+          text-align:center; font-weight:800; line-height:24px;
+          margin-left:8px; }
+  .tip  { background:#FFF8E7; border-right:4px solid #C9921B;
+          border-radius:6px; padding:8px 12px; margin:8px 0; font-size:12px; }
+  .warn { background:#FFF3E0; border-right:4px solid #E65100;
+          border-radius:6px; padding:8px 12px; margin:8px 0; }
+  .ok   { background:#E8F5E9; border-right:4px solid #2E7D32;
+          border-radius:6px; padding:8px 12px; margin:8px 0; }
+  table { width:100%; border-collapse:collapse; margin:10px 0; }
+  th    { background:#152433; color:#C9921B; padding:8px 12px;
+          font-weight:700; }
+  td    { padding:7px 12px; border-bottom:1px solid #E0E0E0; }
+  tr:nth-child(even) td { background:#F5F5F5; }
+  kbd   { background:#E8E8E8; border:1px solid #999; border-radius:4px;
+          padding:2px 7px; font-size:12px; font-family:Consolas,monospace; }
+  .badge{ background:#C9921B; color:white; border-radius:4px;
+          padding:2px 8px; font-size:11px; font-weight:700; }
+</style></head>
 """
 
 _HOW_TO_HTML = _STYLE_BASE + """
@@ -128,7 +120,7 @@ _HOW_TO_HTML = _STYLE_BASE + """
 <div class="ok">
   ✅ <strong>لا يحتاج النظام اتصالاً بالإنترنت</strong> — يعمل بالكامل على جهازك محلياً.
 </div>
-</body>
+</body></html>
 """
 
 _CODES_HTML = _STYLE_BASE + """
@@ -182,7 +174,7 @@ _CODES_HTML = _STYLE_BASE + """
   💡 <strong>كيف يعمل التصفية؟</strong> عند اختيار مشروع وجهة، تظهر فقط الأكواد
   التي تنتمي لهذا المشروع وتقبلها هذه الجهة. الأكواد الإلزامية تُحدَّد تلقائياً.
 </div>
-</body>
+</body></html>
 """
 
 _SHORTCUTS_HTML = _STYLE_BASE + """
@@ -238,7 +230,7 @@ _SHORTCUTS_HTML = _STYLE_BASE + """
   ✅ <strong>بدون أخطاء = جاهز للبناء.</strong> يُفعَّل زر «بناء العرض» فقط عند
   اجتياز كل فحوصات التحقق.
 </div>
-</body>
+</body></html>
 """
 
 _TROUBLESHOOT_HTML = _STYLE_BASE + """
@@ -247,12 +239,10 @@ _TROUBLESHOOT_HTML = _STYLE_BASE + """
 
 <h3>❓ لماذا لا تظهر بعض الأكواد في القائمة؟</h3>
 <div class="tip">
-  الأكواد مُصنَّفة حسب المشروع والجهة. إذا لم يظهر كود معيّن:
-  <ul>
-    <li>تأكد أن المشروع المختار يشمل هذا الكود</li>
-    <li>تأكد أن الجهة المالكة مخوّلة لهذا الكود</li>
-    <li>ابحث عن الكود بخانة البحث (Ctrl+F) — ربما هو موجود في مجموعة أخرى</li>
-  </ul>
+  الأكواد مُصنَّفة حسب المشروع والجهة. إذا لم يظهر كود معيّن:<br>
+  ▪ تأكد أن المشروع المختار يشمل هذا الكود<br>
+  ▪ تأكد أن الجهة المالكة مخوّلة لهذا الكود<br>
+  ▪ ابحث عن الكود بخانة البحث (Ctrl+F) — ربما هو موجود في مجموعة أخرى
 </div>
 
 <h3>❓ ظهر خطأ «تبعية ناقصة» — ماذا أفعل؟</h3>
@@ -264,11 +254,9 @@ _TROUBLESHOOT_HTML = _STYLE_BASE + """
 
 <h3>❓ زر «بناء العرض» غير مُفعَّل</h3>
 <div class="tip">
-  يتطلب التفعيل:
-  <ul>
-    <li>تحديد كود واحد على الأقل</li>
-    <li>لا وجود لأخطاء تحقق (الإصلاح التلقائي يحلها)</li>
-  </ul>
+  يتطلب التفعيل:<br>
+  ▪ تحديد كود واحد على الأقل<br>
+  ▪ لا وجود لأخطاء تحقق (الإصلاح التلقائي يحلها)
 </div>
 
 <h3>❓ ملف الـ Word الناتج يحتوي نصوصاً عامة بدل المحتوى الحقيقي</h3>
@@ -292,11 +280,9 @@ _TROUBLESHOOT_HTML = _STYLE_BASE + """
 
 <h3>❓ الملف الناتج لا يفتح في Word</h3>
 <div class="tip">
-  <ul>
-    <li>تأكد من وجود Microsoft Word 2016 أو أحدث</li>
-    <li>الملف في مجلد output/generated_documents/ بجوار ATPAS.exe</li>
-    <li>اضغط «فتح المجلد» في نافذة البناء للوصول المباشر</li>
-  </ul>
+  ▪ تأكد من وجود Microsoft Word 2016 أو أحدث<br>
+  ▪ الملف في مجلد output/generated_documents/ بجوار ATPAS.exe<br>
+  ▪ اضغط «فتح المجلد» في نافذة البناء للوصول المباشر
 </div>
 
 <h3>❓ النظام بطيء أو يتجمّد أثناء البناء</h3>
@@ -310,7 +296,7 @@ _TROUBLESHOOT_HTML = _STYLE_BASE + """
   راجع ملف الدليل الكامل: <strong>docs/USER_GUIDE_AR.md</strong><br>
   أو راجع وثائق SSOT في: <strong>SSOT/ATPAS_REFERENCE_DOCUMENT_v3.0.md</strong>
 </div>
-</body>
+</body></html>
 """
 
 
@@ -422,10 +408,15 @@ class HelpDialog(QDialog):
 
     @staticmethod
     def _make_browser(html: str) -> QTextBrowser:
-        """صفحة HTML قابلة للتمرير داخل التبويب."""
+        """صفحة HTML قابلة للتمرير داخل التبويب — RTL عربي."""
+        from PyQt5.QtGui import QTextOption
         browser = QTextBrowser()
-        browser.setLayoutDirection(Qt.RightToLeft)   # RTL عربي
+        browser.setLayoutDirection(Qt.RightToLeft)
         browser.setHtml(html)
+        # إجبار RTL على مستوى المستند (يتجاوز قيود Qt على ul/li)
+        opt = browser.document().defaultTextOption()
+        opt.setTextDirection(Qt.RightToLeft)
+        browser.document().setDefaultTextOption(opt)
         browser.setOpenExternalLinks(False)
         browser.setStyleSheet("border: none; background: white; padding: 4px;")
         return browser
