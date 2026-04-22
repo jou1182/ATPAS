@@ -37,37 +37,48 @@ from PyQt5.QtWidgets import (
 _STYLE_BASE = """
 <style>
   body  { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px;
-          color: #1a1a1a; direction: rtl; text-align: right; }
+          color: #1a1a1a; direction: rtl; text-align: right;
+          margin: 8px 12px; padding: 0; }
+  p     { text-align: right; direction: rtl; margin: 6px 0; }
   h2    { color: #152433; border-bottom: 2px solid #C9921B;
-          padding-bottom: 6px; margin-top: 18px; font-size: 15px; }
-  h3    { color: #1C3045; margin-top: 14px; font-size: 13px; }
+          padding-bottom: 6px; margin-top: 18px; font-size: 15px;
+          text-align: right; direction: rtl; }
+  h3    { color: #1C3045; margin-top: 14px; font-size: 13px;
+          text-align: right; direction: rtl; }
   .step { background: #EEF5FB; border-right: 4px solid #1C3045;
-          border-radius: 6px; padding: 10px 14px; margin: 8px 0; }
+          border-radius: 6px; padding: 10px 14px; margin: 8px 0;
+          direction: rtl; text-align: right; }
   .num  { background: #152433; color: #C9921B; border-radius: 50%;
           display: inline-block; width: 24px; height: 24px;
           text-align: center; font-weight: 800; line-height: 24px;
           margin-left: 8px; }
   .tip  { background: #FFF8E7; border-right: 4px solid #C9921B;
           border-radius: 6px; padding: 8px 12px; margin: 8px 0;
-          font-size: 12px; }
+          font-size: 12px; direction: rtl; text-align: right; }
   .warn { background: #FFF3E0; border-right: 4px solid #E65100;
-          border-radius: 6px; padding: 8px 12px; margin: 8px 0; }
+          border-radius: 6px; padding: 8px 12px; margin: 8px 0;
+          direction: rtl; text-align: right; }
   .ok   { background: #E8F5E9; border-right: 4px solid #2E7D32;
-          border-radius: 6px; padding: 8px 12px; margin: 8px 0; }
-  table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+          border-radius: 6px; padding: 8px 12px; margin: 8px 0;
+          direction: rtl; text-align: right; }
+  table { width: 100%; border-collapse: collapse; margin: 10px 0;
+          direction: rtl; }
   th    { background: #152433; color: #C9921B; padding: 8px 12px;
           font-weight: 700; text-align: right; }
-  td    { padding: 7px 12px; border-bottom: 1px solid #E0E0E0; }
+  td    { padding: 7px 12px; border-bottom: 1px solid #E0E0E0;
+          text-align: right; }
   tr:nth-child(even) td { background: #F5F5F5; }
   kbd   { background: #E8E8E8; border: 1px solid #999; border-radius: 4px;
           padding: 2px 7px; font-size: 12px; font-family: Consolas, monospace; }
   .badge { background: #C9921B; color: white; border-radius: 4px;
            padding: 2px 8px; font-size: 11px; font-weight: 700; }
+  li    { text-align: right; direction: rtl; margin: 4px 0; }
+  ul, ol { padding-right: 20px; padding-left: 0; direction: rtl; }
 </style>
 """
 
 _HOW_TO_HTML = _STYLE_BASE + """
-<body>
+<body dir="rtl">
 <h2>🚀 كيف تستخدم نظام ATPAS</h2>
 
 <p>النظام يعمل في <strong>ثلاث خطوات رئيسية</strong> فقط:</p>
@@ -121,7 +132,7 @@ _HOW_TO_HTML = _STYLE_BASE + """
 """
 
 _CODES_HTML = _STYLE_BASE + """
-<body>
+<body dir="rtl">
 <h2>📑 الأكواد والمراحل — مرجع سريع</h2>
 
 <h3>تركيب الكود</h3>
@@ -175,7 +186,7 @@ _CODES_HTML = _STYLE_BASE + """
 """
 
 _SHORTCUTS_HTML = _STYLE_BASE + """
-<body>
+<body dir="rtl">
 <h2>⌨️ اختصارات لوحة المفاتيح</h2>
 
 <table>
@@ -231,7 +242,7 @@ _SHORTCUTS_HTML = _STYLE_BASE + """
 """
 
 _TROUBLESHOOT_HTML = _STYLE_BASE + """
-<body>
+<body dir="rtl">
 <h2>🔧 استكشاف الأخطاء — حلول للمشاكل الشائعة</h2>
 
 <h3>❓ لماذا لا تظهر بعض الأكواد في القائمة؟</h3>
@@ -379,6 +390,7 @@ class HelpDialog(QDialog):
     def _make_browser(html: str) -> QTextBrowser:
         """صفحة HTML قابلة للتمرير داخل التبويب."""
         browser = QTextBrowser()
+        browser.setLayoutDirection(Qt.RightToLeft)   # RTL عربي
         browser.setHtml(html)
         browser.setOpenExternalLinks(False)
         browser.setStyleSheet("border: none; background: white; padding: 4px;")
