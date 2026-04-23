@@ -4,6 +4,7 @@
 from pathlib import Path
 from typing import Dict, List, Tuple
 
+from engine.types import CodeRegistry
 from utils.json_manager import load_json
 
 # Codes with this field belong to a mutually-exclusive excavation group
@@ -24,10 +25,14 @@ class Validator:
 
     def __init__(
         self,
-        codes: Dict[str, Dict],
+        codes: CodeRegistry,
         owner_specs_dir: str | Path = _OWNER_SPECS_DIR,
-    ):
-        self._codes = codes
+    ) -> None:
+        if not isinstance(codes, dict):
+            raise TypeError(
+                f"codes must be a dict[str, dict], got {type(codes).__name__}"
+            )
+        self._codes: CodeRegistry = codes
         self._owner_specs_dir = Path(owner_specs_dir)
         self._owner_cache: Dict[str, Dict] = {}
 
@@ -39,7 +44,7 @@ class Validator:
         self,
         selected_codes: List[str],
         owner_id: str,
-        project_id: "str | List[str]",
+        project_id: str | List[str],
     ) -> Tuple[bool, List[str], List[str]]:
         """
         Validate selected_codes for the given owner and project.

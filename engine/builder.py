@@ -55,14 +55,39 @@ class Builder:
         metadata_dir: str | Path = _METADATA_DIR,
         style_dir: str | Path = _STYLE_DIR,
         source_docs_dir: str | Path = _SOURCE_DOCS_DIR,
+        *,
+        validator: Optional[Validator] = None,
+        resolver: Optional[DependencyResolver] = None,
+        style_applier: Optional[StyleApplier] = None,
+        content_lib: Optional[ContentLibrary] = None,
     ):
+        """Initialise the builder with a codes registry and optional collaborators.
+
+        Positional / keyword-only directory arguments are used only when the
+        corresponding collaborator is *not* supplied.  Inject pre-built instances
+        to override behaviour in tests or to share expensive objects.
+
+        Args:
+            codes:          Full codes registry dict (``registry["codes"]``).
+            metadata_dir:   Directory that holds ``<project_id>_project_metadata.json``.
+            style_dir:      Directory that holds ``<owner_id>_style.json`` files.
+            source_docs_dir:Directory that holds per-code ``.docx`` source files.
+            validator:      Optional pre-built :class:`~engine.validator.Validator`.
+            resolver:       Optional pre-built :class:`~engine.dependency_resolver.DependencyResolver`.
+            style_applier:  Optional pre-built :class:`~engine.style_applier.StyleApplier`.
+            content_lib:    Optional pre-built :class:`~utils.content_library.ContentLibrary`.
+        """
         self._codes = codes
         self._metadata_dir = Path(metadata_dir)
         self._style_dir = Path(style_dir)
-        self._validator = Validator(codes)
-        self._resolver = DependencyResolver(codes)
-        self._style_applier = StyleApplier(style_dir)
-        self._content_lib = ContentLibrary(source_docs_dir)
+        self._validator = validator if validator is not None else Validator(codes)
+        self._resolver = resolver if resolver is not None else DependencyResolver(codes)
+        self._style_applier = (
+            style_applier if style_applier is not None else StyleApplier(style_dir)
+        )
+        self._content_lib = (
+            content_lib if content_lib is not None else ContentLibrary(source_docs_dir)
+        )
         self._project_metadata: Dict[str, Dict] = {}
 
     # ------------------------------------------------------------------
@@ -177,6 +202,7 @@ class Builder:
         ordered_codes: List[str],
         formatter: Optional[Formatter],
     ) -> None:
+        """Render a centred cover page: title, project, owner, date, and stats."""
         from datetime import date
         project_meta = self._load_project_metadata(project_id)
         project_name = project_meta.get("project_metadata", {}).get(
@@ -314,6 +340,7 @@ class Builder:
     # ------------------------------------------------------------------
 
     def _load_project_metadata(self, project_id: str) -> Dict:
+        """Load ``<project_id>_project_metadata.json``; returns empty template on miss."""
         if project_id in self._project_metadata:
             return self._project_metadata[project_id]
         path = self._metadata_dir / f"{project_id}_project_metadata.json"
@@ -325,6 +352,7 @@ class Builder:
         return meta
 
     def _load_style_spec(self, owner_id: str) -> Optional[Dict]:
+        """Load ``<owner_id>_style.json`` from style_dir; returns None if absent."""
         path = self._style_dir / f"{owner_id}_style.json"
         try:
             return load_json(path)
@@ -342,6 +370,11 @@ class Builder:
         elapsed: float,
         file_size: int,
     ) -> None:
+        """Persist an audit-trail entry via engine.logger.generate_audit_trail.
+
+        Failures are logged as warnings rather than raised — a broken audit
+        trail must never abort a successful build.
+        """
         try:
             generate_audit_trail({
                 "selected_codes": codes,

@@ -256,21 +256,7 @@ class HeaderWidget(QWidget):
         ver_lbl.setAlignment(Qt.AlignCenter)
         layout.addWidget(ver_lbl)
 
-        # ── زر النسخ الاحتياطي 🗄️ ──────────────────────────────────────────
-        backup_btn = QPushButton("🗄️  نسخ احتياطي", self)
-        backup_btn.setToolTip("إدارة النسخ الاحتياطية للبيانات (Ctrl+B)")
-        backup_btn.setCursor(Qt.PointingHandCursor)
-        backup_btn.setStyleSheet(_hdr_btn_style.format(
-            fg="#8BC34A",
-            border="#8BC34A70",
-            hover_bg="#8BC34A20",
-            hover_border="#8BC34A",
-            pressed_bg="#8BC34A40",
-        ))
-        backup_btn.clicked.connect(self.backup_requested.emit)
-        layout.addWidget(backup_btn)
-
-        # ── زر الاستيراد 📥 ─────────────────────────────────────────────
+        # ── قالب CSS مشترك لأزرار الشريط العلوي ────────────────────────────
         _hdr_btn_style = """
             QPushButton {{
                 color: {fg};
@@ -289,6 +275,21 @@ class HeaderWidget(QWidget):
                 background: {pressed_bg};
             }}
         """
+        # ── زر النسخ الاحتياطي 🗄️ ──────────────────────────────────────────
+        backup_btn = QPushButton("🗄️  نسخ احتياطي", self)
+        backup_btn.setToolTip("إدارة النسخ الاحتياطية للبيانات (Ctrl+B)")
+        backup_btn.setCursor(Qt.PointingHandCursor)
+        backup_btn.setStyleSheet(_hdr_btn_style.format(
+            fg="#8BC34A",
+            border="#8BC34A70",
+            hover_bg="#8BC34A20",
+            hover_border="#8BC34A",
+            pressed_bg="#8BC34A40",
+        ))
+        backup_btn.clicked.connect(self.backup_requested.emit)
+        layout.addWidget(backup_btn)
+
+        # ── زر الاستيراد 📥 ─────────────────────────────────────────────
         import_btn = QPushButton("📥  استيراد", self)
         import_btn.setToolTip("استيراد أكواد جديدة أو إدارة الجهات المالكة (Ctrl+I)")
         import_btn.setCursor(Qt.PointingHandCursor)

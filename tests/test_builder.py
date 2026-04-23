@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-6 integration scenarios for Builder (Phase 4 / US2).
+Builder integration tests + dependency-injection unit tests.
 
 Run from the project root:
     python -m pytest tests/test_builder.py -v
@@ -10,11 +10,15 @@ Run from the project root:
 
 import time
 from pathlib import Path
+from unittest.mock import MagicMock
 
 import pytest
 from docx import Document
 
 from engine.builder import Builder
+from engine.dependency_resolver import DependencyResolver
+from engine.validator import Validator
+from utils.content_library import ContentLibrary
 from utils.json_manager import load_json
 
 _OUTPUT_DIR = Path("output/test_builds")
@@ -153,6 +157,70 @@ def test_conflicting_excavation_rejected(builder):
     assert not success
     assert err is not None
     assert "حفر" in err
+
+
+# ---------------------------------------------------------------------------
+# Dependency injection — المحور 4
+# ---------------------------------------------------------------------------
+
+class TestBuilderDependencyInjection:
+    """Verify Builder accepts pre-built collaborators instead of creating its own."""
+
+    def test_default_creates_validator_and_resolver(self, codes) -> None:
+        """Without injection, Builder instantiates its own collaborators."""
+        b = Builder(codes)
+        assert isinstance(b._validator, Validator)
+        assert isinstance(b._resolver, DependencyResolver)
+
+    def test_injected_validator_is_used(self, codes, tmp_path) -> None:
+        """Injected Validator is called during build; internal one is NOT created."""
+        mock_v = MagicMock(spec=Validator)
+        mock_v.validate.return_value = (True, [], [])
+
+        b = Builder(codes, validator=mock_v)
+        assert b._validator is mock_v
+
+        out = tmp_path / "di_validator.docx"
+        b.build(["001-SUR-BASE"], "wastewater", "nwc", out)
+        mock_v.validate.assert_called_once()
+
+    def test_injected_resolver_is_used(self, codes, tmp_path) -> None:
+        """Injected DependencyResolver is called during build."""
+        mock_r = MagicMock(spec=DependencyResolver)
+        mock_r.resolve.return_value = ["001-SUR-BASE"]
+
+        b = Builder(codes, resolver=mock_r)
+        assert b._resolver is mock_r
+
+        out = tmp_path / "di_resolver.docx"
+        b.build(["001-SUR-BASE"], "wastewater", "nwc", out, skip_validation=True)
+        mock_r.resolve.assert_called_once_with(["001-SUR-BASE"])
+
+    def test_injected_content_lib_is_used(self, codes, tmp_path) -> None:
+        """Injected ContentLibrary controls whether real content is available."""
+        mock_lib = MagicMock(spec=ContentLibrary)
+        mock_lib.exists.return_value = False
+        mock_lib.insert_into.return_value = False
+
+        b = Builder(codes, content_lib=mock_lib)
+        assert b._content_lib is mock_lib
+
+        out = tmp_path / "di_content.docx"
+        success, _ = b.build(["001-SUR-BASE"], "wastewater", "nwc", out,
+                              skip_validation=True)
+        assert success
+        # insert_into should have been called for the single code
+        mock_lib.insert_into.assert_called_once()
+
+    def test_partial_injection_only_overrides_supplied(self, codes) -> None:
+        """Only the supplied collaborator is overridden; others use defaults."""
+        mock_v = MagicMock(spec=Validator)
+        mock_v.validate.return_value = (True, [], [])
+
+        b = Builder(codes, validator=mock_v)
+        assert b._validator is mock_v
+        assert isinstance(b._resolver, DependencyResolver)   # not mocked
+        assert isinstance(b._content_lib, ContentLibrary)    # not mocked
 
 
 # ---------------------------------------------------------------------------

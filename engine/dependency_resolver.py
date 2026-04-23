@@ -3,6 +3,7 @@
 
 from typing import Dict, List, Set
 
+from engine.types import CodeRegistry
 from utils.json_manager import load_json
 
 
@@ -16,8 +17,12 @@ class DependencyResolver:
         gaps     = resolver.suggest_missing(["003-PIP-SEW", "002-EXC-FINE"])
     """
 
-    def __init__(self, codes: Dict[str, Dict]):
-        self._codes = codes
+    def __init__(self, codes: CodeRegistry) -> None:
+        if not isinstance(codes, dict):
+            raise TypeError(
+                f"codes must be a dict[str, dict], got {type(codes).__name__}"
+            )
+        self._codes: CodeRegistry = codes
 
     # ------------------------------------------------------------------
     # Public API

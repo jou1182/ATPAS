@@ -59,12 +59,19 @@ _OWNER_NAMES: dict[str, str] = {
 # ─────────────────────────────────────────────────────────────────────────────
 
 class BuildHistoryManager:
-    """Thread-safe-ish reader/writer for build_history.json.
+    """Reader/writer for build_history.json.
 
     Call save_entry() right after a successful build.
     Call load() to get the sorted list (newest first).
     Errors are silently swallowed — history is non-critical.
+
+    Args:
+        history_path: Override the default file path. Useful in tests so
+                      each test can use an isolated tmp_path location.
     """
+
+    def __init__(self, history_path: str | Path | None = None) -> None:
+        self._history_file = Path(history_path) if history_path else _HISTORY_FILE
 
     def save_entry(
         self,
@@ -92,7 +99,7 @@ class BuildHistoryManager:
         history.insert(0, entry)
         history = history[:_MAX_HISTORY]
         try:
-            with open(_HISTORY_FILE, "w", encoding="utf-8") as f:
+            with open(self._history_file, "w", encoding="utf-8") as f:
                 json.dump({"history": history}, f, ensure_ascii=False, indent=2)
         except OSError:
             pass   # non-fatal
@@ -103,7 +110,7 @@ class BuildHistoryManager:
 
     def _load_raw(self) -> list[dict]:
         try:
-            with open(_HISTORY_FILE, encoding="utf-8") as f:
+            with open(self._history_file, encoding="utf-8") as f:
                 data = json.load(f)
             return data.get("history", [])
         except (OSError, json.JSONDecodeError):
