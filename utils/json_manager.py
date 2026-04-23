@@ -41,14 +41,19 @@ def load_json(file_path: str | Path, default: Optional[Dict] = None) -> Dict:
     path = Path(file_path)
     if not path.exists():
         if default is not None:
+            logger.debug("JSON file not found, returning default: %s", path)
             return default
         raise FileNotFoundError(f"JSON file not found: {path}")
     try:
         with open(path, "r", encoding="utf-8") as f:
-            return json.load(f)
+            data = json.load(f)
+        logger.debug("Loaded JSON (%d keys): %s", len(data) if isinstance(data, dict) else -1, path)
+        return data
     except json.JSONDecodeError as exc:
+        logger.error("Invalid JSON in %s: %s", path, exc)
         raise ValueError(f"Invalid JSON in {path}: {exc}") from exc
     except OSError as exc:
+        logger.error("Cannot read %s: %s", path, exc)
         raise OSError(f"Cannot read {path}: {exc}") from exc
 
 
@@ -82,8 +87,10 @@ def save_json(data: Any, file_path: str | Path, indent: int = 2) -> None:
             os.fsync(f.fileno())
         # Atomic replacement — POSIX rename(2) / Windows MoveFileEx
         os.replace(tmp_name, path)
+        logger.debug("Saved JSON atomically: %s", path)
     except Exception:
         # Best-effort cleanup of the temp file on any failure
+        logger.exception("Failed to save JSON to %s — temp file cleaned up", path)
         try:
             os.unlink(tmp_name)
         except OSError:

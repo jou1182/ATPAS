@@ -12,10 +12,13 @@
 
 from __future__ import annotations
 
+import logging
 import zipfile
 from datetime import datetime
 from pathlib import Path
 from typing import Optional
+
+logger = logging.getLogger(__name__)
 
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtWidgets import (
@@ -66,11 +69,14 @@ def create_backup(label: str = "") -> Path:
     suffix = f"_{label}" if label else ""
     zip_path = _BACKUP_DIR / f"ATPAS_backup_{ts}{suffix}.zip"
 
+    logger.info("Creating backup: %s (label=%r)", zip_path.name, label)
+    file_count = 0
     with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED, compresslevel=6) as zf:
         for fname in _DATA_FILES:
             p = Path(fname)
             if p.exists():
                 zf.write(p, fname)
+                file_count += 1
 
         for dname in _DATA_DIRS:
             d = Path(dname)
@@ -78,7 +84,10 @@ def create_backup(label: str = "") -> Path:
                 for f in sorted(d.rglob("*")):
                     if f.is_file():
                         zf.write(f, str(f.relative_to(Path("."))))
+                        file_count += 1
 
+    size_kb = zip_path.stat().st_size / 1024
+    logger.info("Backup complete: %s (%d files, %.1f KB)", zip_path.name, file_count, size_kb)
     return zip_path
 
 
@@ -322,6 +331,7 @@ class BackupDialog(QDialog):
             QTimer.singleShot(1500, lambda: self._create_btn.setEnabled(True))
             self._detail_lbl.setText(f"تم الحفظ: {path.name}")
         except Exception as exc:  # noqa: BLE001
+            logger.exception("Backup creation failed")
             self._create_btn.setText("💾  إنشاء نسخة احتياطية")
             self._create_btn.setEnabled(True)
             QMessageBox.critical(self, "خطأ", f"تعذّر إنشاء النسخة الاحتياطية:\n{exc}")
@@ -345,9 +355,11 @@ class BackupDialog(QDialog):
         if reply != QMessageBox.Yes:
             return
 
+        logger.info("Restoring backup: %s", path.name)
         try:
             with zipfile.ZipFile(path, "r") as zf:
                 zf.extractall(".")
+            logger.info("Backup restored successfully: %s", path.name)
             QMessageBox.information(
                 self,
                 "تمت الاستعادة",
@@ -356,6 +368,7 @@ class BackupDialog(QDialog):
             self.restore_requested.emit()
             self.accept()
         except Exception as exc:  # noqa: BLE001
+            logger.exception("Backup restore failed: %s", path.name)
             QMessageBox.critical(
                 self, "خطأ", f"تعذّر استعادة النسخة الاحتياطية:\n{exc}"
             )
@@ -378,6 +391,8 @@ class BackupDialog(QDialog):
 
         try:
             path.unlink()
+            logger.info("Backup deleted: %s", path.name)
             self._load_list()
         except Exception as exc:  # noqa: BLE001
+            logger.exception("Failed to delete backup: %s", path.name)
             QMessageBox.critical(self, "خطأ", f"تعذّر الحذف:\n{exc}")

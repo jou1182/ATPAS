@@ -18,6 +18,7 @@ Design notes:
 
 from __future__ import annotations
 
+import logging
 import os
 import subprocess
 import sys
@@ -25,6 +26,8 @@ import time
 from datetime import datetime
 from pathlib import Path
 from typing import Any
+
+logger = logging.getLogger(__name__)
 
 from PyQt5.QtCore import QEasingCurve, QPropertyAnimation, QThread, QTimer, Qt, pyqtSignal
 from PyQt5.QtWidgets import (
@@ -69,6 +72,12 @@ class BuildWorker(QThread):
         self._output_path = output_path
 
     def run(self) -> None:
+        logger.info(
+            "Build started — project=%s owner=%s codes=%d output=%s",
+            self._project_id, self._owner_id,
+            len(self._selected_codes), self._output_path,
+        )
+        t0 = time.monotonic()
         try:
             self.step_changed.emit(10, "فحص أكواد المشروع والتحقق من صحتها...")
             builder = Builder(self._codes)
@@ -84,14 +93,18 @@ class BuildWorker(QThread):
                 skip_validation=True,   # already validated in UI before dialog opens
             )
 
+            elapsed = time.monotonic() - t0
             if success:
+                logger.info("Build succeeded in %.2fs: %s", elapsed, self._output_path)
                 self.step_changed.emit(90, "تطبيق تنسيق الرواف وضبط الجداول...")
                 self.step_changed.emit(100, "العرض الفني جاهز للتقديم ✓")
                 self.finished.emit(True, "", str(self._output_path))
             else:
+                logger.error("Build failed after %.2fs: %s", elapsed, error_ar)
                 self.finished.emit(False, error_ar or "خطأ غير معروف", "")
 
         except Exception as exc:  # noqa: BLE001
+            logger.exception("Unexpected error in BuildWorker.run()")
             self.finished.emit(False, f"خطأ غير متوقع: {exc}", "")
 
 

@@ -18,11 +18,14 @@ Tab 2 — إدارة الجهات:
 from __future__ import annotations
 
 import json
+import logging
 import re
 import shutil
 from datetime import date
 from pathlib import Path
 from typing import Any
+
+logger = logging.getLogger(__name__)
 
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtWidgets import (
@@ -561,12 +564,15 @@ class _ImportCodesTab(QWidget):
                 try:
                     _SOURCE_DOCS_DIR.mkdir(parents=True, exist_ok=True)
                     shutil.copy2(src, dest)
+                    logger.info("Copied source document: %s → %s", src.name, dest)
                 except Exception as exc:
+                    logger.exception("Failed to copy source document for %s", cid)
                     failed.append(f"{cid}: فشل نسخ الملف — {exc}")
                     continue
 
             # إضافة الكود إلى السجل
             codes_dict[cid] = row.to_code_dict()
+            logger.info("Imported code: %s", cid)
             imported += 1
 
         if imported == 0:
@@ -585,6 +591,11 @@ class _ImportCodesTab(QWidget):
         # مسح الصفوف المُستوردة
         for row in list(self._rows):
             self._remove_row(row)
+
+        if failed:
+            logger.warning("Import completed with %d failures: %s", len(failed), failed)
+        else:
+            logger.info("Import completed: %d codes imported successfully", imported)
 
         msg = f"✅ تم استيراد {imported} كود بنجاح."
         if failed:
