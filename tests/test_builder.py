@@ -224,6 +224,57 @@ class TestBuilderDependencyInjection:
 
 
 # ---------------------------------------------------------------------------
+# _owner_name_ar — reads from master_config.json
+# ---------------------------------------------------------------------------
+
+class TestOwnerNameAr:
+    """Unit tests for Builder._owner_name_ar() — no filesystem I/O needed."""
+
+    def _make_builder(self, owner_specs: dict, codes: dict) -> Builder:
+        """Return a Builder with _owner_specs pre-set (bypasses file I/O)."""
+        b = Builder.__new__(Builder)
+        b._owner_specs = owner_specs
+        b._codes = codes
+        b._project_metadata = {}
+        return b
+
+    def test_known_owner_returns_arabic_name(self, codes) -> None:
+        specs = {"nwc": {"owner_name_ar": "الشركة الوطنية للمياه"}}
+        b = self._make_builder(specs, codes)
+        assert b._owner_name_ar("nwc") == "الشركة الوطنية للمياه"
+
+    def test_unknown_owner_falls_back_to_id(self, codes) -> None:
+        b = self._make_builder({}, codes)
+        assert b._owner_name_ar("unknown_org") == "unknown_org"
+
+    def test_owner_without_arabic_name_falls_back_to_id(self, codes) -> None:
+        specs = {"partial": {"owner_name_en": "Some Company"}}  # no owner_name_ar
+        b = self._make_builder(specs, codes)
+        assert b._owner_name_ar("partial") == "partial"
+
+    def test_real_builder_loads_nwc_name(self, codes) -> None:
+        """Integration: Builder(codes) reads master_config.json and resolves NWC."""
+        b = Builder(codes)
+        name = b._owner_name_ar("nwc")
+        # master_config.json has owner_name_ar for nwc
+        assert "مياه" in name or name == "nwc", (
+            f"Expected Arabic name for 'nwc', got {name!r}"
+        )
+
+    def test_cover_uses_arabic_name_not_id(self, codes, tmp_path) -> None:
+        """The generated cover page must show the owner's Arabic name, not 'nwc'."""
+        out = tmp_path / "cover_test.docx"
+        b = Builder(codes)
+        success, _ = b.build(
+            ["001-SUR-BASE"], "wastewater", "nwc", out, skip_validation=True
+        )
+        assert success
+        doc = Document(str(out))
+        full_text = " ".join(p.text for p in doc.paragraphs)
+        assert "nwc" not in full_text, "Cover page must not expose raw owner_id"
+
+
+# ---------------------------------------------------------------------------
 # Performance: large document builds in < 5 seconds
 # ---------------------------------------------------------------------------
 

@@ -19,7 +19,7 @@ import json
 import logging
 from copy import deepcopy
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 from docx import Document
 from docx.oxml.ns import qn
@@ -239,7 +239,7 @@ def _copy_docx_body(source_path: Path, target_doc: Document) -> None:
         target_body.append(node)
 
 
-def _remap_image_ids(node, image_map: Dict[str, str]) -> None:
+def _remap_image_ids(node: Any, image_map: Dict[str, str]) -> None:
     """Update r:embed and r:id attributes in blip/image elements."""
     blip_tag = qn("a:blip")
     embed_attr = qn("r:embed")

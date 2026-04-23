@@ -21,27 +21,31 @@ from typing import TypedDict
 class CodeEntry(TypedDict, total=False):
     """One entry from ``codes_registry.json["codes"]``."""
 
-    code_id:          str          # e.g. "003-PIP-SEW"
-    activity_name_ar: str          # Arabic activity name
-    activity_name_en: str          # English activity name
-    category:         str          # "001" … "005"
-    network:          str          # "S", "W", "A", "R", "C", "T"
-    page_count:       int          # estimated pages in source docx
-    sequence_order:   int          # display/sort order within proposal
-    status:           str          # "active" | "inactive" | "deprecated"
-    project_ids:      List[str]    # which projects this code belongs to
-    applicable_owners: List[str]   # empty list = any owner allowed
-    dependencies:     List[str]    # other code_ids that must be included
-    excavation_type:  str          # mutually-exclusive group tag
-    source_docx:      str          # filename in templates/source_documents/
+    code_id:           str          # e.g. "003-PIP-SEW"
+    activity_name_ar:  str          # Arabic activity name
+    activity_name_en:  str          # English activity name
+    category:          str          # "001" … "005"
+    network:           str          # "S", "W", "A", "R", "C", "T"
+    page_count:        int          # estimated pages in source docx
+    image_count:       int          # estimated images in source docx
+    sequence_order:    int          # display/sort order within proposal
+    status:            str          # "active" | "inactive" | "deprecated"
+    project_ids:       List[str]    # which projects this code belongs to
+    applicable_owners: List[str]    # empty list = any owner allowed
+    dependencies:      List[str]    # other code_ids that must be included
+    excavation_type:   str          # mutually-exclusive group tag
+    source_docx:       str          # filename in templates/source_documents/
 
 
 class OwnerSpec(TypedDict, total=False):
-    """One entry from ``metadata/owner_specifications/<id>.json``."""
+    """One entry from ``metadata/owner_specifications/<id>.json``
+    and ``master_config.json["owner_specifications"]``."""
 
     owner_id:          str
-    name_ar:           str
-    name_en:           str
+    owner_name_ar:     str          # Arabic display name (master_config key)
+    owner_name_en:     str          # English display name (master_config key)
+    name_ar:           str          # legacy alias kept for compatibility
+    name_en:           str          # legacy alias kept for compatibility
     network:           str
     mandatory_codes:   List[str]
     forbidden_codes:   List[str]

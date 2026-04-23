@@ -15,6 +15,7 @@ from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 from docx.shared import Pt, RGBColor
+from docx.text.paragraph import Paragraph
 
 from utils.json_manager import load_json
 
@@ -176,7 +177,7 @@ class StyleApplier:
 # OOXML helpers
 # ---------------------------------------------------------------------------
 
-def _add_page_number(para) -> None:
+def _add_page_number(para: Paragraph) -> None:
     """Insert an automatic PAGE field into para."""
     fldChar1 = OxmlElement("w:fldChar")
     fldChar1.set(qn("w:fldCharType"), "begin")
@@ -191,7 +192,7 @@ def _add_page_number(para) -> None:
     run._r.append(fldChar2)
 
 
-def _add_bottom_border(para) -> None:
+def _add_bottom_border(para: Paragraph) -> None:
     pPr = para._p.get_or_add_pPr()
     pBdr = OxmlElement("w:pBdr")
     bottom = OxmlElement("w:bottom")
@@ -203,7 +204,7 @@ def _add_bottom_border(para) -> None:
     pPr.append(pBdr)
 
 
-def _add_top_border(para) -> None:
+def _add_top_border(para: Paragraph) -> None:
     pPr = para._p.get_or_add_pPr()
     pBdr = OxmlElement("w:pBdr")
     top = OxmlElement("w:top")

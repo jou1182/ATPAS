@@ -32,6 +32,7 @@ logger = logging.getLogger(__name__)
 _METADATA_DIR = Path(".")
 _STYLE_DIR = Path("templates/style_templates")
 _SOURCE_DOCS_DIR = Path("templates/source_documents")
+_MASTER_CONFIG = Path("master_config.json")
 
 
 class Builder:
@@ -55,6 +56,7 @@ class Builder:
         metadata_dir: str | Path = _METADATA_DIR,
         style_dir: str | Path = _STYLE_DIR,
         source_docs_dir: str | Path = _SOURCE_DOCS_DIR,
+        master_config: str | Path = _MASTER_CONFIG,
         *,
         validator: Optional[Validator] = None,
         resolver: Optional[DependencyResolver] = None,
@@ -72,6 +74,7 @@ class Builder:
             metadata_dir:   Directory that holds ``<project_id>_project_metadata.json``.
             style_dir:      Directory that holds ``<owner_id>_style.json`` files.
             source_docs_dir:Directory that holds per-code ``.docx`` source files.
+            master_config:  Path to ``master_config.json`` (used to resolve owner names).
             validator:      Optional pre-built :class:`~engine.validator.Validator`.
             resolver:       Optional pre-built :class:`~engine.dependency_resolver.DependencyResolver`.
             style_applier:  Optional pre-built :class:`~engine.style_applier.StyleApplier`.
@@ -89,6 +92,14 @@ class Builder:
             content_lib if content_lib is not None else ContentLibrary(source_docs_dir)
         )
         self._project_metadata: Dict[str, Dict] = {}
+
+        # Load owner display names from master_config.json (owner_specifications section)
+        try:
+            cfg = load_json(Path(master_config))
+            self._owner_specs: Dict[str, Dict] = cfg.get("owner_specifications", {})
+        except (FileNotFoundError, ValueError):
+            logger.warning("master_config.json not found or invalid — owner names will fall back to owner_id")
+            self._owner_specs = {}
 
     # ------------------------------------------------------------------
     # Public API
@@ -209,8 +220,7 @@ class Builder:
             "name_ar", project_id
         )
 
-        owner_names = {"nwc": "الشركة الوطنية للمياه", "makkah": "أمانة العاصمة المقدسة", "moh": "وزارة الإسكان"}
-        owner_name = owner_names.get(owner_id, owner_id)
+        owner_name = self._owner_name_ar(owner_id)
 
         title_para = doc.add_paragraph()
         title_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
@@ -338,6 +348,15 @@ class Builder:
     # ------------------------------------------------------------------
     # Helpers
     # ------------------------------------------------------------------
+
+    def _owner_name_ar(self, owner_id: str) -> str:
+        """Return the Arabic display name for *owner_id* from master_config.json.
+
+        Falls back to ``owner_id`` itself when the config is absent or the
+        owner is not yet registered, so existing builds never break.
+        """
+        spec = self._owner_specs.get(owner_id, {})
+        return spec.get("owner_name_ar", owner_id)
 
     def _load_project_metadata(self, project_id: str) -> Dict:
         """Load ``<project_id>_project_metadata.json``; returns empty template on miss."""
