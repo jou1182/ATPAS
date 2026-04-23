@@ -18,6 +18,7 @@ Tab 2 — إدارة الجهات:
 from __future__ import annotations
 
 import json
+import re
 import shutil
 from datetime import date
 from pathlib import Path
@@ -53,6 +54,31 @@ _STYLE_TMPL_DIR    = Path("templates/style_templates")
 _OWNER_META_DIR    = Path("metadata/owner_specifications")
 _REGISTRY_PATH     = Path("codes_registry.json")
 _CONFIG_PATH       = Path("master_config.json")
+
+# الحد الأقصى لحجم ملف الاستيراد (50 ميجابايت)
+_MAX_IMPORT_SIZE_MB = 50
+_MAX_IMPORT_SIZE_BYTES = _MAX_IMPORT_SIZE_MB * 1024 * 1024
+
+# نمط معرّف الكود المسموح به: NNN-AAA-BBB  (أرقام-حروف-حروف، حتى 8 محارف لكل مقطع)
+_CODE_ID_PATTERN = re.compile(r"^\d{3}-[A-Z]{2,8}-[A-Z]{2,8}$")
+
+
+def _validate_code_id(cid: str) -> str | None:
+    """التحقق الأمني من معرّف الكود قبل استخدامه في مسارات الملفات.
+
+    Returns:
+        None إذا كان المعرّف صالحًا.
+        رسالة خطأ عربية إذا كان المعرّف مرفوضًا.
+    """
+    if not cid:
+        return "معرّف الكود فارغ"
+    # رفض أي محرف خاص يمكن استخدامه في path traversal
+    if any(ch in cid for ch in ("/", "\\", "..", "~", "\x00")):
+        return f"[{cid}] يحتوي على محارف غير مسموحة في المسارات"
+    # رفض المعرّفات التي لا تطابق النمط NNN-AAA-BBB
+    if not _CODE_ID_PATTERN.match(cid):
+        return f"[{cid}] لا يطابق النمط المطلوب (مثال: 003-PIP-SEW)"
+    return None
 
 _PROJECTS: list[tuple[str, str]] = [
     ("wastewater",           "نظام الصرف الصحي"),
@@ -487,6 +513,25 @@ class _ImportCodesTab(QWidget):
                 errors.append(err)
                 continue
             cid = row.code_id()
+
+            # ── فحص أمني: صيغة المعرّف ومحارف path traversal ──────────────
+            sec_err = _validate_code_id(cid)
+            if sec_err:
+                errors.append(sec_err)
+                continue
+
+            # ── فحص حجم الملف ──────────────────────────────────────────────
+            src = row.source_file()
+            if src and src.exists():
+                size = src.stat().st_size
+                if size > _MAX_IMPORT_SIZE_BYTES:
+                    size_mb = size / (1024 * 1024)
+                    errors.append(
+                        f"[{cid}] حجم الملف {size_mb:.1f} ميجابايت يتجاوز الحد المسموح "
+                        f"({_MAX_IMPORT_SIZE_MB} ميجابايت)"
+                    )
+                    continue
+
             if cid in existing_ids:
                 errors.append(f"[{cid}] موجود بالفعل في السجل — استخدم معرّفاً مختلفاً")
             elif cid in seen_ids:
@@ -528,11 +573,11 @@ class _ImportCodesTab(QWidget):
             QMessageBox.warning(self, "خطأ", "لم يتم استيراد أي كود.")
             return
 
-        # حفظ codes_registry.json
+        # حفظ codes_registry.json — كتابة ذرية لحماية السجل من التلف
         self._registry_data["metadata"]["total_codes"] = len(codes_dict)
         try:
-            with open(_REGISTRY_PATH, "w", encoding="utf-8") as f:
-                json.dump(self._registry_data, f, ensure_ascii=False, indent=2)
+            from utils.json_manager import save_json  # noqa: PLC0415
+            save_json(self._registry_data, _REGISTRY_PATH)
         except Exception as exc:
             QMessageBox.critical(self, "خطأ في الحفظ", f"تعذّر حفظ السجل:\n{exc}")
             return

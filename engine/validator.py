@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import re
 from pathlib import Path
 from typing import Dict, List, Tuple
 
@@ -12,6 +13,9 @@ _EXC_FIELD = "excavation_type"
 
 # Owner spec files location
 _OWNER_SPECS_DIR = Path("metadata/owner_specifications")
+
+# نمط معرّف الكود الصالح: NNN-AAA-BBB  (حتى 8 محارف لكل مقطع)
+_CODE_ID_PATTERN = re.compile(r"^\d{3}-[A-Z]{2,8}-[A-Z]{2,8}$")
 
 
 class Validator:
@@ -65,6 +69,7 @@ class Validator:
         owner_spec = self._load_owner(owner_id)
 
         for code_id in selected_codes:
+            self._check_format(code_id, errors)
             self._check_exists(code_id, errors)
             if code_id not in self._codes:
                 continue
@@ -82,6 +87,16 @@ class Validator:
     # ------------------------------------------------------------------
     # Individual checks
     # ------------------------------------------------------------------
+
+    def _check_format(self, code_id: str, errors: List[str]) -> None:
+        """Reject malformed or potentially unsafe code IDs before any filesystem use."""
+        if any(ch in code_id for ch in ("/", "\\", "..", "~", "\x00")):
+            errors.append(f"الكود يحتوي على محارف غير مسموحة في المسارات: {code_id!r}")
+        elif not _CODE_ID_PATTERN.match(code_id):
+            errors.append(
+                f"صيغة الكود غير صالحة: {code_id!r} — المطلوب NNN-XXX-YYY "
+                f"(مثال: 003-PIP-SEW)"
+            )
 
     def _check_exists(self, code_id: str, errors: List[str]) -> None:
         if code_id not in self._codes:

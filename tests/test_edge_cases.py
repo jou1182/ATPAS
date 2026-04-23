@@ -251,3 +251,84 @@ class TestCodeEntryTypedDict:
         }
         assert entry["code_id"] == "003-PIP-SEW"
         assert entry["status"] == "active"
+
+
+# ---------------------------------------------------------------------------
+# Security — code_id format validation (validator + import wizard helper)
+# ---------------------------------------------------------------------------
+
+class TestCodeIdSecurity:
+    """Verify that malformed / adversarial code IDs are rejected."""
+
+    # ── Validator._check_format ──────────────────────────────────────────────
+
+    def test_validator_rejects_path_traversal_slash(self) -> None:
+        v = Validator({})
+        is_valid, errors, _ = v.validate(["../evil"], "nwc", "wastewater")
+        assert not is_valid
+        assert any("محارف" in e for e in errors)
+
+    def test_validator_rejects_backslash(self) -> None:
+        v = Validator({})
+        is_valid, errors, _ = v.validate(["..\\evil"], "nwc", "wastewater")
+        assert not is_valid
+        assert any("محارف" in e or "NNN" in e for e in errors)
+
+    def test_validator_rejects_null_byte(self) -> None:
+        v = Validator({})
+        is_valid, errors, _ = v.validate(["001\x00PIP-SEW"], "nwc", "wastewater")
+        assert not is_valid
+
+    def test_validator_rejects_wrong_pattern(self) -> None:
+        v = Validator({})
+        is_valid, errors, _ = v.validate(["INVALID"], "nwc", "wastewater")
+        assert not is_valid
+        assert any("NNN" in e for e in errors)
+
+    def test_validator_accepts_valid_code_id_format(self) -> None:
+        """Format check passes for well-formed IDs; existence check then fires."""
+        v = Validator({})
+        _, errors, _ = v.validate(["003-PIP-SEW"], "nwc", "wastewater")
+        # Only the "not found" error — NOT a format error
+        assert not any("NNN" in e or "محارف" in e for e in errors)
+
+    def test_validator_accepts_seven_char_segment(self) -> None:
+        """004-QC-INSTALL has a 7-char last segment — must not be rejected."""
+        codes = {
+            "004-QC-INSTALL": {
+                "status": "active",
+                "project_ids": ["wastewater"],
+                "dependencies": [],
+                "sequence_order": 40,
+            }
+        }
+        v = Validator(codes)
+        is_valid, errors, _ = v.validate(["004-QC-INSTALL"], "nwc", "wastewater")
+        # No format errors — only possible owner/project warnings
+        assert not any("NNN" in e or "محارف" in e for e in errors)
+
+    # ── _validate_code_id helper in import_wizard ────────────────────────────
+
+    def test_wizard_helper_rejects_double_dot(self) -> None:
+        from ui.import_wizard import _validate_code_id
+        assert _validate_code_id("..") is not None
+
+    def test_wizard_helper_rejects_slash(self) -> None:
+        from ui.import_wizard import _validate_code_id
+        assert _validate_code_id("003/PIP-SEW") is not None
+
+    def test_wizard_helper_rejects_bad_pattern(self) -> None:
+        from ui.import_wizard import _validate_code_id
+        assert _validate_code_id("not-a-code") is not None
+
+    def test_wizard_helper_accepts_valid_id(self) -> None:
+        from ui.import_wizard import _validate_code_id
+        assert _validate_code_id("003-PIP-SEW") is None
+
+    def test_wizard_helper_accepts_seven_char_last_segment(self) -> None:
+        from ui.import_wizard import _validate_code_id
+        assert _validate_code_id("004-QC-INSTALL") is None
+
+    def test_wizard_helper_rejects_empty_string(self) -> None:
+        from ui.import_wizard import _validate_code_id
+        assert _validate_code_id("") is not None
