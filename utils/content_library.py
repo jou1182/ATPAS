@@ -21,13 +21,16 @@ from copy import deepcopy
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
+from utils.json_manager import save_json
+
 from docx import Document
 from docx.oxml.ns import qn
 
 logger = logging.getLogger(__name__)
 
-_SOURCE_DOCS_DIR = Path("templates/source_documents")
-_CONTENT_REGISTRY = Path("templates/content_registry.json")
+_PROJECT_ROOT = Path(__file__).resolve().parent.parent
+_SOURCE_DOCS_DIR = _PROJECT_ROOT / "templates" / "source_documents"
+_CONTENT_REGISTRY = _PROJECT_ROOT / "templates" / "content_registry.json"
 
 
 class ContentLibrary:
@@ -189,9 +192,7 @@ class ContentLibrary:
             return {}
 
     def _save_registry(self) -> None:
-        self._registry_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(self._registry_path, "w", encoding="utf-8") as f:
-            json.dump(self._registry, f, ensure_ascii=False, indent=2)
+        save_json(self._registry, self._registry_path)
 
 
 # ---------------------------------------------------------------------------

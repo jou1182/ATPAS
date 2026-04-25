@@ -65,6 +65,7 @@ _STEPS = [
         ),
         "bg": "#EEF5FB",
         "border": "#1C3045",
+        "num_fg": "#FDF7E8",
     },
     {
         "num": "2",
@@ -77,6 +78,7 @@ _STEPS = [
         ),
         "bg": "#F3F8EE",
         "border": "#2E7D32",
+        "num_fg": "#FFFFFF",
     },
     {
         "num": "3",
@@ -89,6 +91,7 @@ _STEPS = [
         ),
         "bg": "#FFF8E7",
         "border": "#C9921B",
+        "num_fg": "#152433",
     },
 ]
 
@@ -112,7 +115,7 @@ def _make_step_card(step: dict, parent: QWidget) -> QWidget:
     num_lbl.setFixedSize(36, 36)
     num_lbl.setAlignment(Qt.AlignCenter)
     num_lbl.setStyleSheet(f"""
-        background: {step['border']}; color: #C9921B;
+        background: {step['border']}; color: {step.get('num_fg', '#FFFFFF')};
         border-radius: 18px; font-size: 16px; font-weight: 900;
     """)
 

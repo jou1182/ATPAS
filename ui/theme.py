@@ -83,6 +83,12 @@ QWidget {{
     font-size: 13px;
 }}
 
+QWidget#mainCentral,
+QWidget#mainContent {{
+    background: {BG};
+    color: {TEXT};
+}}
+
 /* Ensure dialogs are always readable even if parent areas are dark/transparent */
 QDialog QWidget {{
     background: {SURFACE};
@@ -91,6 +97,55 @@ QDialog QWidget {{
 
 QDialog QLabel {{
     color: {TEXT};
+}}
+
+QDialog QFrame {{
+    color: {TEXT};
+}}
+
+QMessageBox {{
+    background: {SURFACE};
+}}
+
+QMessageBox QLabel {{
+    background: transparent;
+    color: {TEXT};
+    min-width: 320px;
+    font-size: 13px;
+    line-height: 1.45;
+}}
+
+QMessageBox QPushButton {{
+    min-width: 92px;
+    padding: 7px 18px;
+}}
+
+QTabWidget::pane {{
+    background: {SURFACE};
+    border: 1px solid {BORDER2};
+    border-radius: 7px;
+}}
+
+QTabBar::tab {{
+    background: #E9E3D6;
+    color: {TEXT2};
+    padding: 8px 16px;
+    border: 1px solid {BORDER2};
+    border-bottom: none;
+    border-radius: 6px 6px 0 0;
+    margin-left: 2px;
+    font-weight: 600;
+}}
+
+QTabBar::tab:selected {{
+    background: {SURFACE};
+    color: {HEADER};
+    border-top: 3px solid {ACCENT};
+}}
+
+QTabBar::tab:hover:!selected {{
+    background: {ACCENT_PALE};
+    color: {ACCENT_DARK};
 }}
 
 /* ════════════════════════════════════════════

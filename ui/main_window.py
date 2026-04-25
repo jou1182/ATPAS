@@ -58,12 +58,15 @@ from ui.help_dialog import HelpDialog
 from ui.preview_panel import PreviewPanelWidget
 from ui.presets_panel import PresetsPanelWidget
 from ui.project_selector import ProjectSelectorWidget
+from ui.settings_dialog import SettingsDialog, resolve_output_dir
 from ui.welcome_overlay import show_if_first_run
 from ui.motion import motion_ms, motion_single_shot, prefers_reduced_motion
 from utils.json_manager import load_json
 
-def _get_output_dir() -> Path:
+def _get_output_dir(settings: QSettings | None = None) -> Path:
     """Return the output directory — next to EXE when frozen, else local."""
+    if settings is not None:
+        return resolve_output_dir(settings)
     if getattr(__import__("sys"), "frozen", False):
         import sys as _sys
         return Path(_sys.executable).parent / "output" / "generated_documents"
@@ -126,6 +129,7 @@ class MainWindow(QMainWindow):
         self._entry_anims: list[QPropertyAnimation] = []
         self._status_hold_until = 0.0
         self._focus_search_action: QAction | None = None
+        self._settings_dialog: SettingsDialog | None = None
 
         self._settings = QSettings("Rawaf", "ATPAS")
 
@@ -235,6 +239,8 @@ class MainWindow(QMainWindow):
 
     def _build_layout(self) -> None:
         central = QWidget(self)
+        central.setObjectName("mainCentral")
+        central.setAttribute(Qt.WA_StyledBackground, True)
         self.setCentralWidget(central)
 
         root_layout = QVBoxLayout(central)
@@ -249,6 +255,8 @@ class MainWindow(QMainWindow):
 
         # ── Content area (with margins) ────────────────────────────────
         content = QWidget()
+        content.setObjectName("mainContent")
+        content.setAttribute(Qt.WA_StyledBackground, True)
         content.setLayoutDirection(Qt.RightToLeft)
         content_layout = QVBoxLayout(content)
         content_layout.setContentsMargins(12, 10, 12, 10)
@@ -287,6 +295,7 @@ class MainWindow(QMainWindow):
         self._header.help_requested.connect(self._on_help_requested)
         self._header.import_requested.connect(self._on_import_wizard)
         self._header.backup_requested.connect(self._on_backup)
+        self._header.settings_requested.connect(self._on_settings)
         self._history_manager = BuildHistoryManager()
         self._wire_shortcuts()
 
@@ -385,12 +394,16 @@ class MainWindow(QMainWindow):
         codes = self._checkbox_selector.get_selected_codes() if self._checkbox_selector else []
 
         if not pids or not oid:
-            from PyQt5.QtWidgets import QMessageBox
-            QMessageBox.information(self, "تنبيه", "اختر مشروعاً وجهةً أولاً.")
+            self._show_info_box(
+                "اختيار غير مكتمل",
+                "اختر المشروع والجهة المالكة أولاً، ثم احفظ النمط الجاهز.",
+            )
             return
         if not codes:
-            from PyQt5.QtWidgets import QMessageBox
-            QMessageBox.information(self, "تنبيه", "اختر أكواداً أولاً قبل الحفظ.")
+            self._show_info_box(
+                "لا توجد أكواد",
+                "اختر الأكواد المطلوبة قبل حفظ النمط الجاهز.",
+            )
             return
 
         name, ok = QInputDialog.getText(
@@ -424,8 +437,11 @@ class MainWindow(QMainWindow):
             )
         except Exception as exc:  # noqa: BLE001
             self._logger.exception("Failed saving preset: %s", exc)
-            from PyQt5.QtWidgets import QMessageBox
-            QMessageBox.warning(self, "خطأ", f"تعذّر الحفظ:\n{exc}")
+            self._show_error_box(
+                "تعذّر حفظ النمط الجاهز",
+                "لم يتم حفظ النمط. راجع صلاحيات ملف presets.json أو جرّب مرة أخرى.",
+                str(exc),
+            )
 
     def _on_show_history(self) -> None:
         """Open Build History dialog."""
@@ -447,24 +463,37 @@ class MainWindow(QMainWindow):
         """BKL-006: Launch BuildProgressDialog with QThread builder (BKL-005)."""
         selected = self._checkbox_selector.get_selected_codes()
         if not selected:
-            QMessageBox.warning(self, "تحذير", "لم يتم اختيار أي كود.")
+            self._show_warning_box(
+                "لا توجد أكواد للبناء",
+                "اختر كوداً واحداً على الأقل من القائمة قبل إنشاء العرض الفني.",
+            )
             return
 
         pids = self._project_selector.current_project_ids()
         if not pids:
-            QMessageBox.warning(self, "تحذير", "اختر مشروعاً واحداً على الأقل قبل البناء.")
+            self._show_warning_box(
+                "المشروع غير محدد",
+                "اختر نوع المشروع أولاً حتى يطبق النظام التصفية والتنسيق الصحيحين.",
+            )
             return
         pid = pids[0]
         oid = self._project_selector.current_owner_id()
         if not oid:
-            QMessageBox.warning(self, "تحذير", "اختر جهة مالكة صالحة قبل البناء.")
+            self._show_warning_box(
+                "الجهة المالكة غير محددة",
+                "اختر جهة مالكة صالحة قبل البناء لضمان تطبيق المتطلبات المناسبة.",
+            )
             return
 
-        output_dir = _get_output_dir()
+        output_dir = _get_output_dir(self._settings)
         try:
             output_dir.mkdir(parents=True, exist_ok=True)
         except Exception as exc:  # noqa: BLE001
-            QMessageBox.critical(self, "خطأ", f"تعذّر إنشاء مجلد المخرجات:\n{exc}")
+            self._show_error_box(
+                "تعذّر تجهيز مجلد المخرجات",
+                "لم أتمكن من إنشاء مجلد حفظ ملفات Word. غيّر المجلد من الإعدادات أو تحقق من الصلاحيات.",
+                str(exc),
+            )
             return
 
         dialog = BuildProgressDialog(
@@ -637,6 +666,9 @@ class MainWindow(QMainWindow):
         """Offer to restore the last session if a draft exists and codes were selected."""
         if not self._settings.value(self._DRAFT_KEY_EXISTS, False, type=bool):
             return
+        if not self._settings.value("restoreDraftPrompt", True, type=bool):
+            self._settings.setValue(self._DRAFT_KEY_EXISTS, False)
+            return
         codes = self._settings.value(self._DRAFT_KEY_CODES, [])
         if not codes:
             return
@@ -711,11 +743,64 @@ class MainWindow(QMainWindow):
         if not self._startup_errors:
             return
         details = "\n".join(f"• {item}" for item in self._startup_errors)
-        QMessageBox.warning(
-            self,
+        self._show_warning_box(
             "تنبيه عند بدء التشغيل",
-            "تم فتح الواجهة مع وجود مشاكل في التحميل:\n\n" + details,
+            "تم فتح الواجهة، لكن بعض ملفات البيانات لم تُحمّل بشكل كامل.",
+            details,
         )
+
+    # ------------------------------------------------------------------
+    # User feedback
+    # ------------------------------------------------------------------
+
+    def _message_box(
+        self,
+        icon: QMessageBox.Icon,
+        title: str,
+        text: str,
+        details: str = "",
+    ) -> None:
+        box = QMessageBox(self)
+        box.setLayoutDirection(Qt.RightToLeft)
+        box.setIcon(icon)
+        box.setWindowTitle(title)
+        box.setText(text)
+        if details:
+            box.setInformativeText(details)
+        box.setStandardButtons(QMessageBox.Ok)
+        box.exec_()
+
+    def _show_info_box(self, title: str, text: str, details: str = "") -> None:
+        self._message_box(QMessageBox.Information, title, text, details)
+
+    def _show_warning_box(self, title: str, text: str, details: str = "") -> None:
+        self._message_box(QMessageBox.Warning, title, text, details)
+
+    def _show_error_box(self, title: str, text: str, details: str = "") -> None:
+        self._message_box(QMessageBox.Critical, title, text, details)
+
+    def _on_settings(self) -> None:
+        """Open the simple runtime settings dialog."""
+        try:
+            if self._settings_dialog is not None and self._settings_dialog.isVisible():
+                self._settings_dialog.raise_()
+                self._settings_dialog.activateWindow()
+                return
+
+            dialog = SettingsDialog(self._settings, parent=self)
+            dialog.settings_changed.connect(
+                lambda: self._show_status("تم تحديث الإعدادات", hold_ms=5_000)
+            )
+            dialog.finished.connect(lambda _=0: setattr(self, "_settings_dialog", None))
+            self._settings_dialog = dialog
+            dialog.open()
+        except Exception as exc:  # noqa: BLE001
+            self._logger.exception("Failed opening settings dialog")
+            self._show_error_box(
+                "تعذّر فتح الإعدادات",
+                "حدث خطأ أثناء فتح نافذة الإعدادات، ولم يتم إغلاق التطبيق.",
+                str(exc),
+            )
 
 
 def launch_main_window(

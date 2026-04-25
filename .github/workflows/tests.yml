@@ -35,7 +35,6 @@ jobs:
             --cov-report=xml:coverage.xml
 
       - name: Lint with pylint
-        continue-on-error: true
         run: |
           python -m pylint engine/ utils/ --fail-under=7 `
             --disable=C0114,C0115,C0116,R0903

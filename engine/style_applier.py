@@ -21,7 +21,8 @@ from utils.json_manager import load_json
 
 logger = logging.getLogger(__name__)
 
-_STYLE_DIR = Path("templates/style_templates")
+_PROJECT_ROOT = Path(__file__).resolve().parent.parent
+_STYLE_DIR = _PROJECT_ROOT / "templates" / "style_templates"
 
 
 class StyleApplier:

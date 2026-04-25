@@ -48,12 +48,14 @@ _AR_HINTS: dict[str, str] = {
 
 
 def arabic_message(exc: Exception) -> str:
-    """Return a short Arabic label for an exception type."""
-    name = type(exc).__name__
-    # Handle subclasses like json.JSONDecodeError → ValueError
-    for key in (name, type(exc).__bases__[0].__name__ if type(exc).__bases__ else ""):
-        if key in _AR_MESSAGES:
-            return _AR_MESSAGES[key]
+    """Return a short Arabic label for an exception type.
+
+    Walks the full MRO so subclasses (e.g. json.JSONDecodeError → ValueError)
+    are matched correctly, regardless of inheritance depth.
+    """
+    for cls in type(exc).__mro__:
+        if cls.__name__ in _AR_MESSAGES:
+            return _AR_MESSAGES[cls.__name__]
     return _AR_MESSAGES["default"]
 
 

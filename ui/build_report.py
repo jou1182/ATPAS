@@ -23,6 +23,7 @@ from PyQt5.QtWidgets import (
     QDialog,
     QHBoxLayout,
     QLabel,
+    QMessageBox,
     QPushButton,
     QVBoxLayout,
     QWidget,
@@ -305,6 +306,11 @@ class BuildReportDialog(QDialog):
     def _open_file(self) -> None:
         path = self._output_path.resolve()
         if not path.exists():
+            QMessageBox.warning(
+                self,
+                "الملف غير موجود",
+                f"لم أجد ملف العرض الفني في المسار:\n{path}",
+            )
             return
         try:
             if sys.platform == "win32":
@@ -313,12 +319,23 @@ class BuildReportDialog(QDialog):
                 subprocess.run(["open", str(path)], check=False)
             else:
                 subprocess.run(["xdg-open", str(path)], check=False)
-        except Exception:
-            pass
+        except Exception as exc:  # noqa: BLE001
+            QMessageBox.warning(
+                self,
+                "تعذّر فتح الملف",
+                f"تم إنشاء العرض، لكن تعذّر فتحه تلقائياً:\n{exc}",
+            )
 
     def _open_folder(self) -> None:
         path = self._output_path.resolve()
         folder = path.parent
+        if not folder.exists():
+            QMessageBox.warning(
+                self,
+                "المجلد غير موجود",
+                f"لم أجد مجلد المخرجات:\n{folder}",
+            )
+            return
         try:
             if sys.platform == "win32":
                 if path.exists():
@@ -329,8 +346,12 @@ class BuildReportDialog(QDialog):
                 subprocess.run(["open", str(folder)], check=False)
             else:
                 subprocess.run(["xdg-open", str(folder)], check=False)
-        except Exception:
-            pass
+        except Exception as exc:  # noqa: BLE001
+            QMessageBox.warning(
+                self,
+                "تعذّر فتح المجلد",
+                f"تم إنشاء العرض، لكن تعذّر فتح مجلد المخرجات:\n{exc}",
+            )
 
     def _on_new_build(self) -> None:
         self.new_build_requested.emit()

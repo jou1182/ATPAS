@@ -1,7 +1,7 @@
 {
   "version": "3.1",
-  "build_date": "dev",
-  "build_time": "dev",
-  "build_label": "Development (python main.py)",
-  "git_note": "Run build_exe.bat to stamp a real build date"
+  "build_date": "2026-22-04",
+  "build_time": "11:13:25",
+  "build_label": "ATPAS v3.1 built on 2026/22/04",
+  "build_tag": "3.1.20262204"
 }

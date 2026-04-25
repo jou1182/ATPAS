@@ -48,6 +48,7 @@ templates/source_documents/*.docx
 # ── IDE / OS ─────────────────────────────
 .vscode/
 .idea/
+.atpas_welcomed
 *.swp
 *.swo
 Thumbs.db

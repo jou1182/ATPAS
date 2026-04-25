@@ -165,9 +165,13 @@ class HeaderWidget(QWidget):
     import_requested = pyqtSignal()
     #: يُطلق عند الضغط على زر النسخ الاحتياطي — MainWindow يفتح BackupDialog
     backup_requested = pyqtSignal()
+    #: يُطلق عند الضغط على زر الإعدادات — MainWindow يفتح SettingsDialog
+    settings_requested = pyqtSignal()
 
     def __init__(self, active_codes: int = 0, parent: QWidget | None = None) -> None:
         super().__init__(parent)
+        self.setObjectName("appHeader")
+        self.setAttribute(Qt.WA_StyledBackground, True)
         self.setFixedHeight(72)
         self.setLayoutDirection(Qt.RightToLeft)
         self._build_info = _load_build_info()
@@ -175,7 +179,7 @@ class HeaderWidget(QWidget):
 
     def _setup(self, active_codes: int) -> None:
         self.setStyleSheet("""
-            HeaderWidget {
+            QWidget#appHeader {
                 background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
                     stop:0 #1C3045,
                     stop:0.5 #152433,
@@ -316,6 +320,20 @@ class HeaderWidget(QWidget):
         ))
         help_btn.clicked.connect(self.help_requested.emit)
         layout.addWidget(help_btn)
+
+        # ── زر الإعدادات ⚙ ─────────────────────────────────────────────
+        settings_btn = QPushButton("⚙  إعدادات", self)
+        settings_btn.setToolTip("إعدادات التشغيل والحفظ")
+        settings_btn.setCursor(Qt.PointingHandCursor)
+        settings_btn.setStyleSheet(_hdr_btn_style.format(
+            fg="#D7B56D",
+            border="#D7B56D70",
+            hover_bg="#D7B56D20",
+            hover_border="#D7B56D",
+            pressed_bg="#D7B56D40",
+        ))
+        settings_btn.clicked.connect(self.settings_requested.emit)
+        layout.addWidget(settings_btn)
 
     def _set_counter(self, n: int) -> None:
         self._counter_lbl.set_count(n)

@@ -12,7 +12,8 @@ from utils.json_manager import load_json
 _EXC_FIELD = "excavation_type"
 
 # Owner spec files location
-_OWNER_SPECS_DIR = Path("metadata/owner_specifications")
+_PROJECT_ROOT = Path(__file__).resolve().parent.parent
+_OWNER_SPECS_DIR = _PROJECT_ROOT / "metadata" / "owner_specifications"
 
 # نمط معرّف الكود الصالح: NNN-AAA-BBB  (حتى 8 محارف لكل مقطع)
 _CODE_ID_PATTERN = re.compile(r"^\d{3}-[A-Z]{2,8}-[A-Z]{2,8}$")

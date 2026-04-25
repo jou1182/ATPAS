@@ -8,8 +8,7 @@ from typing import List, Optional
 
 from PIL import Image as PILImage
 from docx import Document
-from docx.shared import Inches, Pt
-from docx.oxml.ns import qn
+from docx.shared import Inches
 
 
 _MIN_DPI = 300

@@ -1,16 +1,18 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import json
 import logging
 import logging.handlers
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
+from utils.json_manager import save_json
 
-_LOGS_DIR = Path("output/logs")
-_AUDIT_DIR = Path("output/audit_trail")
+
+_PROJECT_ROOT = Path(__file__).resolve().parent.parent
+_LOGS_DIR = _PROJECT_ROOT / "output" / "logs"
+_AUDIT_DIR = _PROJECT_ROOT / "output" / "audit_trail"
 
 _configured = False
 
@@ -78,8 +80,7 @@ def generate_audit_trail(build_context: Dict[str, Any], audit_dir: str | Path = 
     }
 
     file_path = audit_path / filename
-    with open(file_path, "w", encoding="utf-8") as f:
-        json.dump(record, f, ensure_ascii=False, indent=2)
+    save_json(record, file_path)
 
     logging.getLogger(__name__).info("Audit trail written: %s", file_path)
     return file_path

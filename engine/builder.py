@@ -29,10 +29,11 @@ from utils.json_manager import load_json
 
 logger = logging.getLogger(__name__)
 
-_METADATA_DIR = Path(".")
-_STYLE_DIR = Path("templates/style_templates")
-_SOURCE_DOCS_DIR = Path("templates/source_documents")
-_MASTER_CONFIG = Path("master_config.json")
+_PROJECT_ROOT = Path(__file__).resolve().parent.parent
+_METADATA_DIR = _PROJECT_ROOT
+_STYLE_DIR = _PROJECT_ROOT / "templates" / "style_templates"
+_SOURCE_DOCS_DIR = _PROJECT_ROOT / "templates" / "source_documents"
+_MASTER_CONFIG = _PROJECT_ROOT / "master_config.json"
 
 
 class Builder:

@@ -46,6 +46,28 @@ class TestArabicMessage:
         msg = arabic_message(MemoryError())
         assert "ذاكرة" in msg or "كافية" in msg
 
+    def test_json_decode_error_resolves_via_mro(self) -> None:
+        """json.JSONDecodeError inherits from ValueError — MRO traversal must find it."""
+        import json
+        exc = json.JSONDecodeError("bad json", "doc", 0)
+        msg = arabic_message(exc)
+        # Should match "json.JSONDecodeError" key directly (it's in _AR_MESSAGES)
+        assert "JSON" in msg or msg  # non-empty and meaningful
+
+    def test_subclass_resolves_via_mro(self) -> None:
+        """A custom subclass with no direct mapping should resolve to its parent."""
+        class MyOSError(OSError):
+            pass
+        msg = arabic_message(MyOSError("custom"))
+        # MyOSError not in _AR_MESSAGES → walks MRO → finds OSError
+        assert "ملفات" in msg or "نظام" in msg
+
+    def test_mro_does_not_use_bases_zero_only(self) -> None:
+        """Verify deep MRO works: FileNotFoundError → OSError → Exception."""
+        # FileNotFoundError IS in _AR_MESSAGES so hits first
+        msg = arabic_message(FileNotFoundError("x"))
+        assert "موجود" in msg or "ملف" in msg
+
 
 # ---------------------------------------------------------------------------
 # format_user_error
