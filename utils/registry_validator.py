@@ -49,7 +49,7 @@ _OPTIONAL_TYPED: List[Tuple[str, type]] = [
     ("tags",           list),
 ]
 
-_ALLOWED_STATUSES = {"active", "draft", "deprecated", "review", "archived"}
+_ALLOWED_STATUSES = {"active", "inactive", "draft", "deprecated", "review", "archived"}
 
 # Issue type alias: (code_id_or_"_registry", field, human-readable message)
 Issue = Tuple[str, str, str]

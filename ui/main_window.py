@@ -59,9 +59,11 @@ from ui.preview_panel import PreviewPanelWidget
 from ui.presets_panel import PresetsPanelWidget
 from ui.project_selector import ProjectSelectorWidget
 from ui.settings_dialog import SettingsDialog, resolve_output_dir
+from ui.system_health_dialog import SystemHealthDialog
 from ui.welcome_overlay import show_if_first_run
 from ui.motion import motion_ms, motion_single_shot, prefers_reduced_motion
 from utils.json_manager import load_json
+from utils.system_health import build_system_health_report
 
 def _get_output_dir(settings: QSettings | None = None) -> Path:
     """Return the output directory — next to EXE when frozen, else local."""
@@ -296,6 +298,7 @@ class MainWindow(QMainWindow):
         self._header.import_requested.connect(self._on_import_wizard)
         self._header.backup_requested.connect(self._on_backup)
         self._header.settings_requested.connect(self._on_settings)
+        self._header.health_requested.connect(self._on_system_health)
         self._history_manager = BuildHistoryManager()
         self._wire_shortcuts()
 
@@ -586,6 +589,13 @@ class MainWindow(QMainWindow):
         self._backup_action.triggered.connect(self._on_backup)
         self.addAction(self._backup_action)
 
+        # Ctrl+H → فحص صحة النظام
+        self._health_action = QAction(self)
+        self._health_action.setShortcut(QKeySequence("Ctrl+H"))
+        self._health_action.setShortcutContext(Qt.WindowShortcut)
+        self._health_action.triggered.connect(self._on_system_health)
+        self.addAction(self._health_action)
+
         # Ctrl+E → تصدير CSV (يُفعَّل من PreviewPanel مباشرةً — هنا للتوثيق فقط)
 
     def _focus_code_search(self) -> None:
@@ -623,6 +633,17 @@ class MainWindow(QMainWindow):
         """BKL-013: Open the Backup & Restore dialog."""
         dialog = BackupDialog(parent=self)
         dialog.restore_requested.connect(self._reload_after_import)
+        dialog.exec_()
+
+    def _on_system_health(self) -> None:
+        """Open a read-only health report for data, presets, and content files."""
+        report = build_system_health_report(
+            registry_data=self.registry_data,
+            config_data=self.config_data,
+            presets_data=self.presets_data,
+            source_documents_dir=Path("templates/source_documents"),
+        )
+        dialog = SystemHealthDialog(report, parent=self)
         dialog.exec_()
 
     # ------------------------------------------------------------------

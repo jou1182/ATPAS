@@ -24,7 +24,7 @@ echo.
 REM -- 1. Kill any running instance --
 echo [1/6] Closing any running ATPAS instance...
 taskkill /f /im ATPAS.exe >nul 2>&1
-timeout /t 2 /nobreak >nul
+powershell -NoProfile -Command "Start-Sleep -Seconds 2" >nul
 
 REM -- 2. Delete previous build (PowerShell to bypass permission errors) --
 echo [2/6] Deleting previous build...
@@ -49,24 +49,21 @@ for /d /r . %%d in (__pycache__) do (
 REM -- 4. Write build stamp to version.json --
 echo [4/6] Writing build timestamp...
 
-for /f "tokens=1-3 delims=/" %%a in ("%DATE:~0,10%") do (
-    set BUILD_DATE=%%c-%%a-%%b
-)
-set BUILD_TIME=%TIME:~0,8%
-set BUILD_TIME=%BUILD_TIME: =0%
-set BUILD_TAG=3.1.%DATE:~6,4%%DATE:~0,2%%DATE:~3,2%
+for /f %%i in ('powershell -NoProfile -Command "Get-Date -Format yyyy-MM-dd"') do set BUILD_DATE=%%i
+for /f %%i in ('powershell -NoProfile -Command "Get-Date -Format HH:mm:ss"') do set BUILD_TIME=%%i
+for /f %%i in ('powershell -NoProfile -Command "Get-Date -Format yyyyMMdd"') do set BUILD_TAG=3.1.%%i
 
 (
 echo {
 echo   "version": "3.1",
-echo   "build_date": "%DATE:~6,4%-%DATE:~0,2%-%DATE:~3,2%",
+echo   "build_date": "%BUILD_DATE%",
 echo   "build_time": "%BUILD_TIME%",
-echo   "build_label": "ATPAS v3.1 built on %DATE:~6,4%/%DATE:~0,2%/%DATE:~3,2%",
+echo   "build_label": "ATPAS v3.1 built on %BUILD_DATE%",
 echo   "build_tag": "%BUILD_TAG%"
 echo }
 ) > version.json
 
-echo    version.json written: v3.1 -- %DATE%
+echo    version.json written: v3.1 -- %BUILD_DATE%
 echo.
 
 REM -- 5. Create output directories --
@@ -111,6 +108,8 @@ echo   NOTE: To distribute, copy the entire dist\ATPAS folder,
 echo         not just the EXE file.
 echo ============================================================
 echo.
+
+if /i "%ATPAS_BUILD_NO_PROMPT%"=="1" exit /b 0
 
 set /p LAUNCH="Launch the app now? (y/n): "
 if /i "!LAUNCH!"=="y" start "" "dist\ATPAS\ATPAS.exe"

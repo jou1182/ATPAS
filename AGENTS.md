@@ -40,6 +40,12 @@ python main.py
 python -m compileall ui engine utils
 ```
 
+فحص صحة بيانات التطبيق من داخل الواجهة:
+
+```text
+زر صحة النظام في الشريط العلوي، أو Ctrl+H
+```
+
 تشغيل الاختبارات:
 
 ```powershell
@@ -50,6 +56,12 @@ python -m pytest tests -v
 
 ```powershell
 .\build_exe.bat
+```
+
+بناء نسخة التشغيل من وكيل أو CI بدون سؤال تشغيل التطبيق:
+
+```powershell
+$env:ATPAS_BUILD_NO_PROMPT='1'; .\build_exe.bat
 ```
 
 رفع نسخة إلى GitHub:
@@ -75,4 +87,4 @@ python -m pytest tests -v
 - الجهات المالكة: 20.
 - الأنماط الجاهزة: 11.
 - الاختبارات المجمعة حاليًا: 240.
-
+- توجد شاشة صحة نظام تفحص الأكواد، الجهات، الأنماط الجاهزة، وربط ملفات Word.

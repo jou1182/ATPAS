@@ -91,9 +91,11 @@ ATPAS هو تطبيق سطح مكتب Windows مبني بـ Python و PyQt5، ي
 | `ui/checkbox_selector.py` | عرض واختيار الأكواد | عالية وظيفيًا وبصريًا |
 | `ui/preview_panel.py` | المعاينة والتحقق | عالية |
 | `ui/help_dialog.py` | نافذة المساعدة | متوسطة، حساسة لـ RTL |
+| `ui/system_health_dialog.py` | شاشة صحة النظام | عالية كأداة جودة |
 | `engine/validator.py` | قواعد التحقق | عالية جدًا |
 | `engine/builder.py` | بناء ملف Word | عالية جدًا |
 | `utils/content_library.py` | ربط ملفات Word بالأكواد | عالية |
+| `utils/system_health.py` | فحص صحة الأكواد والجهات والمحتوى | عالية |
 | `build_exe.bat` | بناء نسخة التشغيل | متوسطة |
 | `backup_to_github.bat` | رفع نسخة GitHub | متوسطة |
 
@@ -220,6 +222,18 @@ python -m compileall ui engine utils
 python -m pytest tests -v
 ```
 
+فحص صحة النظام من الواجهة:
+
+```text
+الشريط العلوي -> صحة النظام
+```
+
+أو من لوحة المفاتيح:
+
+```text
+Ctrl+H
+```
+
 بناء EXE:
 
 ```powershell
@@ -230,6 +244,12 @@ pyinstaller atpas.spec --noconfirm --clean
 
 ```powershell
 .\build_exe.bat
+```
+
+عند تشغيل البناء من وكيل AI أو بيئة غير تفاعلية:
+
+```powershell
+$env:ATPAS_BUILD_NO_PROMPT='1'; .\build_exe.bat
 ```
 
 رفع نسخة إلى GitHub:
@@ -292,7 +312,7 @@ Luxury Industrial — احترافي، دقيق، موثوق
 
 ### المرحلة 1 — تثبيت الجودة
 
-1. إضافة أداة تحقق رسمية لـ `codes_registry.json`.
+1. توسيع شاشة صحة النظام لتصدير تقرير Excel/PDF.
 2. إضافة اختبار يمنع تكرار `code_id`.
 3. إضافة اختبار يمنع تبعية لكود غير موجود.
 4. إضافة شاشة تقرير أخطاء JSON بالعربية.

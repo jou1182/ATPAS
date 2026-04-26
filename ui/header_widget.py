@@ -167,6 +167,8 @@ class HeaderWidget(QWidget):
     backup_requested = pyqtSignal()
     #: يُطلق عند الضغط على زر الإعدادات — MainWindow يفتح SettingsDialog
     settings_requested = pyqtSignal()
+    #: يُطلق عند الضغط على زر صحة النظام — MainWindow يفتح SystemHealthDialog
+    health_requested = pyqtSignal()
 
     def __init__(self, active_codes: int = 0, parent: QWidget | None = None) -> None:
         super().__init__(parent)
@@ -306,6 +308,20 @@ class HeaderWidget(QWidget):
         ))
         import_btn.clicked.connect(self.import_requested.emit)
         layout.addWidget(import_btn)
+
+        # ── زر صحة النظام 🩺 ───────────────────────────────────────────
+        health_btn = QPushButton("🩺  صحة النظام", self)
+        health_btn.setToolTip("فحص الأكواد والجهات وملفات Word")
+        health_btn.setCursor(Qt.PointingHandCursor)
+        health_btn.setStyleSheet(_hdr_btn_style.format(
+            fg="#6EC6A4",
+            border="#6EC6A470",
+            hover_bg="#6EC6A420",
+            hover_border="#6EC6A4",
+            pressed_bg="#6EC6A440",
+        ))
+        health_btn.clicked.connect(self.health_requested.emit)
+        layout.addWidget(health_btn)
 
         # ── زر المساعدة ❓ ──────────────────────────────────────────────
         help_btn = QPushButton("❓  مساعدة", self)

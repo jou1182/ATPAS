@@ -1530,7 +1530,7 @@
       "activity_name_en": "Traffic Management Plan",
       "project_ids": [
         "road_maintenance",
-        "road_construction"
+        "asphalt"
       ],
       "network_types": [
         "R"
@@ -1569,7 +1569,7 @@
       "activity_name_en": "Road Condition Inspection & Survey",
       "project_ids": [
         "road_maintenance",
-        "road_construction"
+        "asphalt"
       ],
       "network_types": [
         "R"
@@ -1647,7 +1647,7 @@
       "activity_name_en": "Asphalt Milling & Scarifying",
       "project_ids": [
         "road_maintenance",
-        "road_construction"
+        "asphalt"
       ],
       "network_types": [
         "R"
@@ -1689,7 +1689,7 @@
       "activity_name_en": "Milled Material Disposal & Transport",
       "project_ids": [
         "road_maintenance",
-        "road_construction"
+        "asphalt"
       ],
       "network_types": [
         "R"
@@ -1728,7 +1728,7 @@
       "activity_name_en": "Prime Coat Application",
       "project_ids": [
         "road_maintenance",
-        "road_construction"
+        "asphalt"
       ],
       "network_types": [
         "R"
@@ -1767,7 +1767,7 @@
       "activity_name_en": "Asphalt Base Course Laying & Compaction",
       "project_ids": [
         "road_maintenance",
-        "road_construction"
+        "asphalt"
       ],
       "network_types": [
         "R"
@@ -1806,7 +1806,7 @@
       "activity_name_en": "Asphalt Wearing Course Laying & Compaction",
       "project_ids": [
         "road_maintenance",
-        "road_construction"
+        "asphalt"
       ],
       "network_types": [
         "R"
@@ -1846,7 +1846,7 @@
       "activity_name_en": "Curb Stones & Edge Restraints Installation",
       "project_ids": [
         "road_maintenance",
-        "road_construction"
+        "asphalt"
       ],
       "network_types": [
         "R"
@@ -1886,7 +1886,7 @@
       "activity_name_en": "Compaction Testing (Marshall & Proctor)",
       "project_ids": [
         "road_maintenance",
-        "road_construction"
+        "asphalt"
       ],
       "network_types": [
         "R"
@@ -1926,7 +1926,7 @@
       "activity_name_en": "Thickness & Density Testing",
       "project_ids": [
         "road_maintenance",
-        "road_construction"
+        "asphalt"
       ],
       "network_types": [
         "R"
@@ -1966,7 +1966,7 @@
       "activity_name_en": "Road Markings & Lane Painting",
       "project_ids": [
         "road_maintenance",
-        "road_construction"
+        "asphalt"
       ],
       "network_types": [
         "R"
@@ -2006,7 +2006,7 @@
       "activity_name_en": "Traffic Signs Supply & Installation",
       "project_ids": [
         "road_maintenance",
-        "road_construction"
+        "asphalt"
       ],
       "network_types": [
         "R"
@@ -2045,7 +2045,7 @@
       "activity_name_en": "Safety Barriers & Guardrails Installation",
       "project_ids": [
         "road_maintenance",
-        "road_construction"
+        "asphalt"
       ],
       "network_types": [
         "R"
