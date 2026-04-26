@@ -47,6 +47,7 @@ from engine.builder import Builder
 from ui.motion import motion_ms, motion_single_shot, prefers_reduced_motion
 from ui.build_report import BuildReportDialog
 from ui.build_history import BuildHistoryManager
+from utils.activity_log import ActivityLog
 from utils.proposal_versions import ProposalVersionManager
 
 
@@ -319,6 +320,15 @@ class BuildProgressDialog(QDialog):
                 output_file=str(self._output_path),
                 elapsed_seconds=self._elapsed_seconds,
                 page_count=page_count,
+            )
+            ActivityLog().append(
+                "بناء عرض فني",
+                {
+                    "output_file": str(self._output_path),
+                    "code_count": len(self._selected_codes),
+                    "page_count": page_count,
+                    "version_label": version_entry.get("version_label", ""),
+                },
             )
 
             self._progress_bar.setValue(100)

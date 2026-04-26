@@ -9,6 +9,8 @@ import html
 from pathlib import Path
 
 from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QTextDocument
+from PyQt5.QtPrintSupport import QPrinter
 from PyQt5.QtWidgets import (
     QApplication,
     QDialog,
@@ -22,7 +24,14 @@ from PyQt5.QtWidgets import (
     QWidget,
 )
 
-from utils.system_health import HealthIssue, SystemHealthReport, save_system_health_report
+from utils.activity_log import ActivityLog
+from utils.system_health import (
+    HealthIssue,
+    SystemHealthReport,
+    render_html_report,
+    save_html_report,
+    save_system_health_report,
+)
 
 
 class SystemHealthDialog(QDialog):
@@ -68,10 +77,16 @@ class SystemHealthDialog(QDialog):
         copy_btn.clicked.connect(self._copy_report)
         export_btn = QPushButton("تصدير Markdown")
         export_btn.clicked.connect(self._export_report)
+        html_btn = QPushButton("تصدير HTML")
+        html_btn.clicked.connect(self._export_html_report)
+        pdf_btn = QPushButton("تصدير PDF")
+        pdf_btn.clicked.connect(self._export_pdf_report)
         close_btn = QPushButton("إغلاق")
         close_btn.clicked.connect(self.accept)
         actions.addWidget(copy_btn)
         actions.addWidget(export_btn)
+        actions.addWidget(html_btn)
+        actions.addWidget(pdf_btn)
         actions.addStretch()
         actions.addWidget(close_btn)
         root.addLayout(actions)
@@ -272,6 +287,52 @@ class SystemHealthDialog(QDialog):
             "تم التصدير",
             f"تم حفظ تقرير صحة النظام بنجاح:\n{saved_path}",
         )
+        ActivityLog().append("تصدير تقرير صحة النظام Markdown", {"path": str(saved_path)})
+
+    def _export_html_report(self) -> None:
+        default_path = Path.home() / "Desktop" / "ATPAS_Health_Report.html"
+        path, _ = QFileDialog.getSaveFileName(
+            self,
+            "تصدير تقرير صحة النظام HTML",
+            str(default_path),
+            "HTML Files (*.html);;All Files (*)",
+        )
+        if not path:
+            return
+
+        try:
+            saved_path = save_html_report(self._report, path)
+        except Exception as exc:  # noqa: BLE001
+            QMessageBox.critical(self, "تعذّر التصدير", f"تعذّر حفظ التقرير:\n{exc}")
+            return
+
+        QMessageBox.information(self, "تم التصدير", f"تم حفظ تقرير HTML:\n{saved_path}")
+        ActivityLog().append("تصدير تقرير صحة النظام HTML", {"path": str(saved_path)})
+
+    def _export_pdf_report(self) -> None:
+        default_path = Path.home() / "Desktop" / "ATPAS_Health_Report.pdf"
+        path, _ = QFileDialog.getSaveFileName(
+            self,
+            "تصدير تقرير صحة النظام PDF",
+            str(default_path),
+            "PDF Files (*.pdf);;All Files (*)",
+        )
+        if not path:
+            return
+
+        try:
+            printer = QPrinter(QPrinter.HighResolution)
+            printer.setOutputFormat(QPrinter.PdfFormat)
+            printer.setOutputFileName(path)
+            doc = QTextDocument()
+            doc.setHtml(render_html_report(self._report))
+            doc.print_(printer)
+        except Exception as exc:  # noqa: BLE001
+            QMessageBox.critical(self, "تعذّر التصدير", f"تعذّر إنشاء ملف PDF:\n{exc}")
+            return
+
+        QMessageBox.information(self, "تم التصدير", f"تم حفظ تقرير PDF:\n{path}")
+        ActivityLog().append("تصدير تقرير صحة النظام PDF", {"path": str(path)})
 
 
 def _severity_label(issue: HealthIssue) -> str:

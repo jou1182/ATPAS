@@ -42,6 +42,9 @@ from PyQt5.QtWidgets import (
 )
 from ui.motion import motion_ms, motion_single_shot, prefers_reduced_motion
 from ui import theme
+from utils.content_library import ContentLibrary
+
+_CONTENT_LIB = ContentLibrary()
 
 _PROJECT_NAMES: dict[str, str] = {
     "wastewater":           "صرف صحي",
@@ -160,7 +163,7 @@ class _CodeItem(QWidget):
         # ── Pages badge: pill, fixed width ──────────────────────────────
         self._badge_lbl = QLabel(f"{pages} صفحة")
         self._badge_lbl.setAlignment(Qt.AlignCenter)
-        self._badge_lbl.setFixedWidth(82)
+        self._badge_lbl.setFixedWidth(92)
         self._badge_lbl.setStyleSheet(_BADGE_STYLE)
 
         # ── Code ID: isolated LTR zone — no BiDi mixing ─────────────────
@@ -536,7 +539,17 @@ class CheckboxSelectorWidget(QGroupBox):
         else:
             tip_prefix = ""
 
-        item.setToolTip(tip_prefix + self._build_tooltip(code_id, code_data))
+        has_content = _CONTENT_LIB.exists(code_id) or is_custom
+        if not has_content:
+            item._badge_lbl.setText(f"{pages} ص / بلا Word")
+            item._badge_lbl.setFixedWidth(116)
+            item._badge_lbl.setStyleSheet(
+                "font-size: 10px; color: #8A4C12; background: #FFF0D8; "
+                "border: 1px solid #E5BE82; border-radius: 8px; "
+                "padding: 1px 6px; margin: 0 2px;"
+            )
+        content_tip = "" if has_content else "\nتنبيه: لا يوجد ملف Word مطابق لهذا الكود."
+        item.setToolTip(tip_prefix + self._build_tooltip(code_id, code_data) + content_tip)
         item.stateChanged.connect(self._on_checkbox_changed)
         return item
 
@@ -753,6 +766,8 @@ class _AddCustomCodeDialog(QDialog):
         self._pages_spin.setAlignment(Qt.AlignRight)
 
         buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        buttons.button(QDialogButtonBox.Ok).setText("حفظ")
+        buttons.button(QDialogButtonBox.Cancel).setText("إلغاء")
         buttons.accepted.connect(self.accept)
         buttons.rejected.connect(self.reject)
 

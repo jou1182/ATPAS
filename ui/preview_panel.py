@@ -20,6 +20,7 @@ from typing import Any
 from PyQt5.QtCore import QEasingCurve, QPropertyAnimation, Qt, pyqtSignal
 from PyQt5.QtGui import QColor
 from PyQt5.QtWidgets import (
+    QDialog,
     QFileDialog,
     QGraphicsOpacityEffect,
     QGroupBox,
@@ -30,6 +31,7 @@ from PyQt5.QtWidgets import (
     QMessageBox,
     QPushButton,
     QSizePolicy,
+    QTextBrowser,
     QVBoxLayout,
     QWidget,
 )
@@ -87,6 +89,13 @@ class PreviewPanelWidget(QWidget):
         self._summary_label = QLabel("لم يتم اختيار أكواد بعد")
         self._summary_label.setAlignment(Qt.AlignCenter)
         self._summary_label.setStyleSheet("font-weight: bold; padding: 4px;")
+        self._readiness_label = QLabel("جاهزية التسليم: لم يتم اختيار أكواد بعد")
+        self._readiness_label.setAlignment(Qt.AlignCenter)
+        self._readiness_label.setWordWrap(True)
+        self._readiness_label.setStyleSheet(
+            "font-weight: 800; padding: 6px 10px; color: #30465E; "
+            "background: #EEF3FA; border: 1px solid #D5E1F0; border-radius: 8px;"
+        )
 
         # Code list
         codes_box = QGroupBox("")
@@ -136,6 +145,10 @@ class PreviewPanelWidget(QWidget):
 
         # Secondary row: CSV export
         export_row = QHBoxLayout()
+        self._outline_btn = QPushButton("🧭  معاينة هيكل العرض")
+        self._outline_btn.setEnabled(False)
+        self._outline_btn.setToolTip("عرض ترتيب الأكواد المتوقع قبل بناء ملف Word")
+        self._outline_btn.clicked.connect(self._on_show_outline)
         self._export_btn = QPushButton("📊  تصدير CSV")
         self._export_btn.setEnabled(False)
         self._export_btn.setToolTip(
@@ -158,6 +171,7 @@ class PreviewPanelWidget(QWidget):
         """)
         self._export_btn.clicked.connect(self._on_export_csv)
         export_row.addStretch()
+        export_row.addWidget(self._outline_btn)
         export_row.addWidget(self._export_btn)
 
         # Keep a reference to current selected codes for the export action
@@ -165,6 +179,7 @@ class PreviewPanelWidget(QWidget):
 
         root = QVBoxLayout(self)
         root.addWidget(self._summary_label)
+        root.addWidget(self._readiness_label)
         root.addWidget(codes_box, stretch=3)
         root.addWidget(val_box, stretch=2)
         root.addLayout(btn_layout)
@@ -185,12 +200,14 @@ class PreviewPanelWidget(QWidget):
         self._refresh_codes_list(selected_codes)
         self._refresh_validation(errors, warnings)
         self._refresh_summary(selected_codes, errors)
+        self._refresh_readiness(selected_codes, errors, warnings)
 
         now_enabled = len(errors) == 0 and len(selected_codes) > 0
         now_autofix = len(warnings) > 0
         self._build_btn.setEnabled(now_enabled)
         self._autofix_btn.setEnabled(now_autofix)
         self._export_btn.setEnabled(len(selected_codes) > 0)
+        self._outline_btn.setEnabled(len(selected_codes) > 0)
 
         # Pulse attention when build button transitions disabled → enabled
         if now_enabled and not self._build_btn_was_enabled:
@@ -260,9 +277,11 @@ class PreviewPanelWidget(QWidget):
         self._codes_list.clear()
         self._validation_list.clear()
         self._summary_label.setText("لم يتم اختيار أكواد بعد")
+        self._readiness_label.setText("جاهزية التسليم: لم يتم اختيار أكواد بعد")
         self._build_btn.setEnabled(False)
         self._autofix_btn.setEnabled(False)
         self._export_btn.setEnabled(False)
+        self._outline_btn.setEnabled(False)
         self._build_btn_was_enabled = False
         self._autofix_btn_was_enabled = False
 
@@ -317,6 +336,30 @@ class PreviewPanelWidget(QWidget):
             )
         except Exception as exc:  # noqa: BLE001
             QMessageBox.critical(self, "خطأ", f"تعذّر التصدير:\n{exc}")
+
+    def _on_show_outline(self) -> None:
+        """Show the expected proposal outline before building."""
+        dialog = QDialog(self)
+        dialog.setWindowTitle("معاينة هيكل العرض الفني")
+        dialog.setLayoutDirection(Qt.RightToLeft)
+        dialog.setMinimumSize(620, 520)
+
+        layout = QVBoxLayout(dialog)
+        title = QLabel("هيكل العرض المتوقع قبل البناء")
+        title.setAlignment(Qt.AlignCenter)
+        title.setStyleSheet(
+            "font-size: 16px; font-weight: 900; color: #152433; "
+            "border-bottom: 2px solid #C9921B; padding-bottom: 8px;"
+        )
+        browser = QTextBrowser(dialog)
+        browser.setLayoutDirection(Qt.RightToLeft)
+        browser.setHtml(self._outline_html())
+        close_btn = QPushButton("إغلاق")
+        close_btn.clicked.connect(dialog.accept)
+        layout.addWidget(title)
+        layout.addWidget(browser, stretch=1)
+        layout.addWidget(close_btn)
+        dialog.exec_()
 
     # ------------------------------------------------------------------
     # Private helpers
@@ -400,4 +443,56 @@ class PreviewPanelWidget(QWidget):
         self._summary_label.setStyleSheet(
             f"font-weight: bold; padding: 5px 8px; color: {status_color}; "
             f"background: {bg_color}; border: 1px solid {border_color}; border-radius: 7px;"
+        )
+
+    def _refresh_readiness(
+        self,
+        selected_codes: list[str],
+        errors: list[str],
+        warnings: list[str],
+    ) -> None:
+        if not selected_codes:
+            self._readiness_label.setText("جاهزية التسليم: لم يتم اختيار أكواد بعد")
+            return
+        missing_content = [cid for cid in selected_codes if not _CONTENT_LIB.exists(cid)]
+        if errors:
+            text = f"جاهزية التسليم: غير جاهز - {len(errors)} خطأ يمنع البناء"
+            color, bg, border = "#B03030", "#FDEEEE", "#E3B6B6"
+        elif missing_content:
+            text = (
+                f"جاهزية التسليم: يحتاج مراجعة محتوى - "
+                f"{len(missing_content)} كود بلا ملف Word"
+            )
+            color, bg, border = "#B56618", "#FFF4E7", "#E6C190"
+        elif warnings:
+            text = f"جاهزية التسليم: صالح مع {len(warnings)} تحذير"
+            color, bg, border = "#B56618", "#FFF4E7", "#E6C190"
+        else:
+            text = "جاهزية التسليم: جاهز للتسليم"
+            color, bg, border = "#2B7549", "#EAF5EF", "#B9D9C2"
+        self._readiness_label.setText(text)
+        self._readiness_label.setStyleSheet(
+            f"font-weight: 900; padding: 6px 10px; color: {color}; "
+            f"background: {bg}; border: 1px solid {border}; border-radius: 8px;"
+        )
+
+    def _outline_html(self) -> str:
+        rows = []
+        for idx, cid in enumerate(self._sorted_codes(self._current_selected), 1):
+            cdata = self._codes.get(cid, {})
+            name_ar = cdata.get("activity_name_ar", cid)
+            pages = _safe_int(cdata.get("page_count"), 0)
+            content = "محتوى Word" if _CONTENT_LIB.exists(cid) else "نص بديل"
+            rows.append(
+                f"<tr><td>{idx}</td><td>{cid}</td><td>{name_ar}</td>"
+                f"<td>{pages}</td><td>{content}</td></tr>"
+            )
+        return (
+            "<html dir='rtl'><body style='font-family: Tahoma; color:#121B28;'>"
+            "<table width='100%' cellspacing='0' cellpadding='7' "
+            "style='border-collapse:collapse;'>"
+            "<tr style='background:#152433;color:#F5D48B;'>"
+            "<th>م</th><th>الكود</th><th>العنوان</th><th>صفحات</th><th>المحتوى</th></tr>"
+            + "".join(rows)
+            + "</table></body></html>"
         )

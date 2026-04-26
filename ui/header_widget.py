@@ -172,6 +172,10 @@ class HeaderWidget(QWidget):
     health_requested = pyqtSignal()
     #: يُطلق عند الضغط على زر إدارة الأكواد — MainWindow يفتح CodeManagerDialog
     code_manager_requested = pyqtSignal()
+    #: يفتح آخر عرض Word تم إنشاؤه
+    last_proposal_requested = pyqtSignal()
+    #: يعرض بطاقة تعريف النظام
+    about_requested = pyqtSignal()
 
     def __init__(self, active_codes: int = 0, parent: QWidget | None = None) -> None:
         super().__init__(parent)
@@ -339,6 +343,34 @@ class HeaderWidget(QWidget):
         ))
         codes_btn.clicked.connect(self.code_manager_requested.emit)
         layout.addWidget(codes_btn)
+
+        # ── زر آخر عرض 📄 ─────────────────────────────────────────────
+        last_btn = QPushButton("📄  آخر عرض", self)
+        last_btn.setToolTip("فتح آخر ملف Word تم إنشاؤه")
+        last_btn.setCursor(Qt.PointingHandCursor)
+        last_btn.setStyleSheet(_hdr_btn_style.format(
+            fg="#F1D68A",
+            border="#F1D68A70",
+            hover_bg="#F1D68A20",
+            hover_border="#F1D68A",
+            pressed_bg="#F1D68A40",
+        ))
+        last_btn.clicked.connect(self.last_proposal_requested.emit)
+        layout.addWidget(last_btn)
+
+        # ── زر عن النظام ⓘ ────────────────────────────────────────────
+        about_btn = QPushButton("ⓘ  عن النظام", self)
+        about_btn.setToolTip("معلومات الإصدار والصحة وآخر نشاط")
+        about_btn.setCursor(Qt.PointingHandCursor)
+        about_btn.setStyleSheet(_hdr_btn_style.format(
+            fg="#D7DDE8",
+            border="#D7DDE870",
+            hover_bg="#D7DDE820",
+            hover_border="#D7DDE8",
+            pressed_bg="#D7DDE840",
+        ))
+        about_btn.clicked.connect(self.about_requested.emit)
+        layout.addWidget(about_btn)
 
         # ── زر المساعدة ❓ ──────────────────────────────────────────────
         help_btn = QPushButton("❓  مساعدة", self)

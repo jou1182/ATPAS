@@ -24,6 +24,8 @@ Signal flow:
 from __future__ import annotations
 
 import logging
+import os
+import subprocess
 import sys
 import time
 from pathlib import Path
@@ -63,7 +65,10 @@ from ui.settings_dialog import SettingsDialog, resolve_output_dir
 from ui.system_health_dialog import SystemHealthDialog
 from ui.welcome_overlay import show_if_first_run
 from ui.motion import motion_ms, motion_single_shot, prefers_reduced_motion
+from utils.activity_log import ActivityLog
+from utils.content_library import ContentLibrary
 from utils.json_manager import load_json
+from utils.proposal_versions import ProposalVersionManager
 from utils.system_health import build_system_health_report
 
 def _get_output_dir(settings: QSettings | None = None) -> Path:
@@ -133,6 +138,8 @@ class MainWindow(QMainWindow):
         self._status_hold_until = 0.0
         self._focus_search_action: QAction | None = None
         self._settings_dialog: SettingsDialog | None = None
+        self._version_manager = ProposalVersionManager()
+        self._activity_log = ActivityLog()
 
         self._settings = QSettings("Rawaf", "ATPAS")
 
@@ -301,6 +308,8 @@ class MainWindow(QMainWindow):
         self._header.settings_requested.connect(self._on_settings)
         self._header.health_requested.connect(self._on_system_health)
         self._header.code_manager_requested.connect(self._on_code_manager)
+        self._header.last_proposal_requested.connect(self._on_open_last_proposal)
+        self._header.about_requested.connect(self._on_about)
         self._history_manager = BuildHistoryManager()
         self._wire_shortcuts()
 
@@ -338,16 +347,21 @@ class MainWindow(QMainWindow):
 
         count = len(selected_codes)
         err_count = len(errors)
+        warn_count = len(warnings)
+        total_pages = sum(
+            _safe_int(self.registry_data.get("codes", {}).get(cid, {}).get("page_count"), 0)
+            for cid in selected_codes
+        )
 
         # Easter egg: acknowledge large proposals with a fitting message
         if count >= 20:
-            status = f"🏗️ مشروع شامل — {count} كود" + (
-                f"  |  {err_count} خطأ" if err_count else "  ✓ جاهز للبناء"
+            status = f"🏗️ مشروع شامل — {count} كود | {total_pages} صفحة" + (
+                f" | {err_count} خطأ" if err_count else f" | {warn_count} تحذير | جاهز للبناء"
             )
         else:
             status = (
-                f"{count} كود مختار"
-                + (f"  |  {err_count} خطأ" if err_count else "  |  لا أخطاء")
+                f"{count} كود | {total_pages} صفحة"
+                + (f" | {err_count} خطأ" if err_count else f" | {warn_count} تحذير | لا أخطاء")
             )
         self._show_status(status, timeout_ms=8_000)
 
@@ -490,6 +504,27 @@ class MainWindow(QMainWindow):
             )
             return
 
+        missing_content = [
+            cid for cid in selected
+            if not ContentLibrary().exists(cid)
+            and not self.registry_data.get("codes", {}).get(cid, {}).get("_custom", False)
+        ]
+        if missing_content:
+            sample = ", ".join(missing_content[:8])
+            more = "" if len(missing_content) <= 8 else f"\nو{len(missing_content) - 8} كود آخر."
+            reply = QMessageBox.question(
+                self,
+                "تنبيه قبل البناء",
+                "يمكن إنشاء ملف Word الآن، لكن بعض الأكواد المختارة لا تملك محتوى Word حقيقيًا.\n\n"
+                f"الأكواد الناقصة: {sample}{more}\n\n"
+                "هل تريد المتابعة واستخدام النصوص البديلة؟",
+                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.No,
+            )
+            if reply != QMessageBox.Yes:
+                self._show_status("تم إلغاء البناء حتى يتم استكمال محتوى Word.", hold_ms=6_000)
+                return
+
         output_dir = _get_output_dir(self._settings)
         try:
             output_dir.mkdir(parents=True, exist_ok=True)
@@ -513,6 +548,67 @@ class MainWindow(QMainWindow):
         dialog.new_build_requested.connect(self._on_build_requested)
         dialog.start_build()
         dialog.exec_()
+
+    def _on_open_last_proposal(self) -> None:
+        """Open the newest generated proposal from the permanent version log."""
+        latest = self._version_manager.latest(1)
+        if not latest:
+            self._show_info_box(
+                "لا يوجد عرض سابق",
+                "لم يتم العثور على أي عرض فني مبني في سجل الإصدارات بعد.",
+            )
+            return
+        path = Path(str(latest[0].get("output_file", "")))
+        if not path.exists():
+            self._show_warning_box(
+                "الملف غير موجود",
+                "سجل الإصدارات يحتوي على عرض سابق، لكن ملف Word لم يعد موجودًا في مساره.",
+                str(path),
+            )
+            return
+        self._open_path(path)
+        self._activity_log.append("فتح آخر عرض فني", {"path": str(path)})
+
+    def _on_about(self) -> None:
+        """Show a compact executive about/status card."""
+        health = build_system_health_report(
+            registry_data=self.registry_data,
+            config_data=self.config_data,
+            presets_data=self.presets_data,
+            source_documents_dir=Path("templates/source_documents"),
+        )
+        latest = self._version_manager.latest(1)
+        latest_text = latest[0].get("output_name", "لا يوجد") if latest else "لا يوجد"
+        activities = self._activity_log.latest(3)
+        activity_text = "\n".join(
+            f"- {a.get('timestamp_display', '')}: {a.get('action_ar', '')}"
+            for a in activities
+        ) or "- لا يوجد نشاط مسجل بعد."
+        version = load_json("version.json", default={})
+        self._show_info_box(
+            "عن نظام ATPAS",
+            "نظام بناء العروض الفنية - الرواف",
+            (
+                f"الإصدار: {version.get('version', 'dev')}\n"
+                f"تاريخ البناء: {version.get('build_date', 'dev')} {version.get('build_time', '')}\n"
+                f"درجة صحة النظام: {health.score}% - {health.status_ar}\n"
+                f"الأكواد النشطة: {health.active_codes}\n"
+                f"آخر عرض: {latest_text}\n\n"
+                f"آخر نشاط:\n{activity_text}"
+            ),
+        )
+
+    def _open_path(self, path: Path) -> None:
+        """Open a local file/folder with the platform default handler."""
+        try:
+            if sys.platform == "win32":
+                os.startfile(str(path))
+            elif sys.platform == "darwin":
+                subprocess.run(["open", str(path)], check=False)
+            else:
+                subprocess.run(["xdg-open", str(path)], check=False)
+        except Exception as exc:  # noqa: BLE001
+            self._show_warning_box("تعذّر الفتح", "لم أتمكن من فتح الملف تلقائيًا.", str(exc))
 
     def _show_next_tip(self) -> None:
         """Rotate through status bar tips during idle periods."""

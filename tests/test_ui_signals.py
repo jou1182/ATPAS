@@ -87,6 +87,7 @@ class TestPreviewPanelSignals:
         from ui.preview_panel import PreviewPanelWidget
         widget = PreviewPanelWidget(registry)
         assert not widget._export_btn.isEnabled()
+        assert not widget._outline_btn.isEnabled()
 
     def test_update_preview_enables_export_btn(self, qapp, registry) -> None:
         from ui.preview_panel import PreviewPanelWidget
@@ -94,6 +95,7 @@ class TestPreviewPanelSignals:
         codes = list(registry["codes"].keys())[:3]
         widget.update_preview(codes, [], [])
         assert widget._export_btn.isEnabled()
+        assert widget._outline_btn.isEnabled()
 
     def test_update_preview_enables_build_btn_when_no_errors(self, qapp, registry) -> None:
         from ui.preview_panel import PreviewPanelWidget
@@ -117,6 +119,7 @@ class TestPreviewPanelSignals:
         widget.clear()
         assert not widget._build_btn.isEnabled()
         assert not widget._export_btn.isEnabled()
+        assert not widget._outline_btn.isEnabled()
 
     def test_build_requested_emitted_on_click(self, qapp, registry) -> None:
         from ui.preview_panel import PreviewPanelWidget
@@ -209,6 +212,16 @@ class TestHeaderWidgetSignals:
         from ui.header_widget import HeaderWidget
         widget = HeaderWidget(active_codes=10)
         assert hasattr(widget, "code_manager_requested")
+
+    def test_last_proposal_requested_signal_exists(self, qapp) -> None:
+        from ui.header_widget import HeaderWidget
+        widget = HeaderWidget(active_codes=10)
+        assert hasattr(widget, "last_proposal_requested")
+
+    def test_about_requested_signal_exists(self, qapp) -> None:
+        from ui.header_widget import HeaderWidget
+        widget = HeaderWidget(active_codes=10)
+        assert hasattr(widget, "about_requested")
 
     def test_update_counter_does_not_crash(self, qapp) -> None:
         from ui.header_widget import HeaderWidget

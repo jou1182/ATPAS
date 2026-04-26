@@ -9,7 +9,9 @@ from pathlib import Path
 
 from utils.system_health import (
     build_system_health_report,
+    render_html_report,
     render_markdown_report,
+    save_html_report,
     save_system_health_report,
 )
 
@@ -112,3 +114,15 @@ def test_save_system_health_report_writes_markdown_file(tmp_path: Path) -> None:
     content = target.read_text(encoding="utf-8-sig")
     assert "تقرير صحة نظام ATPAS" in content
     assert "أكواد بلا ملف Word مطابق" in content
+
+
+def test_html_report_can_be_saved(tmp_path: Path) -> None:
+    report = build_system_health_report(_registry(), _config(), {"presets": {}}, tmp_path)
+    html = render_html_report(report)
+    target = tmp_path / "health.html"
+
+    saved = save_html_report(report, target)
+
+    assert saved == target
+    assert "<html" in html
+    assert "تقرير صحة نظام ATPAS" in target.read_text(encoding="utf-8")

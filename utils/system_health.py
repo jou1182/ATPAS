@@ -134,6 +134,107 @@ def save_system_health_report(report: SystemHealthReport, path: str | Path) -> P
     return target
 
 
+def render_html_report(report: SystemHealthReport) -> str:
+    """Render the health report as a standalone Arabic HTML document."""
+    issue_rows = ""
+    if report.issues:
+        issue_rows = "\n".join(
+            "<tr>"
+            f"<td>{_severity_text(issue.severity)}</td>"
+            f"<td>{_html_escape(issue.scope)}</td>"
+            f"<td>{_html_escape(issue.message_ar)}</td>"
+            f"<td>{_html_escape(issue.suggestion_ar or 'راجع الملف المشار إليه.')}</td>"
+            "</tr>"
+            for issue in report.issues
+        )
+    else:
+        issue_rows = (
+            "<tr><td colspan='4' class='ok'>لا توجد أخطاء أو تحذيرات. "
+            "النظام جاهز للبناء.</td></tr>"
+        )
+
+    return f"""<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <title>تقرير صحة نظام ATPAS</title>
+  <style>
+    body {{
+      font-family: Tahoma, Arial, sans-serif;
+      direction: rtl;
+      color: #121B28;
+      background: #FEFCF7;
+      margin: 32px;
+      line-height: 1.65;
+    }}
+    h1 {{ color: #152433; border-bottom: 3px solid #C9921B; padding-bottom: 10px; }}
+    h2 {{ color: #1F3A56; margin-top: 28px; }}
+    .summary {{
+      display: grid;
+      grid-template-columns: repeat(4, minmax(120px, 1fr));
+      gap: 12px;
+      margin: 18px 0;
+    }}
+    .card {{
+      background: #FAF0DC;
+      border: 1px solid #D5CFBF;
+      border-radius: 12px;
+      padding: 14px;
+      text-align: center;
+    }}
+    .value {{ font-size: 22px; font-weight: 900; color: #152433; }}
+    table {{ width: 100%; border-collapse: collapse; background: #FFFFFF; }}
+    th {{ background: #152433; color: #F5D48B; padding: 9px; }}
+    td {{ border-bottom: 1px solid #ECE3D2; padding: 9px; vertical-align: top; }}
+    .ok {{ color: #2B7549; font-weight: 800; }}
+    .decision {{
+      background: #EEF3FA;
+      border-right: 5px solid #1F4F7D;
+      padding: 12px 14px;
+      border-radius: 8px;
+    }}
+  </style>
+</head>
+<body>
+  <h1>تقرير صحة نظام ATPAS</h1>
+  <div class="summary">
+    <div class="card"><div>درجة الجاهزية</div><div class="value">{report.score}%</div></div>
+    <div class="card"><div>الحالة</div><div class="value">{_html_escape(report.status_ar)}</div></div>
+    <div class="card"><div>الأخطاء</div><div class="value">{len(report.errors)}</div></div>
+    <div class="card"><div>التحذيرات</div><div class="value">{len(report.warnings)}</div></div>
+  </div>
+  <h2>المؤشرات</h2>
+  <table>
+    <tr><th>المؤشر</th><th>القيمة</th></tr>
+    <tr><td>الأكواد الكلية</td><td>{report.total_codes}</td></tr>
+    <tr><td>الأكواد النشطة</td><td>{report.active_codes}</td></tr>
+    <tr><td>الأكواد غير النشطة</td><td>{report.inactive_codes}</td></tr>
+    <tr><td>المشاريع</td><td>{report.projects_count}</td></tr>
+    <tr><td>الجهات المالكة</td><td>{report.owners_count}</td></tr>
+    <tr><td>الأنماط الجاهزة</td><td>{report.presets_count}</td></tr>
+    <tr><td>ملفات Word الموجودة</td><td>{report.source_documents_count}</td></tr>
+    <tr><td>الأكواد المرتبطة بمحتوى Word</td><td>{report.linked_documents_count}</td></tr>
+    <tr><td>أكواد بلا ملف Word مطابق</td><td>{report.missing_documents_count}</td></tr>
+  </table>
+  <h2>الملاحظات والإجراءات المقترحة</h2>
+  <table>
+    <tr><th>النوع</th><th>المكان</th><th>الملاحظة</th><th>الإجراء المقترح</th></tr>
+    {issue_rows}
+  </table>
+  <h2>قرار الجودة</h2>
+  <div class="decision">{_html_escape(_quality_decision(report))}</div>
+</body>
+</html>"""
+
+
+def save_html_report(report: SystemHealthReport, path: str | Path) -> Path:
+    """Write a standalone HTML health report."""
+    target = Path(path)
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text(render_html_report(report), encoding="utf-8")
+    return target
+
+
 def build_system_health_report(
     registry_data: dict[str, Any],
     config_data: dict[str, Any],
@@ -220,6 +321,12 @@ def _severity_text(severity: str) -> str:
 def _md_escape(value: Any) -> str:
     text = str(value).replace("\n", " ").replace("\r", " ")
     return text.replace("|", "\\|").strip()
+
+
+def _html_escape(value: Any) -> str:
+    import html
+
+    return html.escape(str(value), quote=True)
 
 
 def _as_dict(value: Any) -> dict[str, Any]:
