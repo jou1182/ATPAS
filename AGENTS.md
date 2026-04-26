@@ -22,6 +22,12 @@ docs/NON_TECH_CODE_WORKFLOW_AR.md
 docs/USER_GUIDE_AR.md
 ```
 
+4. دليل المطور وصيانة النظام (هام جداً):
+
+```text
+docs/DEVELOPER_GUIDE_AR.md
+```
+
 ## ما هو ATPAS؟
 
 ATPAS تطبيق Windows مبني بـ Python و PyQt5 لإنشاء عروض فنية عربية بصيغة Word لشركة الرواف. المستخدم يختار نوع المشروع، الجهة المالكة، والأكواد الفنية، ثم يبني النظام ملف Word مرتبًا.
