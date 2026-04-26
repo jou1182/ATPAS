@@ -39,8 +39,25 @@ SUCCESS_PALE= "#EAF5EF"
 WARNING     = "#B56618"
 WARNING_PALE= "#FFF4E6"
 
-# ── Monospace font for codes ─────────────────────────────────────────
-CODE_FONT   = "Consolas, 'Courier New', monospace"
+# ── Metrics ────────────────────────────────────────────────────────
+BASE_FONT_SIZE = 13
+HEADER_FONT_SIZE = 15
+TITLE_FONT_SIZE = 20
+BADGE_FONT_SIZE = 11
+
+# ── Fonts ──────────────────────────────────────────────────────────
+MAIN_FONT = "'Tajawal', 'Segoe UI', 'Arial', 'Tahoma', sans-serif"
+CODE_FONT = "'Consolas', 'Courier New', monospace"
+
+def get_font(size: int = BASE_FONT_SIZE, weight: int = -1, italic: bool = False) -> QFont:
+    """Helper to create a QFont instance with Tajawal as primary."""
+    f = QFont("Tajawal")
+    # Fallback list is handled by font-family in CSS, but for QFont we set main
+    f.setPointSize(size)
+    if weight != -1:
+        f.setWeight(weight)
+    f.setItalic(italic)
+    return f
 
 
 def apply_palette(app) -> None:
@@ -79,8 +96,8 @@ QMainWindow, QDialog {{
 QWidget {{
     background: transparent;
     color: {TEXT};
-    font-family: 'Tajawal', 'Segoe UI', 'Arial', 'Tahoma', sans-serif;
-    font-size: 13px;
+    font-family: {MAIN_FONT};
+    font-size: {BASE_FONT_SIZE}px;
 }}
 
 QWidget#mainCentral,

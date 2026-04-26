@@ -18,6 +18,7 @@ from PyQt5.QtCore import Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import QColor, QFont, QPainter, QPainterPath, QPen
 from PyQt5.QtWidgets import QHBoxLayout, QLabel, QPushButton, QWidget
 from ui.motion import prefers_reduced_motion
+from ui import theme
 
 # Pre-computed hex constants (sin/cos 30°, 60°) — avoids importing math
 _S30 = 0.5       # sin(30°)
@@ -201,18 +202,18 @@ class HeaderWidget(QWidget):
 
         # ── اسم المنتج ─────────────────────────────────────────────────
         name_lbl = QLabel("نظام بناء العروض الفنية", self)
-        name_lbl.setStyleSheet("""
-            color: #FFFFFF; font-size: 20px; font-weight: 800;
-            font-family: 'Tajawal', 'Segoe UI', 'Arial', sans-serif;
+        name_lbl.setStyleSheet(f"""
+            color: #FFFFFF; font-size: {theme.TITLE_FONT_SIZE}px; font-weight: 800;
+            font-family: {theme.MAIN_FONT};
             background: transparent; letter-spacing: 0.3px;
         """)
 
         # ── اسم الشركة ─────────────────────────────────────────────────
         brand_lbl = QLabel("الرواف", self)
-        brand_lbl.setStyleSheet("""
-            color: #C9921B; font-size: 15px; font-weight: 700;
+        brand_lbl.setStyleSheet(f"""
+            color: {theme.ACCENT}; font-size: 15px; font-weight: 700;
             background: transparent; padding-right: 6px;
-            border-right: 2px solid #C9921B50;
+            border-right: 2px solid {theme.ACCENT}50;
         """)
 
         layout.addWidget(logo)
@@ -222,8 +223,8 @@ class HeaderWidget(QWidget):
 
         # ── عداد الأكواد المتحرك ────────────────────────────────────────
         self._counter_lbl = _AnimatedCounter(self)
-        self._counter_lbl.setStyleSheet("""
-            color: #C8A860; font-size: 13px; font-weight: 600;
+        self._counter_lbl.setStyleSheet(f"""
+            color: #C8A860; font-size: {theme.BASE_FONT_SIZE}px; font-weight: 600;
             background: transparent; letter-spacing: 0.4px;
         """)
         self._set_counter(active_codes)

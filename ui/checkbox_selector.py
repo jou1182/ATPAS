@@ -41,6 +41,7 @@ from PyQt5.QtWidgets import (
     QWidget,
 )
 from ui.motion import motion_single_shot, prefers_reduced_motion
+from ui import theme
 
 _PROJECT_NAMES: dict[str, str] = {
     "wastewater":           "صرف صحي",
@@ -95,9 +96,9 @@ _BOLD_RE   = re.compile(r'font-weight\s*:\s*bold',           re.IGNORECASE)
 _ITALIC_RE = re.compile(r'font-style\s*:\s*italic',          re.IGNORECASE)
 
 # Visual tokens (synced with theme.py palette)
-_NAME_DEFAULT  = "font-family: Tajawal, 'Segoe UI'; font-size: 12px; color: #1A2433; font-weight: normal; font-style: normal;"
+_NAME_DEFAULT  = f"font-family: {theme.MAIN_FONT}; font-size: 12px; color: #1A2433; font-weight: normal; font-style: normal;"
 _ID_STYLE      = (
-    "font-family: Consolas, 'Courier New', monospace; "
+    f"font-family: {theme.CODE_FONT}; "
     "font-size: 10px; color: #9BA8B5; letter-spacing: 0.4px;"
 )
 _BADGE_STYLE   = (
@@ -331,6 +332,9 @@ class CheckboxSelectorWidget(QGroupBox):
         self._mandatory_codes = set(mandatory_codes)
         self._search_box.clear()
         self._search_timer.stop()
+        
+        # Performance: Block updates during UI rebuild to prevent flickering
+        self.setUpdatesEnabled(False)
 
         # ── Slow path: build container from scratch ───────────────────
         self._checkboxes.clear()
@@ -352,6 +356,9 @@ class CheckboxSelectorWidget(QGroupBox):
         self._scroll.setWidget(container)
         self._current_container = container
         self._update_counter()
+        
+        # Restore updates after layout is complete
+        self.setUpdatesEnabled(True)
 
     def _reset_to_mandatory_only(self) -> None:
         """Uncheck all optional items; restore mandatory lock states."""

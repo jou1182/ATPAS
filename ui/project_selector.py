@@ -35,6 +35,7 @@ from PyQt5.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
+from ui import theme
 
 # Admin password SHA-256 hash — default: "rawaf2024"
 # Change by running: hashlib.sha256(b"your_password").hexdigest()
@@ -116,11 +117,11 @@ class ProjectSelectorWidget(QGroupBox):
 
         title_lbl = QLabel("اختيار المشروع والجهة المالكة")
         title_lbl.setAlignment(Qt.AlignCenter)
-        title_lbl.setStyleSheet(
-            "font-size: 13px; font-weight: 800; color: #152433; "
-            "background: #FAF0DC; border: 1px solid #D5CFBF; "
-            "border-radius: 6px; padding: 4px 12px;"
-        )
+        title_lbl.setStyleSheet(f"""
+            font-size: {theme.BASE_FONT_SIZE}px; font-weight: 800; color: {theme.HEADER};
+            background: {theme.ACCENT_PALE}; border: 1px solid {theme.BORDER};
+            border-radius: 6px; padding: 4px 12px;
+        """)
         root.addWidget(title_lbl)
 
         outer = QFormLayout()
@@ -134,10 +135,10 @@ class ProjectSelectorWidget(QGroupBox):
             label = QLabel(text)
             label.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
             label.setMinimumWidth(104)
-            label.setStyleSheet(
-                "font-weight: 700; color: #152433; "
-                "background: transparent; padding: 2px 0;"
-            )
+            label.setStyleSheet(f"""
+                font-weight: 700; color: {theme.HEADER};
+                background: transparent; padding: 2px 0;
+            """)
             return label
 
         # Projects: horizontal wrap of checkboxes
