@@ -205,6 +205,11 @@ class TestHeaderWidgetSignals:
         widget = HeaderWidget(active_codes=10)
         assert hasattr(widget, "health_requested")
 
+    def test_code_manager_requested_signal_exists(self, qapp) -> None:
+        from ui.header_widget import HeaderWidget
+        widget = HeaderWidget(active_codes=10)
+        assert hasattr(widget, "code_manager_requested")
+
     def test_update_counter_does_not_crash(self, qapp) -> None:
         from ui.header_widget import HeaderWidget
         widget = HeaderWidget(active_codes=0)

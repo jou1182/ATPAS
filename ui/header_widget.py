@@ -169,6 +169,8 @@ class HeaderWidget(QWidget):
     settings_requested = pyqtSignal()
     #: يُطلق عند الضغط على زر صحة النظام — MainWindow يفتح SystemHealthDialog
     health_requested = pyqtSignal()
+    #: يُطلق عند الضغط على زر إدارة الأكواد — MainWindow يفتح CodeManagerDialog
+    code_manager_requested = pyqtSignal()
 
     def __init__(self, active_codes: int = 0, parent: QWidget | None = None) -> None:
         super().__init__(parent)
@@ -310,7 +312,7 @@ class HeaderWidget(QWidget):
         layout.addWidget(import_btn)
 
         # ── زر صحة النظام 🩺 ───────────────────────────────────────────
-        health_btn = QPushButton("🩺  صحة النظام", self)
+        health_btn = QPushButton("🩺  الصحة", self)
         health_btn.setToolTip("فحص الأكواد والجهات وملفات Word")
         health_btn.setCursor(Qt.PointingHandCursor)
         health_btn.setStyleSheet(_hdr_btn_style.format(
@@ -322,6 +324,20 @@ class HeaderWidget(QWidget):
         ))
         health_btn.clicked.connect(self.health_requested.emit)
         layout.addWidget(health_btn)
+
+        # ── زر إدارة الأكواد 🧩 ────────────────────────────────────────
+        codes_btn = QPushButton("🧩  الأكواد", self)
+        codes_btn.setToolTip("إضافة أو تعديل أو تعطيل الأكواد بدون فتح JSON")
+        codes_btn.setCursor(Qt.PointingHandCursor)
+        codes_btn.setStyleSheet(_hdr_btn_style.format(
+            fg="#E8C050",
+            border="#E8C05070",
+            hover_bg="#E8C05020",
+            hover_border="#E8C050",
+            pressed_bg="#E8C05040",
+        ))
+        codes_btn.clicked.connect(self.code_manager_requested.emit)
+        layout.addWidget(codes_btn)
 
         # ── زر المساعدة ❓ ──────────────────────────────────────────────
         help_btn = QPushButton("❓  مساعدة", self)

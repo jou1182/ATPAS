@@ -53,6 +53,7 @@ from ui.build_progress import BuildProgressDialog
 from ui.build_history import BuildHistoryManager, BuildHistoryDialog
 from ui.import_wizard import ImportWizardDialog
 from ui.checkbox_selector import CheckboxSelectorWidget
+from ui.code_manager_dialog import CodeManagerDialog
 from ui.header_widget import HeaderWidget
 from ui.help_dialog import HelpDialog
 from ui.preview_panel import PreviewPanelWidget
@@ -299,6 +300,7 @@ class MainWindow(QMainWindow):
         self._header.backup_requested.connect(self._on_backup)
         self._header.settings_requested.connect(self._on_settings)
         self._header.health_requested.connect(self._on_system_health)
+        self._header.code_manager_requested.connect(self._on_code_manager)
         self._history_manager = BuildHistoryManager()
         self._wire_shortcuts()
 
@@ -596,6 +598,13 @@ class MainWindow(QMainWindow):
         self._health_action.triggered.connect(self._on_system_health)
         self.addAction(self._health_action)
 
+        # Ctrl+M → إدارة الأكواد
+        self._code_manager_action = QAction(self)
+        self._code_manager_action.setShortcut(QKeySequence("Ctrl+M"))
+        self._code_manager_action.setShortcutContext(Qt.WindowShortcut)
+        self._code_manager_action.triggered.connect(self._on_code_manager)
+        self.addAction(self._code_manager_action)
+
         # Ctrl+E → تصدير CSV (يُفعَّل من PreviewPanel مباشرةً — هنا للتوثيق فقط)
 
     def _focus_code_search(self) -> None:
@@ -644,6 +653,12 @@ class MainWindow(QMainWindow):
             source_documents_dir=Path("templates/source_documents"),
         )
         dialog = SystemHealthDialog(report, parent=self)
+        dialog.exec_()
+
+    def _on_code_manager(self) -> None:
+        """Open code manager and refresh the UI after safe edits."""
+        dialog = CodeManagerDialog(self.registry_data, self.config_data, parent=self)
+        dialog.data_changed.connect(self._reload_after_import)
         dialog.exec_()
 
     # ------------------------------------------------------------------
