@@ -70,6 +70,70 @@ class SystemHealthReport:
         return "سليم وجاهز"
 
 
+def render_markdown_report(report: SystemHealthReport) -> str:
+    """Render the health report as a shareable Arabic Markdown document."""
+    lines = [
+        "# تقرير صحة نظام ATPAS",
+        "",
+        "## الملخص التنفيذي",
+        "",
+        f"- درجة الجاهزية: **{report.score}%**",
+        f"- الحالة: **{report.status_ar}**",
+        f"- الأخطاء: **{len(report.errors)}**",
+        f"- التحذيرات: **{len(report.warnings)}**",
+        "",
+        "## المؤشرات",
+        "",
+        "| المؤشر | القيمة |",
+        "|---|---:|",
+        f"| الأكواد الكلية | {report.total_codes} |",
+        f"| الأكواد النشطة | {report.active_codes} |",
+        f"| الأكواد غير النشطة | {report.inactive_codes} |",
+        f"| المشاريع | {report.projects_count} |",
+        f"| الجهات المالكة | {report.owners_count} |",
+        f"| الأنماط الجاهزة | {report.presets_count} |",
+        f"| ملفات Word الموجودة | {report.source_documents_count} |",
+        f"| الأكواد المرتبطة بمحتوى Word | {report.linked_documents_count} |",
+        f"| أكواد بلا ملف Word مطابق | {report.missing_documents_count} |",
+        "",
+        "## الملاحظات والإجراءات المقترحة",
+        "",
+    ]
+
+    if not report.issues:
+        lines.append("- لا توجد أخطاء أو تحذيرات. النظام جاهز للبناء.")
+    else:
+        lines.extend([
+            "| النوع | المكان | الملاحظة | الإجراء المقترح |",
+            "|---|---|---|---|",
+        ])
+        for issue in report.issues:
+            lines.append(
+                "| "
+                f"{_severity_text(issue.severity)} | "
+                f"{_md_escape(issue.scope)} | "
+                f"{_md_escape(issue.message_ar)} | "
+                f"{_md_escape(issue.suggestion_ar or 'راجع الملف المشار إليه.')} |"
+            )
+
+    lines.extend([
+        "",
+        "## قرار الجودة",
+        "",
+        _quality_decision(report),
+        "",
+    ])
+    return "\n".join(lines)
+
+
+def save_system_health_report(report: SystemHealthReport, path: str | Path) -> Path:
+    """Write a Markdown health report using a Windows-friendly UTF-8 BOM."""
+    target = Path(path)
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text(render_markdown_report(report), encoding="utf-8-sig")
+    return target
+
+
 def build_system_health_report(
     registry_data: dict[str, Any],
     config_data: dict[str, Any],
@@ -131,6 +195,31 @@ def build_system_health_report(
         missing_documents_count=missing_documents,
         issues=issues,
     )
+
+
+def _quality_decision(report: SystemHealthReport) -> str:
+    if report.errors:
+        return "لا يوصى ببناء أو تسليم عرض فني قبل إصلاح الأخطاء المذكورة."
+    if report.warnings:
+        return (
+            "يمكن استخدام النظام داخليًا، لكن لا يوصى بالتسليم التجاري النهائي "
+            "قبل مراجعة التحذيرات، خصوصًا ملفات Word الناقصة."
+        )
+    return "النظام جاهز للبناء والتسليم من منظور البيانات والمحتوى المتاح."
+
+
+def _severity_text(severity: str) -> str:
+    labels = {
+        "error": "خطأ",
+        "warning": "تحذير",
+        "info": "معلومة",
+    }
+    return labels.get(severity, severity)
+
+
+def _md_escape(value: Any) -> str:
+    text = str(value).replace("\n", " ").replace("\r", " ")
+    return text.replace("|", "\\|").strip()
 
 
 def _as_dict(value: Any) -> dict[str, Any]:
@@ -297,3 +386,20 @@ def _iter_strings(value: Any) -> Iterable[str]:
         for item in value:
             if isinstance(item, str):
                 yield item
+
+
+if __name__ == "__main__":
+    import sys
+
+    from utils.json_manager import load_json
+
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8")
+
+    current_report = build_system_health_report(
+        registry_data=load_json("codes_registry.json"),
+        config_data=load_json("master_config.json"),
+        presets_data=load_json("presets.json"),
+        source_documents_dir=Path("templates/source_documents"),
+    )
+    print(render_markdown_report(current_report))

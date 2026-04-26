@@ -7,7 +7,11 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from utils.system_health import build_system_health_report
+from utils.system_health import (
+    build_system_health_report,
+    render_markdown_report,
+    save_system_health_report,
+)
 
 
 def _registry() -> dict:
@@ -84,3 +88,27 @@ def test_health_report_accepts_inactive_status(tmp_path: Path) -> None:
     assert report.active_codes == 0
     assert report.inactive_codes == 1
     assert all("Unknown status" not in issue.message_ar for issue in report.errors)
+
+
+def test_markdown_report_contains_actionable_sections(tmp_path: Path) -> None:
+    report = build_system_health_report(_registry(), _config(), {"presets": {}}, tmp_path)
+
+    markdown = render_markdown_report(report)
+
+    assert "# تقرير صحة نظام ATPAS" in markdown
+    assert "## الملخص التنفيذي" in markdown
+    assert "## الملاحظات والإجراءات المقترحة" in markdown
+    assert "درجة الجاهزية" in markdown
+    assert "قرار الجودة" in markdown
+
+
+def test_save_system_health_report_writes_markdown_file(tmp_path: Path) -> None:
+    report = build_system_health_report(_registry(), _config(), {"presets": {}}, tmp_path)
+    target = tmp_path / "reports" / "health.md"
+
+    saved = save_system_health_report(report, target)
+
+    assert saved == target
+    content = target.read_text(encoding="utf-8-sig")
+    assert "تقرير صحة نظام ATPAS" in content
+    assert "أكواد بلا ملف Word مطابق" in content

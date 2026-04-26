@@ -6,20 +6,23 @@
 from __future__ import annotations
 
 import html
+from pathlib import Path
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (
     QApplication,
     QDialog,
+    QFileDialog,
     QHBoxLayout,
     QLabel,
+    QMessageBox,
     QPushButton,
     QTextBrowser,
     QVBoxLayout,
     QWidget,
 )
 
-from utils.system_health import HealthIssue, SystemHealthReport
+from utils.system_health import HealthIssue, SystemHealthReport, save_system_health_report
 
 
 class SystemHealthDialog(QDialog):
@@ -63,9 +66,12 @@ class SystemHealthDialog(QDialog):
         actions = QHBoxLayout()
         copy_btn = QPushButton("نسخ التقرير")
         copy_btn.clicked.connect(self._copy_report)
+        export_btn = QPushButton("تصدير Markdown")
+        export_btn.clicked.connect(self._export_report)
         close_btn = QPushButton("إغلاق")
         close_btn.clicked.connect(self.accept)
         actions.addWidget(copy_btn)
+        actions.addWidget(export_btn)
         actions.addStretch()
         actions.addWidget(close_btn)
         root.addLayout(actions)
@@ -243,6 +249,29 @@ class SystemHealthDialog(QDialog):
 
     def _copy_report(self) -> None:
         QApplication.clipboard().setText(_plain_text_report(self._report))
+
+    def _export_report(self) -> None:
+        default_path = Path.home() / "Desktop" / "ATPAS_Health_Report.md"
+        path, _ = QFileDialog.getSaveFileName(
+            self,
+            "تصدير تقرير صحة النظام",
+            str(default_path),
+            "Markdown Files (*.md);;All Files (*)",
+        )
+        if not path:
+            return
+
+        try:
+            saved_path = save_system_health_report(self._report, path)
+        except Exception as exc:  # noqa: BLE001
+            QMessageBox.critical(self, "تعذّر التصدير", f"تعذّر حفظ التقرير:\n{exc}")
+            return
+
+        QMessageBox.information(
+            self,
+            "تم التصدير",
+            f"تم حفظ تقرير صحة النظام بنجاح:\n{saved_path}",
+        )
 
 
 def _severity_label(issue: HealthIssue) -> str:
