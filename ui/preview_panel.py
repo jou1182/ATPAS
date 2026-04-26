@@ -52,6 +52,18 @@ _BG_OK = "#EAF5EF"
 _BG_INFO = "#EEF3FA"
 
 
+def _section_title(text: str) -> QLabel:
+    """Create an internal section title to avoid clipped QGroupBox titles."""
+    label = QLabel(text)
+    label.setAlignment(Qt.AlignCenter)
+    label.setStyleSheet(
+        "font-size: 12px; font-weight: 800; color: #152433; "
+        "background: #FAF0DC; border: 1px solid #D5CFBF; "
+        "border-radius: 6px; padding: 4px 10px;"
+    )
+    return label
+
+
 def _safe_int(value: Any, default: int = 0) -> int:
     """Parse int safely; fallback to default on malformed values."""
     try:
@@ -77,18 +89,24 @@ class PreviewPanelWidget(QWidget):
         self._summary_label.setStyleSheet("font-weight: bold; padding: 4px;")
 
         # Code list
-        codes_box = QGroupBox("الأكواد المختارة (مرتبة حسب التسلسل)")
+        codes_box = QGroupBox("")
         codes_box.setLayoutDirection(Qt.RightToLeft)
         codes_layout = QVBoxLayout(codes_box)
+        codes_layout.setContentsMargins(10, 10, 10, 10)
+        codes_layout.setSpacing(8)
+        codes_layout.addWidget(_section_title("الأكواد المختارة (مرتبة حسب التسلسل)"))
         self._codes_list = QListWidget()
         self._codes_list.setLayoutDirection(Qt.RightToLeft)
         self._codes_list.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         codes_layout.addWidget(self._codes_list)
 
         # Validation messages
-        val_box = QGroupBox("التحقق والتحذيرات")
+        val_box = QGroupBox("")
         val_box.setLayoutDirection(Qt.RightToLeft)
         val_layout = QVBoxLayout(val_box)
+        val_layout.setContentsMargins(10, 10, 10, 10)
+        val_layout.setSpacing(8)
+        val_layout.addWidget(_section_title("التحقق والتحذيرات"))
         self._validation_list = QListWidget()
         self._validation_list.setLayoutDirection(Qt.RightToLeft)
         self._validation_list.setMaximumHeight(140)

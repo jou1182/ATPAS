@@ -16,7 +16,7 @@
 from __future__ import annotations
 
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QFont
+from PyQt5.QtGui import QFont, QTextOption
 from PyQt5.QtWidgets import (
     QDialog,
     QDialogButtonBox,
@@ -38,29 +38,39 @@ from PyQt5.QtWidgets import (
 _STYLE_BASE = """<!DOCTYPE html>
 <html dir="rtl"><head><meta charset="utf-8">
 <style>
-  body  { font-family:'Segoe UI',Arial,sans-serif; font-size:13px;
-          color:#1a1a1a; direction:rtl; text-align:right;
-          margin:8px 12px; padding:0; }
+  body  { font-family:'Segoe UI','Tahoma',Arial,sans-serif; font-size:13px;
+          color:#121B28; direction:rtl; text-align:right;
+          margin:10px 14px; padding:0; unicode-bidi:embed; }
   h2    { color:#152433; border-bottom:2px solid #C9921B;
-          padding-bottom:6px; margin-top:18px; font-size:15px; }
-  h3    { color:#1C3045; margin-top:14px; font-size:13px; }
-  p     { margin:6px 0; }
+          padding-bottom:6px; margin-top:16px; margin-bottom:8px;
+          font-size:16px; font-weight:800; text-align:right; }
+  h3    { color:#1C3045; margin-top:12px; margin-bottom:6px;
+          font-size:14px; font-weight:800; text-align:right; }
+  p     { margin:6px 0; text-align:right; direction:rtl; }
   .step { background:#EEF5FB; border-right:4px solid #1C3045;
-          border-radius:6px; padding:10px 14px; margin:8px 0; }
+          border-radius:6px; padding:10px 14px; margin:8px 0;
+          text-align:right; direction:rtl; }
   .num  { background:#152433; color:#C9921B; border-radius:50%;
           display:inline-block; width:24px; height:24px;
           text-align:center; font-weight:800; line-height:24px;
           margin-left:8px; }
   .tip  { background:#FFF8E7; border-right:4px solid #C9921B;
-          border-radius:6px; padding:8px 12px; margin:8px 0; font-size:12px; }
+          border-radius:6px; padding:8px 12px; margin:8px 0; font-size:12px;
+          text-align:right; direction:rtl; }
   .warn { background:#FFF3E0; border-right:4px solid #E65100;
-          border-radius:6px; padding:8px 12px; margin:8px 0; }
+          border-radius:6px; padding:8px 12px; margin:8px 0;
+          text-align:right; direction:rtl; }
   .ok   { background:#E8F5E9; border-right:4px solid #2E7D32;
-          border-radius:6px; padding:8px 12px; margin:8px 0; }
+          border-radius:6px; padding:8px 12px; margin:8px 0;
+          text-align:right; direction:rtl; }
+  .line { margin:3px 0; text-align:right; direction:rtl; }
+  .ltr  { direction:ltr; unicode-bidi:embed; display:inline-block;
+          font-family:Consolas,'Courier New',monospace; }
   table { width:100%; border-collapse:collapse; margin:10px 0; }
   th    { background:#152433; color:#C9921B; padding:8px 12px;
-          font-weight:700; }
-  td    { padding:7px 12px; border-bottom:1px solid #E0E0E0; }
+          font-weight:700; text-align:right; direction:rtl; }
+  td    { padding:7px 12px; border-bottom:1px solid #E0E0E0;
+          text-align:right; direction:rtl; }
   tr:nth-child(even) td { background:#F5F5F5; }
   kbd   { background:#E8E8E8; border:1px solid #999; border-radius:4px;
           padding:2px 7px; font-size:12px; font-family:Consolas,monospace; }
@@ -71,34 +81,29 @@ _STYLE_BASE = """<!DOCTYPE html>
 
 _HOW_TO_HTML = _STYLE_BASE + """
 <body dir="rtl">
-<h2>🚀 كيف تستخدم نظام ATPAS</h2>
+<h2>كيف تستخدم النظام</h2>
 
 <p>النظام يعمل في <strong>ثلاث خطوات رئيسية</strong> فقط:</p>
 
 <div class="step">
-  <span class="num">1</span>
-  <strong>اختر نوع المشروع والجهة المالكة</strong><br>
-  في أعلى الشاشة، اختر نوع المشروع من القائمة (صرف صحي، مياه، أسفلت...) ثم اختر الجهة
-  المالكة (NWC، أمانة مكة، وزارة الإسكان...). ستظهر الأكواد المناسبة تلقائياً.
+  <p class="line"><strong>الخطوة الأولى: اختر نوع المشروع والجهة المالكة</strong></p>
+  <p class="line">في أعلى الشاشة، اختر نوع المشروع من القائمة، ثم اختر الجهة المالكة.</p>
+  <p class="line">ستظهر الأكواد المناسبة تلقائياً حسب اختيارك.</p>
 </div>
 
 <div class="step">
-  <span class="num">2</span>
-  <strong>اختر الأكواد التي تريدها</strong><br>
-  في القائمة الوسطى، ضع علامة ✓ على كل بند تريد إدراجه في العرض الفني.
-  يمكنك استخدام <strong>الأنماط الجاهزة</strong> (Presets) في الشريط العلوي لتحديد مجموعات دفعة واحدة،
-  أو كتابة اسم الكود في خانة البحث (Ctrl+F).
+  <p class="line"><strong>الخطوة الثانية: اختر الأكواد التي تريدها</strong></p>
+  <p class="line">في القائمة الوسطى، ضع علامة على كل بند تريد إدراجه في العرض الفني.</p>
+  <p class="line">يمكنك استخدام الأنماط الجاهزة أو البحث عن الكود من خانة البحث <span dir="ltr">Ctrl+F</span>.</p>
 </div>
 
 <div class="step">
-  <span class="num">3</span>
-  <strong>ابنِ العرض الفني</strong><br>
-  في اللوحة اليمنى (المعاينة)، راجع الأكواد المختارة. عند وجود أي تحذيرات استخدم
-  زر <strong>«إصلاح تلقائي»</strong> لإكمال التبعيات الناقصة تلقائياً. ثم اضغط
-  <strong>«بناء العرض الفني»</strong> وسيُنشئ النظام ملف Word جاهزاً.
+  <p class="line"><strong>الخطوة الثالثة: ابنِ العرض الفني</strong></p>
+  <p class="line">في اللوحة اليمنى، راجع الأكواد المختارة ورسائل التحقق.</p>
+  <p class="line">عند عدم وجود أخطاء، اضغط «بناء العرض الفني» وسيُنشئ النظام ملف وورد جاهزاً.</p>
 </div>
 
-<h2>📋 شرح أجزاء الشاشة</h2>
+<h2>شرح أجزاء الشاشة</h2>
 
 <table>
   <tr><th>الجزء</th><th>الوظيفة</th></tr>
@@ -113,7 +118,7 @@ _HOW_TO_HTML = _STYLE_BASE + """
   توفّر أكثر من 80% من وقت الاختيار.
 </div>
 
-<h2>🔍 البحث عن كود</h2>
+<h2>البحث عن كود</h2>
 <p>اضغط <kbd>Ctrl</kbd>+<kbd>F</kbd> في أي وقت لتركيز خانة البحث.
 اكتب اسم الكود (مثل: SUR) أو جزء من الاسم العربي (مثل: مسح) وستُصفَّى القائمة فوراً.</p>
 
@@ -125,7 +130,7 @@ _HOW_TO_HTML = _STYLE_BASE + """
 
 _CODES_HTML = _STYLE_BASE + """
 <body dir="rtl">
-<h2>📑 الأكواد والمراحل — مرجع سريع</h2>
+<h2>الأكواد والمراحل — مرجع سريع</h2>
 
 <h3>تركيب الكود</h3>
 <div class="step" style="font-family: Consolas, monospace; font-size: 14px; text-align: center; direction: ltr;">
@@ -179,7 +184,7 @@ _CODES_HTML = _STYLE_BASE + """
 
 _SHORTCUTS_HTML = _STYLE_BASE + """
 <body dir="rtl">
-<h2>⌨️ اختصارات لوحة المفاتيح</h2>
+<h2>اختصارات لوحة المفاتيح</h2>
 
 <table>
   <tr><th>الاختصار</th><th>الوظيفة</th></tr>
@@ -235,66 +240,65 @@ _SHORTCUTS_HTML = _STYLE_BASE + """
 
 _TROUBLESHOOT_HTML = _STYLE_BASE + """
 <body dir="rtl">
-<h2>🔧 استكشاف الأخطاء — حلول للمشاكل الشائعة</h2>
+<h2>استكشاف الأخطاء — حلول للمشاكل الشائعة</h2>
 
-<h3>❓ لماذا لا تظهر بعض الأكواد في القائمة؟</h3>
+<h3>لماذا لا تظهر بعض الأكواد في القائمة؟</h3>
 <div class="tip">
-  الأكواد مُصنَّفة حسب المشروع والجهة. إذا لم يظهر كود معيّن:<br>
-  ▪ تأكد أن المشروع المختار يشمل هذا الكود<br>
-  ▪ تأكد أن الجهة المالكة مخوّلة لهذا الكود<br>
-  ▪ ابحث عن الكود بخانة البحث (Ctrl+F) — ربما هو موجود في مجموعة أخرى
+  <p class="line">الأكواد مُصنَّفة حسب المشروع والجهة. إذا لم يظهر كود معيّن:</p>
+  <p class="line">• تأكد أن المشروع المختار يشمل هذا الكود.</p>
+  <p class="line">• تأكد أن الجهة المالكة مخوّلة لهذا الكود.</p>
+  <p class="line">• ابحث عن الكود بخانة البحث <span dir="ltr">Ctrl+F</span>، فقد يكون في مجموعة أخرى.</p>
 </div>
 
-<h3>❓ ظهر خطأ «تبعية ناقصة» — ماذا أفعل؟</h3>
+<h3>ظهر خطأ «تبعية ناقصة» — ماذا أفعل؟</h3>
 <div class="ok">
   اضغط زر <strong>«إصلاح تلقائي»</strong> في لوحة المعاينة.
   النظام يُضيف الأكواد المطلوبة تلقائياً. هذا ليس خطأً — بعض الأكواد
   تتطلب بنوداً أخرى أن تكون موجودة قبلها (مثلاً: الحفر يحتاج مسحاً مسبقاً).
 </div>
 
-<h3>❓ زر «بناء العرض» غير مُفعَّل</h3>
+<h3>زر «بناء العرض» غير مُفعَّل</h3>
 <div class="tip">
-  يتطلب التفعيل:<br>
-  ▪ تحديد كود واحد على الأقل<br>
-  ▪ لا وجود لأخطاء تحقق (الإصلاح التلقائي يحلها)
+  <p class="line">يتطلب التفعيل:</p>
+  <p class="line">• تحديد كود واحد على الأقل.</p>
+  <p class="line">• عدم وجود أخطاء تحقق. زر الإصلاح التلقائي يحل أغلبها.</p>
 </div>
 
-<h3>❓ ملف الـ Word الناتج يحتوي نصوصاً عامة بدل المحتوى الحقيقي</h3>
+<h3>ملف Word الناتج يحتوي نصوصاً عامة بدل المحتوى الحقيقي</h3>
 <div class="warn">
-  ⚠️ هذا يعني أن ملف Word الخاص بهذا الكود غير موجود في مكتبة المحتوى.
-  الحل: أضف الملف إلى مجلد <strong>templates/source_documents/</strong>
-  باسم <strong>{CODE_ID}.docx</strong> (مثال: 001-SUR-BASE.docx).
-  راجع دليل المستخدم (docs/USER_GUIDE_AR.md) للتفاصيل.
+  <p class="line">⚠️ هذا يعني أن ملف Word الخاص بهذا الكود غير موجود في مكتبة المحتوى.</p>
+  <p class="line">الحل: أضف الملف إلى مجلد <strong><span dir="ltr">templates/source_documents/</span></strong>.</p>
+  <p class="line">اسم الملف المطلوب: <strong><span dir="ltr">{CODE_ID}.docx</span></strong>، مثال: <span dir="ltr">001-SUR-BASE.docx</span>.</p>
+  <p class="line">راجع دليل المستخدم <span dir="ltr">docs/USER_GUIDE_AR.md</span> للتفاصيل.</p>
 </div>
 
-<h3>❓ التطبيق يعمل على جهاز لكن الواجهة تبدو قديمة على جهاز آخر</h3>
+<h3>التطبيق يعمل على جهاز لكن الواجهة تبدو قديمة على جهاز آخر</h3>
 <div class="warn">
-  ⚠️ <strong>المشكلة الأكثر شيوعاً:</strong> نسخت مجلد dist\\ATPAS\\ القديم
-  بدون إعادة البناء أولاً.<br><br>
-  <strong>الحل الصحيح:</strong><br>
-  1. عند أي تغيير في الكود أو البيانات: شغّل <strong>build_exe.bat</strong> أولاً<br>
-  2. انتظر حتى ينتهي (دقيقتين تقريباً)<br>
-  3. انسخ مجلد <strong>dist\\ATPAS\\</strong> بالكامل للجهاز الآخر<br>
-  4. الواجهة ستُظهر تاريخ البناء في أعلى الشاشة للتأكد من الإصدار
+  <p class="line">⚠️ <strong>المشكلة الأكثر شيوعاً:</strong> نسخ مجلد <span dir="ltr">dist\\ATPAS\\</span> القديم بدون إعادة البناء أولاً.</p>
+  <p class="line"><strong>الحل الصحيح:</strong></p>
+  <p class="line">1. عند أي تغيير في الكود أو البيانات: شغّل <strong><span dir="ltr">build_exe.bat</span></strong> أولاً.</p>
+  <p class="line">2. انتظر حتى ينتهي البناء.</p>
+  <p class="line">3. انسخ مجلد <strong><span dir="ltr">dist\\ATPAS\\</span></strong> بالكامل للجهاز الآخر.</p>
+  <p class="line">4. راجع تاريخ البناء أعلى الشاشة للتأكد من الإصدار.</p>
 </div>
 
-<h3>❓ الملف الناتج لا يفتح في Word</h3>
+<h3>الملف الناتج لا يفتح في Word</h3>
 <div class="tip">
-  ▪ تأكد من وجود Microsoft Word 2016 أو أحدث<br>
-  ▪ الملف في مجلد output/generated_documents/ بجوار ATPAS.exe<br>
-  ▪ اضغط «فتح المجلد» في نافذة البناء للوصول المباشر
+  <p class="line">• تأكد من وجود Microsoft Word 2016 أو أحدث.</p>
+  <p class="line">• الملف في مجلد <span dir="ltr">output/generated_documents/</span> بجوار <span dir="ltr">ATPAS.exe</span>.</p>
+  <p class="line">• اضغط «فتح المجلد» في نافذة البناء للوصول المباشر.</p>
 </div>
 
-<h3>❓ النظام بطيء أو يتجمّد أثناء البناء</h3>
+<h3>النظام بطيء أو يتجمّد أثناء البناء</h3>
 <div class="ok">
   هذا طبيعي لمشاريع كبيرة (20+ كوداً بصور مدمجة). الشريط يتحرك خلف الكواليس —
   انتظر حتى تظهر رسالة «✅ العرض الفني جاهز».
 </div>
 
-<h2>📞 للمساعدة الإضافية</h2>
+<h2>للمساعدة الإضافية</h2>
 <div class="ok">
-  راجع ملف الدليل الكامل: <strong>docs/USER_GUIDE_AR.md</strong><br>
-  أو راجع وثائق SSOT في: <strong>SSOT/ATPAS_REFERENCE_DOCUMENT_v3.0.md</strong>
+  <p class="line">راجع ملف الدليل الكامل: <strong><span dir="ltr">docs/USER_GUIDE_AR.md</span></strong></p>
+  <p class="line">أو راجع وثائق SSOT في: <strong><span dir="ltr">SSOT/ATPAS_REFERENCE_DOCUMENT_v3.0.md</span></strong></p>
 </div>
 </body></html>
 """
@@ -329,7 +333,8 @@ class HelpDialog(QDialog):
         layout.setContentsMargins(12, 12, 12, 8)
 
         # ── عنوان ──────────────────────────────────────────────────────
-        title = QLabel("❓ المساعدة — نظام بناء العروض الفنية")
+        title = QLabel("المساعدة — نظام بناء العروض الفنية")
+        title.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
         title.setStyleSheet("""
             font-size: 16px; font-weight: 800; color: #152433;
             padding: 4px 0; border-bottom: 2px solid #C9921B;
@@ -338,10 +343,13 @@ class HelpDialog(QDialog):
 
         # ── تبويبات ────────────────────────────────────────────────────
         tabs = QTabWidget()
+        tabs.setLayoutDirection(Qt.RightToLeft)
+        tabs.setDocumentMode(True)
         tabs.setStyleSheet("""
             QTabBar::tab {
-                font-size: 12px; padding: 7px 16px;
-                font-weight: 600; min-width: 120px;
+                font-size: 12px; padding: 8px 18px;
+                font-weight: 700; min-width: 128px;
+                text-align: center;
             }
             QTabBar::tab:selected {
                 background: #152433; color: #C9921B;
@@ -409,16 +417,24 @@ class HelpDialog(QDialog):
     @staticmethod
     def _make_browser(html: str) -> QTextBrowser:
         """صفحة HTML قابلة للتمرير داخل التبويب — RTL عربي."""
-        from PyQt5.QtGui import QTextOption
         browser = QTextBrowser()
         browser.setLayoutDirection(Qt.RightToLeft)
-        browser.setHtml(html)
+        browser.setReadOnly(True)
+        browser.document().setDefaultStyleSheet(
+            "body, p, div, h2, h3, td, th { direction: rtl; text-align: right; }"
+        )
         # إجبار RTL على مستوى المستند (يتجاوز قيود Qt على ul/li)
         opt = browser.document().defaultTextOption()
         opt.setTextDirection(Qt.RightToLeft)
+        opt.setAlignment(Qt.AlignRight)
+        opt.setWrapMode(QTextOption.WordWrap)
         browser.document().setDefaultTextOption(opt)
+        browser.setHtml(html)
         browser.setOpenExternalLinks(False)
-        browser.setStyleSheet("border: none; background: white; padding: 4px;")
+        browser.setStyleSheet(
+            "QTextBrowser { border: none; background: white; padding: 6px; "
+            "color: #121B28; }"
+        )
         return browser
 
 

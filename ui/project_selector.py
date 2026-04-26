@@ -82,7 +82,7 @@ class ProjectSelectorWidget(QGroupBox):
     selection_changed = pyqtSignal(list, str)
 
     def __init__(self, config_data: dict[str, Any], parent=None) -> None:
-        super().__init__("اختيار المشروع والجهة المالكة", parent)
+        super().__init__("", parent)
         self.setLayoutDirection(Qt.RightToLeft)
 
         self._config_data = config_data
@@ -110,7 +110,35 @@ class ProjectSelectorWidget(QGroupBox):
     # ------------------------------------------------------------------
 
     def _build_layout(self) -> None:
-        outer = QFormLayout(self)
+        root = QVBoxLayout(self)
+        root.setContentsMargins(12, 12, 12, 12)
+        root.setSpacing(9)
+
+        title_lbl = QLabel("اختيار المشروع والجهة المالكة")
+        title_lbl.setAlignment(Qt.AlignCenter)
+        title_lbl.setStyleSheet(
+            "font-size: 13px; font-weight: 800; color: #152433; "
+            "background: #FAF0DC; border: 1px solid #D5CFBF; "
+            "border-radius: 6px; padding: 4px 12px;"
+        )
+        root.addWidget(title_lbl)
+
+        outer = QFormLayout()
+        outer.setContentsMargins(0, 0, 0, 0)
+        outer.setHorizontalSpacing(14)
+        outer.setVerticalSpacing(8)
+        outer.setLabelAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        root.addLayout(outer)
+
+        def _form_label(text: str) -> QLabel:
+            label = QLabel(text)
+            label.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+            label.setMinimumWidth(92)
+            label.setStyleSheet(
+                "font-weight: 700; color: #152433; "
+                "background: transparent; padding: 2px 0;"
+            )
+            return label
 
         # Projects: horizontal wrap of checkboxes
         proj_widget = QWidget()
@@ -119,7 +147,7 @@ class ProjectSelectorWidget(QGroupBox):
         proj_layout.setContentsMargins(0, 0, 0, 0)
         proj_layout.setSpacing(12)
         self._proj_layout = proj_layout
-        outer.addRow("المشاريع:", proj_widget)
+        outer.addRow(_form_label("المشاريع:"), proj_widget)
 
         # Owner: combo + add button
         owner_row = QWidget()
@@ -132,7 +160,7 @@ class ProjectSelectorWidget(QGroupBox):
         add_btn.setToolTip("إضافة جهة مالكة جديدة (للمشرف فقط)")
         add_btn.clicked.connect(self._on_add_owner)
         owner_h.addWidget(add_btn)
-        outer.addRow("الجهة المالكة:", owner_row)
+        outer.addRow(_form_label("الجهة المالكة:"), owner_row)
 
         outer.addRow(self._info_label)
 

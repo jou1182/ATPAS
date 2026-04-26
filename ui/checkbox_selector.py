@@ -255,7 +255,7 @@ class CheckboxSelectorWidget(QGroupBox):
     codes_changed = pyqtSignal(list)
 
     def __init__(self, registry_data: dict[str, Any], parent=None) -> None:
-        super().__init__("الأكواد المتاحة", parent)
+        super().__init__("", parent)
         self.setLayoutDirection(Qt.RightToLeft)
 
         self._all_codes: dict[str, dict] = registry_data.get("codes", {})
@@ -295,7 +295,18 @@ class CheckboxSelectorWidget(QGroupBox):
         add_btn.setToolTip("إضافة كود غير موجود في السجل لهذه الجلسة فقط")
         add_btn.clicked.connect(self._on_add_custom)
 
+        title_lbl = QLabel("الأكواد المتاحة")
+        title_lbl.setAlignment(Qt.AlignCenter)
+        title_lbl.setStyleSheet(
+            "font-size: 13px; font-weight: 800; color: #152433; "
+            "background: #FAF0DC; border: 1px solid #D5CFBF; "
+            "border-radius: 6px; padding: 4px 12px;"
+        )
+
         outer = QVBoxLayout(self)
+        outer.setContentsMargins(12, 12, 12, 12)
+        outer.setSpacing(8)
+        outer.addWidget(title_lbl)
         outer.addWidget(self._counter_label)
         outer.addWidget(self._search_box)
         outer.addWidget(self._scroll, stretch=1)
