@@ -38,6 +38,8 @@ datas = [
     ('templates',            'templates'),
     # Output folder skeleton (empty dirs preserved via .gitkeep)
     ('output',               'output'),
+    # Generic assets (icons, fonts)
+    ('assets',               'assets'),
 ]
 
 a = Analysis(

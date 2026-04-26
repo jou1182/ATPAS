@@ -16,8 +16,10 @@ Palette (v2 — Luxury Industrial):
   Warning              #B56618
 """
 
+import sys
+from pathlib import Path
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QColor, QFont, QPalette
+from PyQt5.QtGui import QColor, QFont, QPalette, QFontDatabase
 
 
 # ── Colour tokens — v2 Luxury Industrial ────────────────────────────
@@ -58,6 +60,23 @@ def get_font(size: int = BASE_FONT_SIZE, weight: int = -1, italic: bool = False)
         f.setWeight(weight)
     f.setItalic(italic)
     return f
+
+
+def load_fonts() -> None:
+    """Load bundled fonts from assets/fonts/ to ensure portability."""
+    if getattr(sys, "frozen", False):
+        base_path = Path(sys._MEIPASS)
+    else:
+        base_path = Path(".")
+
+    fonts_dir = base_path / "assets" / "fonts"
+    if not fonts_dir.exists():
+        return
+
+    for font_file in fonts_dir.glob("*.ttf"):
+        font_id = QFontDatabase.addApplicationFont(str(font_file))
+        if font_id == -1:
+            print(f"Failed to load font: {font_file.name}")
 
 
 def apply_palette(app) -> None:

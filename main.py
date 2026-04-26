@@ -36,7 +36,8 @@ def main() -> int:
     app.setOrganizationName("Al-Rawaf Contracting")
 
     # ── Apply theme ────────────────────────────────────────────────────
-    from ui.theme import apply_palette, get_stylesheet
+    from ui.theme import apply_palette, get_stylesheet, load_fonts
+    load_fonts()
     apply_palette(app)
     app.setStyleSheet(get_stylesheet())
 
