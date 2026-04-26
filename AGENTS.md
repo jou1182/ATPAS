@@ -7,7 +7,7 @@
 1. المرجع الرئيسي:
 
 ```text
-SSOT/ATPAS_REFERENCE_DOCUMENT_v4.0.md
+SSOT/ATPAS_REFERENCE_DOCUMENT_v4.1.md
 ```
 
 2. دليل إضافة الأكواد لغير المتخصصين:
@@ -84,7 +84,8 @@ $env:ATPAS_BUILD_NO_PROMPT='1'; .\build_exe.bat
 4. مصدر المشاريع والجهات هو `master_config.json`، والجهات تحديدًا داخل `owner_specifications`.
 5. التطبيق عربي RTL أولًا، فانتبه لمحاذاة النصوص المختلطة عربي/إنجليزي.
 6. لا ترفع ملفات Word حساسة أو ملفات عميل حقيقية إلى GitHub.
-7. قبل أي دفع إلى GitHub، راجع `git status --short`.
+7. اعتمد الملف `ui/theme.py` كمصدر وحيد (SSOT) للألوان والخطوط؛ لا تكرر الـ CSS في الوجتات.
+8. قبل أي دفع إلى GitHub، راجع `git status --short`.
 
 ## الحالة الحالية
 
