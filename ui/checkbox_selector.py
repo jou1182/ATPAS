@@ -40,7 +40,7 @@ from PyQt5.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
-from ui.motion import motion_single_shot, prefers_reduced_motion
+from ui.motion import motion_ms, motion_single_shot, prefers_reduced_motion
 from ui import theme
 
 _PROJECT_NAMES: dict[str, str] = {
@@ -268,6 +268,7 @@ class CheckboxSelectorWidget(QGroupBox):
         self._checkboxes: dict[str, _CodeItem] = {}
         self._mandatory_codes: set[str] = set()
         self._pending_search: str = ""
+        self._container_cache: dict[str, tuple[QWidget, dict[str, _CodeItem]]] = {}
 
         self._counter_label = QLabel("0 أكواد / 0 صفحة")
         self._counter_label.setAlignment(Qt.AlignCenter)
@@ -332,33 +333,46 @@ class CheckboxSelectorWidget(QGroupBox):
         self._mandatory_codes = set(mandatory_codes)
         self._search_box.clear()
         self._search_timer.stop()
-        
-        # Performance: Block updates during UI rebuild to prevent flickering
+
+        cache_key = self._cache_key(project_ids, owner_id)
+
+        # Performance: block paints while swapping/rebuilding containers.
         self.setUpdatesEnabled(False)
+        try:
+            cached = self._container_cache.get(cache_key)
+            if cached is not None:
+                container, checkboxes = cached
+                self._checkboxes = checkboxes
+            else:
+                self._checkboxes = {}
+                filtered = {
+                    cid: cdata
+                    for cid, cdata in self._all_codes.items()
+                    if (
+                        cdata.get("status") == "active"
+                        and any(pid in cdata.get("project_ids", []) for pid in project_ids)
+                        and (
+                            not cdata.get("applicable_owners")
+                            or owner_id in cdata.get("applicable_owners", [])
+                        )
+                    )
+                }
+                container = self._build_container(filtered)
+                self._container_cache[cache_key] = (container, dict(self._checkboxes))
 
-        # ── Slow path: build container from scratch ───────────────────
-        self._checkboxes.clear()
-        filtered = {
-            cid: cdata
-            for cid, cdata in self._all_codes.items()
-            if (
-                cdata.get("status") == "active"
-                and any(pid in cdata.get("project_ids", []) for pid in project_ids)
-                and (
-                    not cdata.get("applicable_owners")
-                    or owner_id in cdata.get("applicable_owners", [])
-                )
-            )
-        }
-        container = self._build_container(filtered)
-        self._reset_to_mandatory_only()
+            self._reset_to_mandatory_only()
+            if self._scroll.widget() is not container:
+                self._scroll.takeWidget()
+                self._scroll.setWidget(container)
+            self._current_container = container
+            self._update_counter()
+        finally:
+            self.setUpdatesEnabled(True)
 
-        self._scroll.setWidget(container)
-        self._current_container = container
-        self._update_counter()
-        
-        # Restore updates after layout is complete
-        self.setUpdatesEnabled(True)
+    @staticmethod
+    def _cache_key(project_ids: list[str], owner_id: str) -> str:
+        """Return a stable key for a project/owner filtered code list."""
+        return f"{','.join(sorted(project_ids))}|{owner_id}"
 
     def _reset_to_mandatory_only(self) -> None:
         """Uncheck all optional items; restore mandatory lock states."""
@@ -608,6 +622,7 @@ class CheckboxSelectorWidget(QGroupBox):
         # MainWindow already calls refresh in _on_add_custom, but we'll clear search
         self._search_box.clear()
         self._all_codes[cid] = cdata
+        self._container_cache.clear()
 
         cat  = cdata.get("category", "001")
         item = self._make_code_item(cid, cdata)

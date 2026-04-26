@@ -222,6 +222,40 @@ class TestHeaderWidgetSignals:
 
 
 # --------------------------------------------------------------------------
+# CheckboxSelectorWidget cache and interaction tests
+# --------------------------------------------------------------------------
+
+class TestCheckboxSelectorWidget:
+    """Verify code-list caching stays safe across project switches."""
+
+    def test_project_container_cache_reuses_existing_widgets(self, qapp, registry, config) -> None:
+        from ui.checkbox_selector import CheckboxSelectorWidget
+
+        widget = CheckboxSelectorWidget(registry)
+        mandatory = config["owner_specifications"]["nwc"].get("mandatory_codes", [])
+
+        widget.update_for_project(["wastewater"], "nwc", mandatory)
+        first_container = widget._current_container
+        assert first_container is not None
+        assert widget._cache_key(["wastewater"], "nwc") in widget._container_cache
+
+        widget.update_for_project(["water_supply"], "nwc", mandatory)
+        widget.update_for_project(["wastewater"], "nwc", mandatory)
+
+        assert widget._current_container is first_container
+
+    def test_code_item_flash_does_not_raise(self, qapp, registry, config) -> None:
+        from ui.checkbox_selector import CheckboxSelectorWidget
+
+        widget = CheckboxSelectorWidget(registry)
+        mandatory = config["owner_specifications"]["nwc"].get("mandatory_codes", [])
+        widget.update_for_project(["wastewater"], "nwc", mandatory)
+
+        first_item = next(iter(widget._checkboxes.values()))
+        first_item._flash_row(2)
+
+
+# --------------------------------------------------------------------------
 # BuildHistoryManager tests
 # --------------------------------------------------------------------------
 
