@@ -15,7 +15,7 @@ import os
 from functools import lru_cache
 from typing import Callable
 
-from PyQt5.QtCore import QTimer
+from PyQt5.QtCore import QObject, QTimer
 
 _TRUTHY = {"1", "true", "yes", "on"}
 _FALSEY = {"0", "false", "no", "off"}
@@ -58,9 +58,17 @@ def motion_single_shot(
     normal_ms: int,
     callback: Callable[[], None],
     reduced_ms: int = 0,
+    context: QObject | None = None,
 ) -> None:
-    """Schedule callback with motion-aware delay (or run now if reduced)."""
+    """Schedule callback with motion-aware delay.
+    If context (parent) is provided, the timer is safely bound to its lifecycle.
+    """
+    ms = motion_ms(normal_ms, reduced_ms=reduced_ms)
     if prefers_reduced_motion() and reduced_ms <= 0:
         callback()
         return
-    QTimer.singleShot(motion_ms(normal_ms, reduced_ms=reduced_ms), callback)
+
+    if context:
+        QTimer.singleShot(ms, context, callback)
+    else:
+        QTimer.singleShot(ms, callback)

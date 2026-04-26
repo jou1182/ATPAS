@@ -178,6 +178,11 @@ class _CodeItem(QWidget):
         lay.addWidget(self._badge_lbl)    # ③ pages pill
         lay.addWidget(self._id_lbl)       # ④ left: code ID monospace
 
+        # ── Safe timer for flash feedback (child of self ensures cleanup) ──
+        self._flash_timer = QTimer(self)
+        self._flash_timer.setSingleShot(True)
+        self._flash_timer.timeout.connect(self._clear_flash)
+
     # ------------------------------------------------------------------
     # Interaction feedback
     # ------------------------------------------------------------------
@@ -199,7 +204,7 @@ class _CodeItem(QWidget):
         )
         self.setAutoFillBackground(True)
         self.setPalette(pal)
-        motion_single_shot(200, self._clear_flash)
+        self._flash_timer.start(motion_ms(200))
 
     def _clear_flash(self) -> None:
         """Restore transparent background after the flash completes."""
@@ -261,12 +266,6 @@ class CheckboxSelectorWidget(QGroupBox):
         self._all_codes: dict[str, dict] = registry_data.get("codes", {})
         self._checkboxes: dict[str, _CodeItem] = {}
         self._mandatory_codes: set[str] = set()
-
-        # Container cache: filter_key → (QWidget container, items_dict)
-        # Avoids recreating ~30-64 _CodeItem widgets on every project switch.
-        self._container_cache: dict[str, tuple[QWidget, dict[str, _CodeItem]]] = {}
-
-        # Pending search text (used by debounce timer)
         self._pending_search: str = ""
 
         self._counter_label = QLabel("0 أكواد / 0 صفحة")
@@ -325,7 +324,7 @@ class CheckboxSelectorWidget(QGroupBox):
         owner_id: str,
         mandatory_codes: list[str],
     ) -> None:
-        """Switch to a project/owner combination, reusing cached widgets when possible."""
+        """Switch to a project/owner combination."""
         if isinstance(project_ids, str):
             project_ids = [project_ids]
 
@@ -333,31 +332,22 @@ class CheckboxSelectorWidget(QGroupBox):
         self._search_box.clear()
         self._search_timer.stop()
 
-        # Cache key: sorted project IDs + owner_id (mandatory codes are per owner, stable)
-        cache_key = ",".join(sorted(project_ids)) + ":" + owner_id
-
-        if cache_key in self._container_cache:
-            # ── Fast path: reuse existing container ──────────────────────
-            container, cb_map = self._container_cache[cache_key]
-            self._checkboxes = cb_map
-            self._reset_to_mandatory_only()
-        else:
-            # ── Slow path: build container from scratch ───────────────────
-            self._checkboxes.clear()
-            filtered = {
-                cid: cdata
-                for cid, cdata in self._all_codes.items()
-                if (
-                    cdata.get("status") == "active"
-                    and any(pid in cdata.get("project_ids", []) for pid in project_ids)
-                    and (
-                        not cdata.get("applicable_owners")
-                        or owner_id in cdata.get("applicable_owners", [])
-                    )
+        # ── Slow path: build container from scratch ───────────────────
+        self._checkboxes.clear()
+        filtered = {
+            cid: cdata
+            for cid, cdata in self._all_codes.items()
+            if (
+                cdata.get("status") == "active"
+                and any(pid in cdata.get("project_ids", []) for pid in project_ids)
+                and (
+                    not cdata.get("applicable_owners")
+                    or owner_id in cdata.get("applicable_owners", [])
                 )
-            }
-            container = self._build_container(filtered)
-            self._container_cache[cache_key] = (container, dict(self._checkboxes))
+            )
+        }
+        container = self._build_container(filtered)
+        self._reset_to_mandatory_only()
 
         self._scroll.setWidget(container)
         self._current_container = container
@@ -369,6 +359,7 @@ class CheckboxSelectorWidget(QGroupBox):
             is_mandatory = cid in self._mandatory_codes
             is_custom = self._all_codes.get(cid, {}).get("_custom", False)
             item.blockSignals(True)
+            item._cb.blockSignals(True)  # Block internal checkbox too
             if is_mandatory:
                 item.setChecked(True)
                 item.setEnabled(False)
@@ -386,6 +377,7 @@ class CheckboxSelectorWidget(QGroupBox):
                 else:
                     item.setStyleSheet("")
             item.setVisible(True)
+            item._cb.blockSignals(False)
             item.blockSignals(False)
 
     def get_selected_codes(self) -> list[str]:
@@ -604,9 +596,11 @@ class CheckboxSelectorWidget(QGroupBox):
                 self._checkboxes[cid].setChecked(True)
             return
 
-        # Register temporarily in _all_codes (evict container cache — custom codes invalidate it)
+        # Register temporarily in _all_codes
+        # Since we changed the registry data (added a code), we must rebuild.
+        # MainWindow already calls refresh in _on_add_custom, but we'll clear search
+        self._search_box.clear()
         self._all_codes[cid] = cdata
-        self._container_cache.clear()
 
         cat  = cdata.get("category", "001")
         item = self._make_code_item(cid, cdata)

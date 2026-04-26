@@ -318,8 +318,8 @@ class ProjectSelectorWidget(QGroupBox):
     def _emit_current(self) -> None:
         pids = self.current_project_ids()
         oid = self.current_owner_id()
-        if pids and oid:
-            self.selection_changed.emit(pids, oid)
+        # Emit even if empty/invalid — allows Main to clear dependent UI (BKL-009)
+        self.selection_changed.emit(pids, oid)
 
     # ------------------------------------------------------------------
     # Admin: Add Owner
