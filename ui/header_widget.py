@@ -203,7 +203,7 @@ class HeaderWidget(QWidget):
         name_lbl = QLabel("نظام بناء العروض الفنية", self)
         name_lbl.setStyleSheet("""
             color: #FFFFFF; font-size: 20px; font-weight: 800;
-            font-family: 'Segoe UI', 'Arial', sans-serif;
+            font-family: 'Tajawal', 'Segoe UI', 'Arial', sans-serif;
             background: transparent; letter-spacing: 0.3px;
         """)
 

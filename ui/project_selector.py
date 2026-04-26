@@ -133,7 +133,7 @@ class ProjectSelectorWidget(QGroupBox):
         def _form_label(text: str) -> QLabel:
             label = QLabel(text)
             label.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
-            label.setMinimumWidth(92)
+            label.setMinimumWidth(104)
             label.setStyleSheet(
                 "font-weight: 700; color: #152433; "
                 "background: transparent; padding: 2px 0;"

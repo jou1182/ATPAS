@@ -95,7 +95,7 @@ _BOLD_RE   = re.compile(r'font-weight\s*:\s*bold',           re.IGNORECASE)
 _ITALIC_RE = re.compile(r'font-style\s*:\s*italic',          re.IGNORECASE)
 
 # Visual tokens (synced with theme.py palette)
-_NAME_DEFAULT  = "font-size: 12px; color: #1A2433; font-weight: normal; font-style: normal;"
+_NAME_DEFAULT  = "font-family: Tajawal, 'Segoe UI'; font-size: 12px; color: #1A2433; font-weight: normal; font-style: normal;"
 _ID_STYLE      = (
     "font-family: Consolas, 'Courier New', monospace; "
     "font-size: 10px; color: #9BA8B5; letter-spacing: 0.4px;"
@@ -159,14 +159,14 @@ class _CodeItem(QWidget):
         # ── Pages badge: pill, fixed width ──────────────────────────────
         self._badge_lbl = QLabel(f"{pages} صفحة")
         self._badge_lbl.setAlignment(Qt.AlignCenter)
-        self._badge_lbl.setFixedWidth(68)
+        self._badge_lbl.setFixedWidth(82)
         self._badge_lbl.setStyleSheet(_BADGE_STYLE)
 
         # ── Code ID: isolated LTR zone — no BiDi mixing ─────────────────
         self._id_lbl = QLabel(code_id)
         self._id_lbl.setLayoutDirection(Qt.LeftToRight)   # force LTR
         self._id_lbl.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
-        self._id_lbl.setFixedWidth(118)
+        self._id_lbl.setFixedWidth(124)
         self._id_lbl.setStyleSheet(_ID_STYLE)
 
         # ── Layout: RTL → first widget is rightmost visually ────────────

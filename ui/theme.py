@@ -79,7 +79,7 @@ QMainWindow, QDialog {{
 QWidget {{
     background: transparent;
     color: {TEXT};
-    font-family: 'Segoe UI', 'Arial', 'Tahoma', sans-serif;
+    font-family: 'Tajawal', 'Segoe UI', 'Arial', 'Tahoma', sans-serif;
     font-size: 13px;
 }}
 
