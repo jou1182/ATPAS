@@ -47,6 +47,7 @@ from engine.builder import Builder
 from ui.motion import motion_ms, motion_single_shot, prefers_reduced_motion
 from ui.build_report import BuildReportDialog
 from ui.build_history import BuildHistoryManager
+from utils.proposal_versions import ProposalVersionManager
 
 
 class BuildWorker(QThread):
@@ -142,6 +143,11 @@ class BuildProgressDialog(QDialog):
         self._project_id = project_id
         self._owner_id   = owner_id
         self._history_mgr = BuildHistoryManager()
+        reports_dir = output_dir.parent / "reports"
+        self._version_mgr = ProposalVersionManager(
+            json_path=reports_dir / "proposal_versions.json",
+            csv_path=reports_dir / "proposal_versions.csv",
+        )
 
         # Smooth progress-bar animation — reused for every step
         # (initialised after the progress bar widget is created below)
@@ -293,19 +299,20 @@ class BuildProgressDialog(QDialog):
         if success:
             self._elapsed_seconds = time.monotonic() - self._build_start_time
 
-            # ── حفظ في سجل البنات ───────────────────────────────────────
-            page_count = sum(
-                int(c.get("page_count", 0))
-                for c in self._codes.values()
-                if c.get("code_id") in self._selected_codes
-                or (isinstance(c, dict) and c.get("code_id") in self._selected_codes)
-            )
-            # simpler: count pages from selected codes directly
+            # ── حفظ في سجل البناء المختصر وسجل الإصدارات الدائم ─────────
             page_count = sum(
                 int(self._codes.get(cid, {}).get("page_count", 0))
                 for cid in self._selected_codes
             )
             self._history_mgr.save_entry(
+                project_id=self._project_id,
+                owner_id=self._owner_id,
+                codes=self._selected_codes,
+                output_file=str(self._output_path),
+                elapsed_seconds=self._elapsed_seconds,
+                page_count=page_count,
+            )
+            version_entry = self._version_mgr.save_entry(
                 project_id=self._project_id,
                 owner_id=self._owner_id,
                 codes=self._selected_codes,
@@ -338,6 +345,9 @@ class BuildProgressDialog(QDialog):
             self._path_label.setText(f"📂 {abs_path}")
             self._fade_in(self._path_label)
             self._log.addItem(QListWidgetItem(f"✓ الملف: {abs_path}"))
+            self._log.addItem(QListWidgetItem(
+                f"✓ رقم الإصدار: {version_entry.get('version_label', '')}"
+            ))
 
             # Reveal action buttons with staggered fade-in
             # Report button appears last (highlighted, draws attention)
