@@ -1,9 +1,9 @@
 # ATPAS Tasks v2.0
 # Al-Rawaf Technical Proposal Automation System
 
-**Updated**: 2026-04-20  
-**Source**: docs/specification.md v2.0 + docs/implementation-plan.md  
-**Total Tasks**: 39 | **Done**: 28 ✅ | **Remaining**: 11
+**Updated**: 2026-04-27  
+**Source**: docs/specification.md v3.0 + docs/superpowers/specs/2026-04-27-boq-importer-design.md  
+**Total Tasks**: 47 | **Done**: 28 ✅ | **Remaining**: 19
 
 ---
 
@@ -73,6 +73,28 @@
 - [x] T021j [P] [US2b] 6 style templates: mot_style, nhi_style, amana_riyadh_style, amana_qassim_style, swa_style, ksia_style
 - [x] T021k [US2b] master_config.json updated: 6 projects + 9 owners + 6 network types + new phases
 - [x] T021l [US2b] 18/18 tests still passing after gap-closing ✅
+
+---
+
+## Phase 4c: US5 — BOQ Importer (العمود الفقري) ⬜ Sprint 3b
+
+**Story Goal**: المستخدم يرفع Excel ببنود جدول الكميات → البرنامج يقترح الأكواد تلقائياً بالتسلسل الصح
+
+**Design Doc**: `docs/superpowers/specs/2026-04-27-boq-importer-design.md`
+
+**Independent test criteria**:
+- جدول 30 بند يُعالَج في < 5 ثوانٍ
+- دقة المطابقة ≥ 80% على البنود النموذجية
+- البنود المجهولة تظهر باللون الأصفر وتُحل في < دقيقة
+- كود جديد يُحفظ ويظهر في السجل فوراً
+
+- [ ] T033 [US5] `engine/boq_importer.py` — يقرأ Excel (.xlsx/.xls)، يكتشف header تلقائياً، يُرجع list[str] نظيفة
+- [ ] T034 [US5] `engine/boq_matcher.py` — fuzzy match كل بند مع codes_registry؛ threshold 70%؛ يُرجع list[MatchResult]
+- [ ] T035 [US5] `engine/gap_handler.py` — ينشئ CUSTOM-XXX codes لحظياً ويحفظ في codes_registry.json
+- [ ] T036 [US5] `ui/boq_review_panel.py` — جدول مراجعة: بند | كود | نسبة | حالة؛ خلفية صفراء للمجهول؛ زر "أضف كود"؛ drag & drop ترتيب
+- [ ] T037 [US5] ربط `ui/main_window.py` — زر "استورد جدول كميات" يفتح boq_review_panel
+- [ ] T038 [US5] `tests/test_boq_matcher.py` — 10 سيناريوهات: مطابقة دقيقة، مطابقة جزئية، مجهول، خليط
+- [ ] T039 [US5] `tests/test_boq_importer.py` — 5 سيناريوهات: ملف صحيح، header موجود/غائب، ملف فارغ، مسار خاطئ
 
 ---
 
