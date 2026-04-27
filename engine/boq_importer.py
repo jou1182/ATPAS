@@ -25,18 +25,23 @@ def read_boq(filepath: str | Path) -> list[str]:
     if not path.exists():
         raise BOQImportError(f"الملف غير موجود: {filepath}")
 
-    wb = load_workbook(path, read_only=True, data_only=True)
-    ws = wb.active
+    try:
+        wb = load_workbook(path, read_only=True, data_only=True)
+    except Exception as exc:
+        raise BOQImportError(f"تعذّر قراءة الملف: {filepath}") from exc
 
     items: list[str] = []
-    for row in ws.iter_rows(min_col=1, max_col=1, values_only=True):
-        cell = row[0]
-        if cell is None:
-            continue
-        text = str(cell).strip()
-        if text:
-            items.append(text)
-    wb.close()
+    try:
+        ws = wb.active
+        for row in ws.iter_rows(min_col=1, max_col=1, values_only=True):
+            cell = row[0]
+            if cell is None:
+                continue
+            text = str(cell).strip()
+            if text:
+                items.append(text)
+    finally:
+        wb.close()
 
     if not items:
         raise BOQImportError("لا توجد بنود في الملف")

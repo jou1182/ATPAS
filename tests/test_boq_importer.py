@@ -22,7 +22,7 @@ def test_reads_simple_list(tmp_path):
     assert result == ["حفر بالميكنة", "خرسانة عادية", "أعمال صرف"]
 
 
-def test_skips_header_row(tmp_path):
+def test_includes_all_non_empty_rows(tmp_path):
     path = _make_xlsx([["اسم البند"], ["حفر بالميكنة"], ["خرسانة عادية"]], tmp_path)
     result = read_boq(str(path))
     assert "حفر بالميكنة" in result
@@ -44,3 +44,10 @@ def test_raises_on_empty_file(tmp_path):
     path = _make_xlsx([], tmp_path)
     with pytest.raises(BOQImportError, match="لا توجد بنود"):
         read_boq(str(path))
+
+
+def test_raises_on_corrupt_file(tmp_path):
+    bad = tmp_path / "bad.xlsx"
+    bad.write_bytes(b"not a zip")
+    with pytest.raises(BOQImportError):
+        read_boq(bad)
