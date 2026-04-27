@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+import json
 import pytest
 from engine.boq_matcher import BOQMatcher, MatchResult
+from engine.gap_handler import GapHandler
 from utils.json_manager import load_json
 
 
@@ -75,3 +77,39 @@ def test_unknown_item_is_not_new_by_default(matcher):
 def test_score_never_exceeds_1(matcher):
     results = matcher.match(["حفر حفر حفر حفر حفر"])
     assert results[0].score <= 1.0
+
+
+def test_creates_custom_code(tmp_path):
+    registry = {"metadata": {}, "codes": {}}
+    reg_path = tmp_path / "codes_registry.json"
+    reg_path.write_text(json.dumps(registry, ensure_ascii=False), encoding="utf-8")
+    handler = GapHandler(str(reg_path))
+    code_id = handler.create("أعمال خاصة جداً", "wastewater")
+    assert code_id.startswith("CUSTOM-")
+    updated = json.loads(reg_path.read_text(encoding="utf-8"))
+    assert code_id in updated["codes"]
+
+
+def test_custom_ids_are_sequential(tmp_path):
+    registry = {"metadata": {}, "codes": {}}
+    reg_path = tmp_path / "codes_registry.json"
+    reg_path.write_text(json.dumps(registry, ensure_ascii=False), encoding="utf-8")
+    handler = GapHandler(str(reg_path))
+    id1 = handler.create("بند أول", "wastewater")
+    id2 = handler.create("بند ثاني", "wastewater")
+    assert id1 == "CUSTOM-001"
+    assert id2 == "CUSTOM-002"
+
+
+def test_created_code_has_required_fields(tmp_path):
+    registry = {"metadata": {}, "codes": {}}
+    reg_path = tmp_path / "codes_registry.json"
+    reg_path.write_text(json.dumps(registry, ensure_ascii=False), encoding="utf-8")
+    handler = GapHandler(str(reg_path))
+    code_id = handler.create("حفر خاص", "wastewater")
+    updated = json.loads(reg_path.read_text(encoding="utf-8"))
+    code = updated["codes"][code_id]
+    assert code["activity_name_ar"] == "حفر خاص"
+    assert code["status"] == "active"
+    assert "wastewater" in code["project_ids"]
+    assert code["is_custom"] is True
