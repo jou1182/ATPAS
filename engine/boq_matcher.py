@@ -28,7 +28,7 @@ def _token_overlap_score(query_tokens: list[str], candidate_tokens: list[str]) -
     if not candidate_tokens or not query_tokens:
         return 0.0
     matches = sum(1 for q in query_tokens if any(q in c or c in q for c in candidate_tokens))
-    return matches / len(candidate_tokens)
+    return min(matches / len(candidate_tokens), 1.0)
 
 
 class BOQMatcher:

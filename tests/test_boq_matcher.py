@@ -70,3 +70,8 @@ def test_known_item_is_not_new(matcher):
 def test_unknown_item_is_not_new_by_default(matcher):
     results = matcher.match(["بند غير موجود xyz"])
     assert results[0].is_new is False
+
+
+def test_score_never_exceeds_1(matcher):
+    results = matcher.match(["حفر حفر حفر حفر حفر"])
+    assert results[0].score <= 1.0
