@@ -176,6 +176,8 @@ class HeaderWidget(QWidget):
     last_proposal_requested = pyqtSignal()
     #: يعرض بطاقة تعريف النظام
     about_requested = pyqtSignal()
+    #: يُطلق عند الضغط على زر استيراد جدول الكميات — MainWindow يفتح BOQReviewPanel
+    boq_import_requested = pyqtSignal()
 
     def __init__(self, active_codes: int = 0, parent: QWidget | None = None) -> None:
         super().__init__(parent)
@@ -315,6 +317,20 @@ class HeaderWidget(QWidget):
         ))
         import_btn.clicked.connect(self.import_requested.emit)
         layout.addWidget(import_btn)
+
+        # ── زر استيراد جدول الكميات 📋 ─────────────────────────────────
+        boq_btn = QPushButton("📋  جدول كميات", self)
+        boq_btn.setToolTip("استورد جدول كميات BOQ وحدد الأكواد المناسبة تلقائياً")
+        boq_btn.setCursor(Qt.PointingHandCursor)
+        boq_btn.setStyleSheet(_hdr_btn_style.format(
+            fg="#FF8A65",
+            border="#FF8A6570",
+            hover_bg="#FF8A6520",
+            hover_border="#FF8A65",
+            pressed_bg="#FF8A6540",
+        ))
+        boq_btn.clicked.connect(self.boq_import_requested.emit)
+        layout.addWidget(boq_btn)
 
         # ── زر صحة النظام 🩺 ───────────────────────────────────────────
         health_btn = QPushButton("🩺  الصحة", self)
