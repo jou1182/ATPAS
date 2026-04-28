@@ -51,6 +51,7 @@ from engine.error_handler import arabic_message
 from engine.logger import setup_logging
 from engine.validator import Validator
 from ui.backup_manager import BackupDialog, create_backup
+from ui.batch_build_dialog import BatchBuildDialog
 from ui.build_progress import BuildProgressDialog
 from ui.build_vars_dialog import BuildVarsDialog
 from ui.build_history import BuildHistoryManager, BuildHistoryDialog
@@ -316,6 +317,7 @@ class MainWindow(QMainWindow):
         self._header.boq_import_requested.connect(self._on_import_boq)
         self._history_manager = BuildHistoryManager()
         self._wire_shortcuts()
+        self._build_menu_bar()
 
         # Trigger initial load using whichever project/owner is pre-selected
         pids = self._project_selector.current_project_ids()
@@ -722,6 +724,29 @@ class MainWindow(QMainWindow):
         self.addAction(self._code_manager_action)
 
         # Ctrl+E → تصدير CSV (يُفعَّل من PreviewPanel مباشرةً — هنا للتوثيق فقط)
+
+    def _build_menu_bar(self) -> None:
+        """Build the application menu bar with an أدوات (Tools) menu."""
+        menu_bar = self.menuBar()
+        menu_bar.setLayoutDirection(Qt.RightToLeft)
+
+        tools_menu = menu_bar.addMenu("أدوات")
+        tools_menu.setLayoutDirection(Qt.RightToLeft)
+
+        batch_action = QAction("بناء متعدد المشاريع", self)
+        batch_action.setToolTip("بناء عدة عروض فنية دفعة واحدة من أنماط جاهزة مختلفة")
+        batch_action.triggered.connect(self._on_batch_build)
+        tools_menu.addAction(batch_action)
+
+    def _on_batch_build(self) -> None:
+        """Open the Batch Build dialog."""
+        dlg = BatchBuildDialog(
+            codes=self.registry_data.get("codes", {}),
+            presets_path=self._presets_path,
+            output_dir=_get_output_dir(self._settings),
+            parent=self,
+        )
+        dlg.exec_()
 
     def _focus_code_search(self) -> None:
         """Focus code search box from anywhere in the main window."""
