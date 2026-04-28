@@ -3,7 +3,7 @@
 
 **Updated**: 2026-04-28  
 **Source**: docs/specification.md v3.0 + docs/superpowers/specs/2026-04-27-boq-importer-design.md  
-**Total Tasks**: 47 | **Done**: 43 ✅ | **Remaining**: 4
+**Total Tasks**: 47 | **Done**: 45 ✅ | **Remaining**: 2
 
 ---
 
@@ -119,10 +119,10 @@
 
 ---
 
-## Phase 7: Polish & Integration Tests ⬜ Sprint 4
+## Phase 7: Polish & Integration Tests ✅ Sprint 4 مكتمل
 
-- [ ] T031 Write tests/test_integration.py — 6 سيناريوهات end-to-end: ملف .docx صالح + صفحات صحيحة ±10% + أسلوب الجهة صحيح
-- [ ] T032 [P] Write docs/USER_GUIDE_AR.md — تثبيت + شرح مصوّر + حل المشاكل الشائعة
+- [x] T031 Write tests/test_integration.py — 6 سيناريوهات end-to-end: ملف .docx صالح + صفحات صحيحة ±10% + أسلوب الجهة صحيح ✅
+- [x] T032 [P] Write docs/USER_GUIDE_AR.md — تثبيت + شرح مصوّر + حل المشاكل الشائعة ✅
 
 ---
 
@@ -143,15 +143,15 @@ T020 ──────→ T021b → T021c
 T004 → T021d → T021e → T021f,g,h,i,j,k,l       (Phase 4b ✅)
 
 T012 + T013 + T020 →
-T022 → T023 → T024 → T025 → T026 → T027 → T028 (Phase 5 ⬜)
+T022 → T023 → T024 → T025 → T026 → T027 → T028 (Phase 5 ✅)
 
 T010 → T029 → T030                              (Phase 6 ⬜)
 
-T021 + T028 → T031 → T032                       (Phase 7 ⬜)
+T021 + T028 → T031 → T032                       (Phase 7 ✅)
 ```
 
-**Critical Path**: T009 → T012 → T020 → T028 → T031  
-**Next Milestone**: T022–T028 (GUI Layer)
+**Critical Path**: T009 → T012 → T020 → T028 → T031 ✅ مكتمل  
+**Next Milestone**: T029–T030 (Audit Trail) — اختياري
 
 ---
 
@@ -164,18 +164,22 @@ T021 + T028 → T031 → T032                       (Phase 7 ⬜)
 | Phase 3: US1 Validation | 6 | 6 ✅ | 0 |
 | Phase 4: US2 Builder | 10 | 10 ✅ | 0 |
 | Phase 4b: Gap Closing | 8 | 8 ✅ | 0 |
-| Phase 5: US3 GUI | 7 | 0 | **7** |
-| Phase 6: US4 Audit | 2 | 0 | 2 |
-| Phase 7: Polish | 2 | 0 | 2 |
-| **Total** | **43** | **32 ✅** | **11** |
+| Phase 4c: US5 BOQ Importer | 7 | 7 ✅ | 0 |
+| Phase 5: US3 GUI | 7 | 7 ✅ | 0 |
+| Phase 6: US4 Audit | 2 | 0 | **2** |
+| Phase 7: Polish | 2 | 2 ✅ | 0 |
+| **Total** | **47** | **45 ✅** | **2** |
 
 ---
 
 ## Test Results
 
 ```
-tests/test_validator.py   11/11 ✅
-tests/test_builder.py      7/7  ✅
-─────────────────────────────────
-Total                     18/18 ✅
+tests/test_validator.py    11/11  ✅
+tests/test_builder.py       7/7   ✅
+tests/test_boq_importer.py  6/6   ✅
+tests/test_boq_matcher.py  14/14  ✅
+tests/test_integration.py   6/6   ✅
+─────────────────────────────────────
+Total                      281 ✅  (pytest 2026-04-28)
 ```
