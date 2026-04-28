@@ -58,6 +58,66 @@ class DependencyResolver:
             return []
         return list(code.get("dependencies", []))
 
+    def resolve_with_order(
+        self,
+        selected_codes: List[str],
+        boq_order: List[str],
+    ) -> List[str]:
+        """Return codes in BOQ order, injecting missing dependencies just before
+        the first code that needs them.
+
+        Args:
+            selected_codes: All codes the user selected (superset of boq_order).
+            boq_order:      Codes in the tender's BOQ sequence.
+
+        Returns:
+            Ordered list — BOQ sequence preserved, missing deps injected in place,
+            extra selected codes appended at end sorted by sequence_order.
+        """
+        if not boq_order:
+            return []
+
+        # 1. Compute full required set (transitive deps of all selected codes)
+        full_required: Set[str] = set()
+        for code_id in selected_codes:
+            self._walk(code_id, full_required)
+
+        # 2. Extras = required but NOT explicitly in boq_order
+        boq_set = {c for c in boq_order if c in self._codes}
+        extras: Set[str] = full_required - boq_set
+
+        # 3. Build result — walk BOQ order, inject extras before their consumer
+        result: List[str] = []
+        placed: Set[str] = set()
+
+        for code_id in boq_order:
+            if code_id not in self._codes:
+                continue  # unknown code — skip silently
+            self._inject_deps(code_id, extras, placed, result)
+            if code_id not in placed:
+                result.append(code_id)
+                placed.add(code_id)
+
+        # 4. Append remaining extras sorted by sequence_order
+        remaining = [c for c in self._sorted(full_required) if c not in placed]
+        result.extend(remaining)
+
+        return result
+
+    def _inject_deps(
+        self,
+        code_id: str,
+        extras: Set[str],
+        placed: Set[str],
+        result: List[str],
+    ) -> None:
+        """Recursively place transitive dependencies from *extras* before code_id."""
+        for dep in self._codes.get(code_id, {}).get("dependencies", []):
+            if dep in extras and dep not in placed:
+                self._inject_deps(dep, extras, placed, result)
+                result.append(dep)
+                placed.add(dep)
+
     # ------------------------------------------------------------------
     # Internal helpers
     # ------------------------------------------------------------------
