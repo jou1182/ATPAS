@@ -48,6 +48,7 @@ from ui.motion import motion_ms, motion_single_shot, prefers_reduced_motion
 from ui.build_report import BuildReportDialog
 from ui.build_history import BuildHistoryManager
 from utils.activity_log import ActivityLog
+from utils.pdf_exporter import export_to_pdf, is_pdf_export_available
 from utils.proposal_versions import ProposalVersionManager
 
 
@@ -213,6 +214,19 @@ class BuildProgressDialog(QDialog):
         )
         self._report_btn.clicked.connect(self._open_report_dialog)
 
+        self._pdf_btn = QPushButton("🖨️ صدِّر PDF")
+        self._pdf_btn.setVisible(False)
+        self._pdf_btn.setStyleSheet(
+            "QPushButton {"
+            "  background: #B71C1C; color: #FFFFFF;"
+            "  border: none; border-radius: 6px;"
+            "  padding: 6px 16px; font-size: 12px; font-weight: 700;"
+            "}"
+            "QPushButton:hover { background: #D32F2F; }"
+            "QPushButton:disabled { background: #BDBDBD; color: #757575; }"
+        )
+        self._pdf_btn.clicked.connect(self._export_pdf)
+
         self._close_btn = QPushButton("إغلاق")
         self._close_btn.setEnabled(False)
         self._close_btn.clicked.connect(self.accept)
@@ -220,6 +234,7 @@ class BuildProgressDialog(QDialog):
         action_row = QHBoxLayout()
         action_row.addWidget(self._open_btn)
         action_row.addWidget(self._folder_btn)
+        action_row.addWidget(self._pdf_btn)
         action_row.addStretch()
         action_row.addWidget(self._report_btn)
         action_row.addWidget(self._close_btn)
@@ -369,7 +384,8 @@ class BuildProgressDialog(QDialog):
             # Report button appears last (highlighted, draws attention)
             self._fade_in(self._open_btn,    delay_ms=120)
             self._fade_in(self._folder_btn,  delay_ms=220)
-            self._fade_in(self._report_btn,  delay_ms=340)
+            self._fade_in(self._pdf_btn,     delay_ms=320)
+            self._fade_in(self._report_btn,  delay_ms=440)
         else:
             self._progress_bar.setStyleSheet(
                 "QProgressBar::chunk { background: #C62828; }"
@@ -479,3 +495,31 @@ class BuildProgressDialog(QDialog):
                 raise RuntimeError(f"Open command failed with exit code {result.returncode}")
         except Exception as exc:  # noqa: BLE001
             QMessageBox.warning(self, "تعذّر فتح المجلد", f"تعذّر فتح المجلد:\n{exc}")
+
+    def _export_pdf(self) -> None:
+        """Export the generated .docx to PDF using Microsoft Word via docx2pdf."""
+        self._pdf_btn.setEnabled(False)
+        self._pdf_btn.setText("⏳ جارٍ التصدير...")
+
+        pdf_path = export_to_pdf(self._output_path)
+
+        if pdf_path:
+            self._pdf_btn.setText("✅ PDF جاهز")
+            self._log.addItem(QListWidgetItem(f"✓ PDF: {pdf_path.resolve()}"))
+            self._log.scrollToBottom()
+            # فتح PDF تلقائياً
+            try:
+                if sys.platform == "win32":
+                    os.startfile(str(pdf_path.resolve()))
+            except Exception as exc:  # noqa: BLE001
+                logger.warning("Could not open PDF automatically: %s", exc)
+        else:
+            self._pdf_btn.setEnabled(True)
+            self._pdf_btn.setText("🖨️ صدِّر PDF")
+            QMessageBox.warning(
+                self,
+                "تعذّر تصدير PDF",
+                "تعذّر تحويل الملف إلى PDF.\n\n"
+                "تأكد من تثبيت Microsoft Word على الجهاز،\n"
+                "أو افتح ملف Word وصدِّره يدوياً.",
+            )

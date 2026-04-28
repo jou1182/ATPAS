@@ -4,6 +4,9 @@
 # Word document processing
 python-docx>=0.8.11
 
+# PDF export (uses Microsoft Word — must be installed on Windows)
+docx2pdf>=0.1.8
+
 # Image processing and manipulation
 Pillow>=9.0.0
 
