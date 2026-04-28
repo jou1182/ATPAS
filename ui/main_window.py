@@ -310,6 +310,7 @@ class MainWindow(QMainWindow):
         self._header.code_manager_requested.connect(self._on_code_manager)
         self._header.last_proposal_requested.connect(self._on_open_last_proposal)
         self._header.about_requested.connect(self._on_about)
+        self._header.boq_import_requested.connect(self._on_import_boq)
         self._history_manager = BuildHistoryManager()
         self._wire_shortcuts()
 
@@ -839,6 +840,27 @@ class MainWindow(QMainWindow):
         )
         dialog.data_changed.connect(self._reload_after_import)
         dialog.exec_()
+
+    def _on_import_boq(self) -> None:
+        """Open BOQ Review Panel to import a Bill of Quantities and select matching codes."""
+        from ui.boq_review_panel import BOQReviewPanel
+        from utils.json_manager import load_json
+        codes = load_json(self._registry_path)["codes"]
+        project_ids = self._project_selector.current_project_ids()
+        project_type = project_ids[0] if project_ids else "wastewater"
+        panel = BOQReviewPanel(
+            codes=codes,
+            registry_path=self._registry_path,
+            project_type=project_type,
+            parent=self,
+        )
+        panel.codes_accepted.connect(self._on_boq_codes_accepted)
+        panel.exec_()
+
+    def _on_boq_codes_accepted(self, code_ids: list) -> None:
+        """Apply BOQ-selected codes to the checkbox selector."""
+        if self._checkbox_selector is not None:
+            self._checkbox_selector.add_codes(code_ids)
 
     def _reload_after_import(self) -> None:
         """Reload all data sources after an import/owner edit without restart."""
