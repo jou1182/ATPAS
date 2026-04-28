@@ -12,6 +12,7 @@ hiddenimports = (
     collect_submodules('PyQt5')
     + collect_submodules('docx')
     + collect_submodules('lxml')
+    + collect_submodules('openpyxl')
     + [
         'PyQt5.QtCore',
         'PyQt5.QtGui',
@@ -22,6 +23,9 @@ hiddenimports = (
         'lxml.etree',
         'lxml._elementpath',
         'PIL',
+        'openpyxl',
+        'docx2pdf',
+        'difflib',
     ]
 )
 
