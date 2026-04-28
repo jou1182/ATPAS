@@ -31,7 +31,7 @@ from PyQt5.QtWidgets import (
 )
 
 _HISTORY_FILE = Path("build_history.json")
-_MAX_HISTORY  = 10
+_MAX_HISTORY  = 50
 
 _PROJECT_NAMES: dict[str, str] = {
     "wastewater":          "صرف صحي",
@@ -81,6 +81,8 @@ class BuildHistoryManager:
         output_file: str,
         elapsed_seconds: float,
         page_count: int,
+        template_vars: dict | None = None,
+        boq_item_count: int = 0,
     ) -> None:
         """Prepend new entry and prune to MAX_HISTORY."""
         history = self._load_raw()
@@ -95,6 +97,8 @@ class BuildHistoryManager:
             "elapsed_seconds":   round(elapsed_seconds, 1),
             "code_count":        len(codes),
             "page_count":        page_count,
+            "template_vars":     template_vars,
+            "boq_item_count":    boq_item_count,
         }
         history.insert(0, entry)
         history = history[:_MAX_HISTORY]
@@ -103,6 +107,44 @@ class BuildHistoryManager:
                 json.dump({"history": history}, f, ensure_ascii=False, indent=2)
         except OSError:
             pass   # non-fatal
+
+    def search(
+        self,
+        query: str = "",
+        owner_id: str = "",
+        project_id: str = "",
+    ) -> list[dict]:
+        """Filter history and return matching entries (newest first).
+
+        Args:
+            query:      Case-insensitive substring matched against project_id,
+                        owner_id, and output_file.
+            owner_id:   Exact match on owner_id (empty = all).
+            project_id: Exact match on project_id (empty = all).
+
+        Returns:
+            Filtered list of entry dicts, newest first.
+        """
+        history = self._load_raw()
+        q = query.lower()
+        results = []
+        for entry in history:
+            # Exact filters
+            if owner_id and entry.get("owner_id", "") != owner_id:
+                continue
+            if project_id and entry.get("project_id", "") != project_id:
+                continue
+            # Substring query
+            if q:
+                haystack = " ".join([
+                    entry.get("project_id", ""),
+                    entry.get("owner_id", ""),
+                    entry.get("output_file", ""),
+                ]).lower()
+                if q not in haystack:
+                    continue
+            results.append(entry)
+        return results
 
     def load(self) -> list[dict]:
         """Return history list (newest first); empty on any error."""

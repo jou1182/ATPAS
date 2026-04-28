@@ -54,6 +54,7 @@ from ui.backup_manager import BackupDialog, create_backup
 from ui.build_progress import BuildProgressDialog
 from ui.build_vars_dialog import BuildVarsDialog
 from ui.build_history import BuildHistoryManager, BuildHistoryDialog
+from ui.proposal_archive_dialog import ProposalArchiveDialog
 from ui.import_wizard import ImportWizardDialog
 from ui.checkbox_selector import CheckboxSelectorWidget
 from ui.code_manager_dialog import CodeManagerDialog
@@ -467,8 +468,8 @@ class MainWindow(QMainWindow):
             )
 
     def _on_show_history(self) -> None:
-        """Open Build History dialog."""
-        dialog = BuildHistoryDialog(manager=self._history_manager, parent=self)
+        """Open Proposal Archive dialog."""
+        dialog = ProposalArchiveDialog(manager=self._history_manager, parent=self)
         dialog.restore_requested.connect(self._on_history_restore)
         dialog.exec_()
 

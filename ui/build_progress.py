@@ -131,6 +131,7 @@ class BuildProgressDialog(QDialog):
         owner_id: str,
         output_dir: Path,
         boq_order: list[str] | None = None,
+        template_vars: dict[str, str] | None = None,
         parent=None,
     ) -> None:
         super().__init__(parent)
@@ -144,6 +145,7 @@ class BuildProgressDialog(QDialog):
 
         self._build_running = False
         self._boq_order = boq_order
+        self._template_vars = template_vars
         self._build_start_time: float = 0.0   # set in start_build()
         self._elapsed_seconds: float = 0.0    # computed in _on_finished()
 
@@ -374,6 +376,8 @@ class BuildProgressDialog(QDialog):
                 output_file=str(self._output_path),
                 elapsed_seconds=self._elapsed_seconds,
                 page_count=page_count,
+                template_vars=self._template_vars,
+                boq_item_count=len(self._boq_order) if self._boq_order else 0,
             )
             version_entry = self._version_mgr.save_entry(
                 project_id=self._project_id,

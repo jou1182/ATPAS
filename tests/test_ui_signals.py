@@ -292,10 +292,10 @@ class TestBuildHistoryManager:
         assert entries[0]["owner_id"] == "nwc"
         assert entries[0]["page_count"] == 12
 
-    def test_history_capped_at_ten_entries(self, tmp_path: Path) -> None:
+    def test_history_capped_at_fifty_entries(self, tmp_path: Path) -> None:
         from ui.build_history import BuildHistoryManager
         mgr = BuildHistoryManager(history_path=tmp_path / "history.json")
-        for i in range(15):
+        for i in range(55):
             mgr.save_entry(
                 project_id=f"proj_{i}",
                 owner_id="nwc",
@@ -305,7 +305,7 @@ class TestBuildHistoryManager:
                 page_count=i,
             )
         entries = mgr.load()
-        assert len(entries) == 10, f"Expected 10 entries, got {len(entries)}"
+        assert len(entries) == 50, f"Expected 50 entries, got {len(entries)}"
 
     def test_newest_entry_is_first(self, tmp_path: Path) -> None:
         from ui.build_history import BuildHistoryManager
