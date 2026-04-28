@@ -194,15 +194,27 @@ class BuildProgressDialog(QDialog):
         self._path_label.setVisible(False)
 
         # ── Buttons ────────────────────────────────────────────────────
-        self._open_btn = QPushButton("📄 فتح الملف")
+        _btn_secondary = (
+            "QPushButton {"
+            "  background: #FEFCF7; color: #152433;"
+            "  border: 1.5px solid #152433; border-radius: 6px;"
+            "  padding: 6px 16px; font-size: 12px; font-weight: 700;"
+            "}"
+            "QPushButton:hover { background: #EDE7D9; }"
+            "QPushButton:pressed { background: #D5CFBF; }"
+        )
+
+        self._open_btn = QPushButton("فتح الملف")
         self._open_btn.setVisible(False)
+        self._open_btn.setStyleSheet(_btn_secondary)
         self._open_btn.clicked.connect(self._open_output)
 
-        self._folder_btn = QPushButton("📁 فتح المجلد")
+        self._folder_btn = QPushButton("فتح المجلد")
         self._folder_btn.setVisible(False)
+        self._folder_btn.setStyleSheet(_btn_secondary)
         self._folder_btn.clicked.connect(self._open_folder)
 
-        self._report_btn = QPushButton("📊 تقرير البناء")
+        self._report_btn = QPushButton("تقرير البناء")
         self._report_btn.setVisible(False)
         self._report_btn.setStyleSheet(
             "QPushButton {"
@@ -211,10 +223,11 @@ class BuildProgressDialog(QDialog):
             "  padding: 6px 16px; font-size: 12px; font-weight: 700;"
             "}"
             "QPushButton:hover { background: #1C3045; }"
+            "QPushButton:pressed { background: #0D1C2B; }"
         )
         self._report_btn.clicked.connect(self._open_report_dialog)
 
-        self._pdf_btn = QPushButton("🖨️ صدِّر PDF")
+        self._pdf_btn = QPushButton("تصدير PDF")
         self._pdf_btn.setVisible(False)
         self._pdf_btn.setStyleSheet(
             "QPushButton {"
@@ -223,18 +236,42 @@ class BuildProgressDialog(QDialog):
             "  padding: 6px 16px; font-size: 12px; font-weight: 700;"
             "}"
             "QPushButton:hover { background: #D32F2F; }"
+            "QPushButton:pressed { background: #7F0000; }"
             "QPushButton:disabled { background: #BDBDBD; color: #757575; }"
         )
         self._pdf_btn.clicked.connect(self._export_pdf)
 
+        self._coverage_btn = QPushButton("📋 تقرير التغطية")
+        self._coverage_btn.setVisible(False)
+        self._coverage_btn.setStyleSheet(
+            "QPushButton {"
+            "  background: #1A5276; color: #FFFFFF;"
+            "  border: none; border-radius: 6px;"
+            "  padding: 6px 16px; font-size: 12px; font-weight: 700;"
+            "}"
+            "QPushButton:hover { background: #2471A3; }"
+            "QPushButton:pressed { background: #0E3460; }"
+        )
+        self._coverage_btn.clicked.connect(self._show_coverage_report)
+
         self._close_btn = QPushButton("إغلاق")
         self._close_btn.setEnabled(False)
+        self._close_btn.setStyleSheet(
+            "QPushButton {"
+            "  background: #EDE7D9; color: #5A6B7C;"
+            "  border: 1.5px solid #D5CFBF; border-radius: 6px;"
+            "  padding: 6px 16px; font-size: 12px;"
+            "}"
+            "QPushButton:hover { background: #D5CFBF; }"
+            "QPushButton:enabled { color: #152433; }"
+        )
         self._close_btn.clicked.connect(self.accept)
 
         action_row = QHBoxLayout()
         action_row.addWidget(self._open_btn)
         action_row.addWidget(self._folder_btn)
         action_row.addWidget(self._pdf_btn)
+        action_row.addWidget(self._coverage_btn)
         action_row.addStretch()
         action_row.addWidget(self._report_btn)
         action_row.addWidget(self._close_btn)
@@ -385,6 +422,8 @@ class BuildProgressDialog(QDialog):
             self._fade_in(self._open_btn,    delay_ms=120)
             self._fade_in(self._folder_btn,  delay_ms=220)
             self._fade_in(self._pdf_btn,     delay_ms=320)
+            if self._boq_order:
+                self._fade_in(self._coverage_btn, delay_ms=400)
             self._fade_in(self._report_btn,  delay_ms=440)
         else:
             self._progress_bar.setStyleSheet(
@@ -446,6 +485,21 @@ class BuildProgressDialog(QDialog):
         report.new_build_requested.connect(self.new_build_requested.emit)
         self.accept()       # close progress dialog first
         report.exec_()      # then open report (uses parent = MainWindow)
+
+    # ------------------------------------------------------------------
+    # BOQ coverage report
+    # ------------------------------------------------------------------
+
+    def _show_coverage_report(self) -> None:
+        """Compute BOQ coverage and open the coverage dialog."""
+        if not self._boq_order:
+            return
+        from utils.boq_coverage import compute_coverage
+        from ui.boq_coverage_dialog import BOQCoverageDialog
+
+        coverage = compute_coverage(self._boq_order, self._selected_codes)
+        dialog = BOQCoverageDialog(coverage, self._codes, parent=self)
+        dialog.exec_()
 
     # ------------------------------------------------------------------
     # File / folder openers
