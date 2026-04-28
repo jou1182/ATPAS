@@ -2,8 +2,8 @@
 # Al-Rawaf Technical Proposal Automation System
 
 **Updated**: 2026-04-28  
-**Source**: docs/specification.md v3.0 + docs/superpowers/specs/2026-04-27-boq-importer-design.md  
-**Total Tasks**: 47 | **Done**: 45 ✅ | **Remaining**: 2
+**Source**: docs/specification.md v3.0 + docs/superpowers/specs/2026-04-28-boq-order-design.md  
+**Total Tasks**: 52 | **Done**: 50 ✅ | **Remaining**: 2
 
 ---
 
@@ -73,6 +73,20 @@
 - [x] T021j [P] [US2b] 6 style templates: mot_style, nhi_style, amana_riyadh_style, amana_qassim_style, swa_style, ksia_style
 - [x] T021k [US2b] master_config.json updated: 6 projects + 9 owners + 6 network types + new phases
 - [x] T021l [US2b] 18/18 tests still passing after gap-closing ✅
+
+---
+
+## Phase 4d: US5b — BOQ Order Preservation ✅ مكتمل
+
+**Story Goal**: ملف Word الناتج مرتب بنفس تسلسل بنود Excel المنافسة
+
+**Design Doc**: `docs/superpowers/specs/2026-04-28-boq-order-design.md`
+
+- [x] T040 [US5b] `engine/dependency_resolver.py` — إضافة `resolve_with_order()` + `_inject_deps()` ✅
+- [x] T041 [US5b] `engine/builder.py` — `build()` يقبل `boq_order` ويوجّه للـ resolver الصح ✅
+- [x] T042 [US5b] `ui/build_progress.py` — `boq_order` يتمرر عبر Dialog → Worker → Builder ✅
+- [x] T043 [US5b] `ui/main_window.py` — `_boq_order` محفوظ عند الاستيراد، يُمرَّر عند البناء ✅
+- [x] T044 [US5b] `tests/test_boq_ordering.py` — 9 سيناريوهات: ترتيب، حقن، backward-compat ✅
 
 ---
 
@@ -148,6 +162,7 @@ T022 → T023 → T024 → T025 → T026 → T027 → T028 (Phase 5 ✅)
 T010 → T029 → T030                              (Phase 6 ⬜)
 
 T021 + T028 → T031 → T032                       (Phase 7 ✅)
+T033-T039 → T040-T044                           (Phase 4d ✅)
 ```
 
 **Critical Path**: T009 → T012 → T020 → T028 → T031 ✅ مكتمل  
@@ -165,10 +180,11 @@ T021 + T028 → T031 → T032                       (Phase 7 ✅)
 | Phase 4: US2 Builder | 10 | 10 ✅ | 0 |
 | Phase 4b: Gap Closing | 8 | 8 ✅ | 0 |
 | Phase 4c: US5 BOQ Importer | 7 | 7 ✅ | 0 |
+| Phase 4d: US5b BOQ Order | 5 | 5 ✅ | 0 |
 | Phase 5: US3 GUI | 7 | 7 ✅ | 0 |
 | Phase 6: US4 Audit | 2 | 0 | **2** |
 | Phase 7: Polish | 2 | 2 ✅ | 0 |
-| **Total** | **47** | **45 ✅** | **2** |
+| **Total** | **52** | **50 ✅** | **2** |
 
 ---
 
@@ -180,6 +196,7 @@ tests/test_builder.py       7/7   ✅
 tests/test_boq_importer.py  6/6   ✅
 tests/test_boq_matcher.py  14/14  ✅
 tests/test_integration.py   6/6   ✅
+tests/test_boq_ordering.py  9/9   ✅
 ─────────────────────────────────────
-Total                      281 ✅  (pytest 2026-04-28)
+Total                      290 ✅  (pytest 2026-04-28)
 ```
