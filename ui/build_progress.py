@@ -66,6 +66,7 @@ class BuildWorker(QThread):
         owner_id: str,
         output_path: Path,
         boq_order: list[str] | None = None,
+        template_vars: dict[str, str] | None = None,
         parent=None,
     ) -> None:
         super().__init__(parent)
@@ -75,6 +76,7 @@ class BuildWorker(QThread):
         self._owner_id = owner_id
         self._output_path = output_path
         self._boq_order = boq_order
+        self._template_vars = template_vars
 
     def run(self) -> None:
         logger.info(
@@ -97,6 +99,7 @@ class BuildWorker(QThread):
                 output_path=self._output_path,
                 skip_validation=True,
                 boq_order=self._boq_order,
+                template_vars=self._template_vars,
             )
 
             elapsed = time.monotonic() - t0
@@ -297,6 +300,7 @@ class BuildProgressDialog(QDialog):
             owner_id=owner_id,
             output_path=self._output_path,
             boq_order=self._boq_order,
+            template_vars=self._template_vars,
             parent=self,
         )
         self._worker.step_changed.connect(self._on_step)

@@ -114,6 +114,7 @@ class Builder:
         output_path: str | Path,
         skip_validation: bool = False,
         boq_order: Optional[List[str]] = None,
+        template_vars: Optional[Dict[str, str]] = None,
     ) -> Tuple[bool, Optional[str]]:
         """
         Build the proposal document.
@@ -157,7 +158,7 @@ class Builder:
         style_spec = self._load_style_spec(owner_id)
         formatter = Formatter(style_spec) if style_spec else None
 
-        self._add_cover(doc, project_id, owner_id, ordered_codes, formatter)
+        self._add_cover(doc, project_id, owner_id, ordered_codes, formatter, template_vars)
         self._add_toc_placeholder(doc)
         self._add_sections(doc, ordered_codes, project_meta, formatter)
         self._style_applier.apply_style(doc, owner_id)
@@ -217,11 +218,24 @@ class Builder:
         owner_id: str,
         ordered_codes: List[str],
         formatter: Optional[Formatter],
+        template_vars: Optional[Dict[str, str]] = None,
     ) -> None:
-        """Render a centred cover page: title, project, owner, date, and stats."""
+        """Render a centred cover page: title, project, owner, date, and stats.
+
+        If *template_vars* is provided, any non-empty value in it overrides
+        the corresponding metadata / default:
+
+        - ``project_name``    — overrides the metadata project name
+        - ``tender_number``   — shown as "رقم المنافسة: <value>"
+        - ``submission_date`` — overrides today's date
+        - ``contract_value``  — shown as "قيمة العقد: <value>"
+        - ``engineer_name``   — shown as "إعداد: <value>"
+        """
         from datetime import date
+        tv = template_vars or {}
+
         project_meta = self._load_project_metadata(project_id)
-        project_name = project_meta.get("project_metadata", {}).get(
+        project_name = tv.get("project_name") or project_meta.get("project_metadata", {}).get(
             "name_ar", project_id
         )
 
@@ -241,9 +255,32 @@ class Builder:
         owner_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
         owner_para.add_run(f"مُقدَّم إلى: {owner_name}").font.size = Pt(14)
 
+        # Tender number — shown only when provided
+        tender_number = tv.get("tender_number", "")
+        if tender_number:
+            tender_para = doc.add_paragraph()
+            tender_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
+            tender_para.add_run(f"رقم المنافسة: {tender_number}").font.size = Pt(12)
+
+        # Submission date — custom value or today
+        submission_date = tv.get("submission_date") or date.today().strftime("%Y-%m-%d")
         date_para = doc.add_paragraph()
         date_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        date_para.add_run(f"التاريخ: {date.today().strftime('%Y-%m-%d')}").font.size = Pt(12)
+        date_para.add_run(f"التاريخ: {submission_date}").font.size = Pt(12)
+
+        # Contract value — shown only when provided
+        contract_value = tv.get("contract_value", "")
+        if contract_value:
+            contract_para = doc.add_paragraph()
+            contract_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
+            contract_para.add_run(f"قيمة العقد: {contract_value}").font.size = Pt(12)
+
+        # Engineer name — shown only when provided
+        engineer_name = tv.get("engineer_name", "")
+        if engineer_name:
+            engineer_para = doc.add_paragraph()
+            engineer_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
+            engineer_para.add_run(f"إعداد: {engineer_name}").font.size = Pt(12)
 
         pages = self.estimate_pages(ordered_codes)
         stats_para = doc.add_paragraph()

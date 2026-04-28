@@ -52,6 +52,7 @@ from engine.logger import setup_logging
 from engine.validator import Validator
 from ui.backup_manager import BackupDialog, create_backup
 from ui.build_progress import BuildProgressDialog
+from ui.build_vars_dialog import BuildVarsDialog
 from ui.build_history import BuildHistoryManager, BuildHistoryDialog
 from ui.import_wizard import ImportWizardDialog
 from ui.checkbox_selector import CheckboxSelectorWidget
@@ -539,6 +540,19 @@ class MainWindow(QMainWindow):
             )
             return
 
+        # ── Show template-variables dialog before building ─────────────
+        owner_name_ar = (
+            self.config_data
+            .get("owner_specifications", {})
+            .get(oid, {})
+            .get("owner_name_ar", oid)
+        )
+        vars_dlg = BuildVarsDialog(pid, oid, owner_name_ar, parent=self)
+        if vars_dlg.exec_() != BuildVarsDialog.Accepted:
+            self._show_status("تم إلغاء بناء العرض", hold_ms=4_000)
+            return
+        template_vars = vars_dlg.get_vars()
+
         dialog = BuildProgressDialog(
             codes=self.registry_data.get("codes", {}),
             selected_codes=selected,
@@ -546,6 +560,7 @@ class MainWindow(QMainWindow):
             owner_id=oid,
             output_dir=output_dir,
             boq_order=self._boq_order,
+            template_vars=template_vars,
             parent=self,
         )
         # «بناء عرض جديد» في تقرير البناء يُعيد الإطلاق مباشرةً
