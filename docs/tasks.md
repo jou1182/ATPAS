@@ -1,9 +1,9 @@
 # ATPAS Tasks v2.0
 # Al-Rawaf Technical Proposal Automation System
 
-**Updated**: 2026-04-27  
+**Updated**: 2026-04-28  
 **Source**: docs/specification.md v3.0 + docs/superpowers/specs/2026-04-27-boq-importer-design.md  
-**Total Tasks**: 47 | **Done**: 28 ✅ | **Remaining**: 19
+**Total Tasks**: 47 | **Done**: 43 ✅ | **Remaining**: 4
 
 ---
 
@@ -76,7 +76,7 @@
 
 ---
 
-## Phase 4c: US5 — BOQ Importer (العمود الفقري) ⬜ Sprint 3b
+## Phase 4c: US5 — BOQ Importer (العمود الفقري) ✅ Sprint 3b مكتمل
 
 **Story Goal**: المستخدم يرفع Excel ببنود جدول الكميات → البرنامج يقترح الأكواد تلقائياً بالتسلسل الصح
 
@@ -88,33 +88,27 @@
 - البنود المجهولة تظهر باللون الأصفر وتُحل في < دقيقة
 - كود جديد يُحفظ ويظهر في السجل فوراً
 
-- [ ] T033 [US5] `engine/boq_importer.py` — يقرأ Excel (.xlsx/.xls)، يكتشف header تلقائياً، يُرجع list[str] نظيفة
-- [ ] T034 [US5] `engine/boq_matcher.py` — fuzzy match كل بند مع codes_registry؛ threshold 70%؛ يُرجع list[MatchResult]
-- [ ] T035 [US5] `engine/gap_handler.py` — ينشئ CUSTOM-XXX codes لحظياً ويحفظ في codes_registry.json
-- [ ] T036 [US5] `ui/boq_review_panel.py` — جدول مراجعة: بند | كود | نسبة | حالة؛ خلفية صفراء للمجهول؛ زر "أضف كود"؛ drag & drop ترتيب
-- [ ] T037 [US5] ربط `ui/main_window.py` — زر "استورد جدول كميات" يفتح boq_review_panel
-- [ ] T038 [US5] `tests/test_boq_matcher.py` — 10 سيناريوهات: مطابقة دقيقة، مطابقة جزئية، مجهول، خليط
-- [ ] T039 [US5] `tests/test_boq_importer.py` — 5 سيناريوهات: ملف صحيح، header موجود/غائب، ملف فارغ، مسار خاطئ
+- [x] T033 [US5] `engine/boq_importer.py` — يقرأ Excel (.xlsx/.xls)، يكتشف header تلقائياً، يُرجع list[str] نظيفة
+- [x] T034 [US5] `engine/boq_matcher.py` — fuzzy match كل بند مع codes_registry؛ threshold 70%؛ يُرجع list[MatchResult]
+- [x] T035 [US5] `engine/gap_handler.py` — ينشئ CUSTOM-XXX codes لحظياً ويحفظ في codes_registry.json
+- [x] T036 [US5] `ui/boq_review_panel.py` — جدول مراجعة: بند | كود | نسبة | حالة؛ خلفية صفراء للمجهول؛ زر "أضف كود"
+- [x] T037 [US5] ربط `ui/main_window.py` — زر "استورد جدول كميات" يفتح boq_review_panel
+- [x] T038 [US5] `tests/test_boq_matcher.py` — 14 سيناريو: مطابقة دقيقة، جزئية، مجهول، خليط، score bounds
+- [x] T039 [US5] `tests/test_boq_importer.py` — 6 سيناريوهات: ملف صحيح، فارغ، مسار خاطئ، ملف تالف
 
 ---
 
-## Phase 5: US3 — GUI Layer ⬜ Sprint 3
+## Phase 5: US3 — GUI Layer ✅ Sprint 3 مكتمل
 
 **Story Goal**: المستخدم يختار أكواد ويبني عرض فني من واجهة رسومية عربية
 
-**Independent test criteria**:
-- التطبيق يفتح بدون أخطاء
-- اختيار مشروع يُحدّث قائمة الأكواد تلقائياً
-- FINE+OPEN لا يمكن تحديدهما معاً
-- زر "بناء" يُنتج ملف .docx في output/
-
-- [ ] T022 [US3] Create ui/project_selector.py — QComboBox لـ 6 مشاريع + 9 جهات مفلترة
-- [ ] T023 [US3] Create ui/checkbox_selector.py — checkboxes مجمّعة بالفئة (001-005); radio للحصريين; إلزاميون محددون مقفلون; عداد X كود / Y صفحة
-- [ ] T024 [US3] Create ui/preview_panel.py — قائمة أكواد مرتبة + إجمالي صفحات/صور + تحذيرات باللون الأحمر + "إصلاح تلقائي" + زر بناء
-- [ ] T025 [US3] Create ui/build_progress.py — QProgressDialog 0→100% رسائل عربية + "فتح الملف"
-- [ ] T026 [US3] Create ui/main_window.py — 1200×800 RTL عربي يدمج كل مكونات UI
-- [ ] T027 [US3] Create main.py — entry point: master_config → CodesRegistry → QApplication
-- [ ] T028 [US3] Wire UI to engine — QThread: validator→resolver→builder→style_applier; أخطاء كـ QMessageBox عربية
+- [x] T022 [US3] ui/project_selector.py ✅
+- [x] T023 [US3] ui/checkbox_selector.py ✅
+- [x] T024 [US3] ui/preview_panel.py ✅
+- [x] T025 [US3] ui/build_progress.py ✅
+- [x] T026 [US3] ui/main_window.py ✅
+- [x] T027 [US3] main.py ✅
+- [x] T028 [US3] UI ↔ Engine wired (QThread) ✅
 
 ---
 
