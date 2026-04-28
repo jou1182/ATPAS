@@ -113,6 +113,7 @@ class Builder:
         owner_id: str,
         output_path: str | Path,
         skip_validation: bool = False,
+        boq_order: Optional[List[str]] = None,
     ) -> Tuple[bool, Optional[str]]:
         """
         Build the proposal document.
@@ -145,7 +146,10 @@ class Builder:
                 return False, msg
 
         # --- Resolve & order codes ---
-        ordered_codes = self._resolver.resolve(selected_codes)
+        if boq_order:
+            ordered_codes = self._resolver.resolve_with_order(selected_codes, boq_order)
+        else:
+            ordered_codes = self._resolver.resolve(selected_codes)
         project_meta = self._load_project_metadata(project_id)
 
         # --- Assemble document ---

@@ -64,6 +64,7 @@ class BuildWorker(QThread):
         project_id: str,
         owner_id: str,
         output_path: Path,
+        boq_order: list[str] | None = None,
         parent=None,
     ) -> None:
         super().__init__(parent)
@@ -72,6 +73,7 @@ class BuildWorker(QThread):
         self._project_id = project_id
         self._owner_id = owner_id
         self._output_path = output_path
+        self._boq_order = boq_order
 
     def run(self) -> None:
         logger.info(
@@ -92,7 +94,8 @@ class BuildWorker(QThread):
                 project_id=self._project_id,
                 owner_id=self._owner_id,
                 output_path=self._output_path,
-                skip_validation=True,   # already validated in UI before dialog opens
+                skip_validation=True,
+                boq_order=self._boq_order,
             )
 
             elapsed = time.monotonic() - t0
@@ -123,6 +126,7 @@ class BuildProgressDialog(QDialog):
         project_id: str,
         owner_id: str,
         output_dir: Path,
+        boq_order: list[str] | None = None,
         parent=None,
     ) -> None:
         super().__init__(parent)
@@ -135,6 +139,7 @@ class BuildProgressDialog(QDialog):
         # which can break exec_().  We block closing via closeEvent() instead.
 
         self._build_running = False
+        self._boq_order = boq_order
         self._build_start_time: float = 0.0   # set in start_build()
         self._elapsed_seconds: float = 0.0    # computed in _on_finished()
 
@@ -239,6 +244,7 @@ class BuildProgressDialog(QDialog):
             project_id=project_id,
             owner_id=owner_id,
             output_path=self._output_path,
+            boq_order=self._boq_order,
             parent=self,
         )
         self._worker.step_changed.connect(self._on_step)

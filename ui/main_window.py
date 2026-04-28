@@ -139,6 +139,7 @@ class MainWindow(QMainWindow):
         self._focus_search_action: QAction | None = None
         self._settings_dialog: SettingsDialog | None = None
         self._version_manager = ProposalVersionManager()
+        self._boq_order: list[str] | None = None   # ترتيب BOQ عند الاستيراد
         self._activity_log = ActivityLog()
 
         self._settings = QSettings("Rawaf", "ATPAS")
@@ -326,6 +327,7 @@ class MainWindow(QMainWindow):
 
     def _on_selection_changed(self, project_ids: list[str], owner_id: str) -> None:
         """Rebuild checkbox list whenever project selection or owner changes."""
+        self._boq_order = None   # اختيار مشروع جديد يلغي ترتيب BOQ
         mandatory = self._get_mandatory_codes(owner_id)
         self._checkbox_selector.update_for_project(project_ids, owner_id, mandatory)
         self._preview_panel.clear()
@@ -543,6 +545,7 @@ class MainWindow(QMainWindow):
             project_id=pid,
             owner_id=oid,
             output_dir=output_dir,
+            boq_order=self._boq_order,
             parent=self,
         )
         # «بناء عرض جديد» في تقرير البناء يُعيد الإطلاق مباشرةً
@@ -858,9 +861,11 @@ class MainWindow(QMainWindow):
         panel.exec_()
 
     def _on_boq_codes_accepted(self, code_ids: list) -> None:
-        """Apply BOQ-selected codes to the checkbox selector."""
+        """Apply BOQ-selected codes to the checkbox selector and remember BOQ order."""
+        self._boq_order = list(code_ids)
         if self._checkbox_selector is not None:
             self._checkbox_selector.add_codes(code_ids)
+        self._show_status("📋 وضع BOQ نشط — ترتيب المنافسة محفوظ", hold_ms=8_000)
 
     def _reload_after_import(self) -> None:
         """Reload all data sources after an import/owner edit without restart."""
