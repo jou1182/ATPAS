@@ -180,12 +180,18 @@ class Builder:
         return True, None
 
     def estimate_pages(self, selected_codes: List[str]) -> int:
-        """Estimate total page count for the selected codes."""
-        return sum(
+        """Estimate total page count for the selected codes.
+
+        Includes 2 fixed pages present in every proposal:
+          +1 cover page
+          +1 table of contents
+        """
+        code_pages = sum(
             self._codes[c].get("page_count", 0)
             for c in selected_codes
             if c in self._codes
         )
+        return code_pages + 2
 
     def estimate_images(self, selected_codes: List[str]) -> int:
         """Estimate total image count for the selected codes."""

@@ -3,9 +3,24 @@
 
 """ATPAS — نقطة الدخول الرئيسية للتطبيق المجمّع (EXE)."""
 
+import json
 import sys
 import os
 from pathlib import Path
+
+
+def _read_version() -> str:
+    """Read the application version from version.json.
+
+    Falls back to "unknown" so a missing file never crashes startup.
+    version.json is the single source of truth — never hardcode the version
+    string inside Python files.
+    """
+    try:
+        with open("version.json", encoding="utf-8") as f:
+            return str(json.load(f).get("version", "unknown"))
+    except (OSError, ValueError, KeyError):
+        return "unknown"
 
 
 def _fix_working_dir() -> None:
@@ -32,7 +47,7 @@ def main() -> int:
     app = QApplication(sys.argv)
     app.setApplicationName("ATPAS")
     app.setApplicationDisplayName("نظام بناء العروض الفنية - الرواف")
-    app.setApplicationVersion("3.0.0")
+    app.setApplicationVersion(_read_version())
     app.setOrganizationName("Al-Rawaf Contracting")
 
     # ── Apply theme ────────────────────────────────────────────────────
