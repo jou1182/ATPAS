@@ -87,13 +87,25 @@ def generate_audit_trail(build_context: Dict[str, Any], audit_dir: str | Path = 
     return file_path
 
 
-def get_audit_history(audit_dir: str | Path = _AUDIT_DIR) -> List[Dict[str, Any]]:
-    """Return all audit records sorted by timestamp descending."""
+def get_audit_history(
+    audit_dir: str | Path = _AUDIT_DIR,
+    limit: int = 500,
+) -> List[Dict[str, Any]]:
+    """Return audit records sorted by timestamp descending.
+
+    Args:
+        audit_dir: Directory containing audit_*.json files.
+        limit:     Maximum number of records to return (newest first).
+                   Older files remain on disk as the permanent archive —
+                   they are never deleted by this function.
+                   Default: 500 (prevents UI slowdown on large installations).
+    """
     audit_path = Path(audit_dir)
     if not audit_path.exists():
         return []
+    files = sorted(audit_path.glob("audit_*.json"), reverse=True)[:limit]
     records = []
-    for f in sorted(audit_path.glob("audit_*.json"), reverse=True):
+    for f in files:
         try:
             with open(f, encoding="utf-8") as fp:
                 records.append(json.load(fp))

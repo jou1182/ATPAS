@@ -6,12 +6,14 @@ from utils.json_manager import load_json, save_json
 
 class GapHandler:
     """
-    ينشئ أكواداً جديدة (CUSTOM-NNN) للبنود غير الموجودة في السجل.
+    ينشئ أكواداً مُخصَّصة (999-CUS-NNN) للبنود غير الموجودة في السجل.
+
+    الأكواد المُنشأة تُعلَّم بـ is_custom=True وتُعفى من فحص صيغة الـ Validator.
 
     Usage:
         handler = GapHandler("codes_registry.json")
         code_id = handler.create("حفر خاص", "wastewater")
-        # code_id = "CUSTOM-001"
+        # code_id = "999-CUS-001"
     """
 
     def __init__(self, registry_path: str | Path = "codes_registry.json") -> None:
