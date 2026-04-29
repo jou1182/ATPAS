@@ -50,6 +50,7 @@ from ui.build_history import BuildHistoryManager
 from utils.activity_log import ActivityLog
 from utils.pdf_exporter import export_to_pdf, is_pdf_export_available
 from utils.proposal_versions import ProposalVersionManager
+from utils.taskbar_progress import TaskbarProgress, send_windows_notification
 
 
 class BuildWorker(QThread):
@@ -146,6 +147,7 @@ class BuildProgressDialog(QDialog):
         self._build_running = False
         self._boq_order = boq_order
         self._template_vars = template_vars
+        self._taskbar: TaskbarProgress | None = None   # init in showEvent after HWND is valid
         self._build_start_time: float = 0.0   # set in start_build()
         self._elapsed_seconds: float = 0.0    # computed in _on_finished()
 
@@ -317,11 +319,23 @@ class BuildProgressDialog(QDialog):
     # Event overrides
     # ------------------------------------------------------------------
 
+    def showEvent(self, event) -> None:  # type: ignore[override]
+        """Initialise the taskbar progress bar once the window has a real HWND."""
+        super().showEvent(event)
+        if self._taskbar is None:
+            try:
+                self._taskbar = TaskbarProgress(int(self.winId()))
+                self._taskbar.set_indeterminate()   # spinning dot while preparing
+            except Exception:  # noqa: BLE001
+                self._taskbar = None
+
     def closeEvent(self, event) -> None:  # type: ignore[override]
         """Block the native close (X button) while the build is running."""
         if self._build_running:
             event.ignore()
         else:
+            if self._taskbar:
+                self._taskbar.clear()
             super().closeEvent(event)
 
     # ------------------------------------------------------------------
@@ -351,6 +365,10 @@ class BuildProgressDialog(QDialog):
             self._status_anim.setEndValue(1.0)
             self._status_opacity.setOpacity(0.55)
             self._status_anim.start()
+
+        # تحديث شريط تقدم Windows Taskbar
+        if self._taskbar:
+            self._taskbar.set_progress(percent)
 
         item = QListWidgetItem(f"{percent:3d}%  {message}")
         self._log.addItem(item)
@@ -395,6 +413,14 @@ class BuildProgressDialog(QDialog):
                     "page_count": page_count,
                     "version_label": version_entry.get("version_label", ""),
                 },
+            )
+
+            # Taskbar: clear progress bar + Windows notification
+            if self._taskbar:
+                self._taskbar.clear()
+            send_windows_notification(
+                "ATPAS ✅ — اكتمل البناء",
+                f"تم بناء العرض بنجاح\n{Path(output_path).name}",
             )
 
             self._progress_bar.setValue(100)
@@ -442,6 +468,13 @@ class BuildProgressDialog(QDialog):
                 "font-size: 13px; font-weight: bold; padding: 4px; color: #C62828;"
             )
             self._log.addItem(QListWidgetItem(f"الخطأ: {error_ar}"))
+            # Taskbar: show red bar + failure notification
+            if self._taskbar:
+                self._taskbar.set_state_error()
+            send_windows_notification(
+                "ATPAS ❌ — فشل البناء",
+                "تعذّر إنشاء العرض الفني — راجع سجل الأخطاء",
+            )
 
     # ------------------------------------------------------------------
     # Animation helpers
