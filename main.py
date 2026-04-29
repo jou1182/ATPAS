@@ -22,6 +22,11 @@ def _fix_working_dir() -> None:
 def main() -> int:
     _fix_working_dir()
 
+    # ── DPI: يجب إعداده قبل إنشاء QApplication ─────────────────────────
+    # PassThrough يمنع تقريب عامل التكبير — يعطي صورة حادة على كل شاشة
+    os.environ.setdefault("QT_SCALE_FACTOR_ROUNDING_POLICY", "PassThrough")
+    os.environ.setdefault("QT_AUTO_SCREEN_SCALE_FACTOR", "1")
+
     from PyQt5.QtWidgets import QApplication
     from PyQt5.QtCore import Qt
     from ui.main_window import MainWindow
