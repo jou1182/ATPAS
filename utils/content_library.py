@@ -78,10 +78,13 @@ class ContentLibrary:
         if exact.exists():
             return exact
 
-        # 3. Case-insensitive / hyphen-insensitive scan
-        normalized = code_id.lower().replace("-", "")
+        # 3. Case-insensitive scan only (hyphens kept — prevents wrong-file matches)
         for f in self._source_dir.glob("*.docx"):
-            if f.stem.lower().replace("-", "") == normalized:
+            if f.stem.lower() == code_id.lower():
+                if f.stem != code_id:
+                    logger.warning(
+                        "Content for %s served from %s (case mismatch)", code_id, f.name
+                    )
                 return f
 
         return None
@@ -97,10 +100,7 @@ class ContentLibrary:
         returns a path, exists() must return True for the same code_id.
         """
         available = self._get_available_set()
-        if code_id in available:
-            return True
-        # Normalized fallback — covers fuzzy-matched filenames
-        return code_id.lower().replace("-", "") in available
+        return code_id in available or code_id.lower() in available
 
     def _get_available_set(self) -> set:
         if self._available_set is None:
@@ -117,13 +117,11 @@ class ContentLibrary:
                 p = self._source_dir / p
             if p.exists():
                 result.add(code_id)
-        # From files named {code_id}.docx (exact and case-insensitive)
+        # From files named {code_id}.docx (exact and case-insensitive only)
         try:
             for f in self._source_dir.glob("*.docx"):
                 result.add(f.stem)
-                # Also add normalized variant so find() fuzzy-match codes are covered
-                normalized = f.stem.lower().replace("-", "")
-                result.add(normalized)   # internal; find() still does full lookup
+                result.add(f.stem.lower())   # case-insensitive fallback only
         except OSError:
             pass
         return result
@@ -226,7 +224,11 @@ def _copy_docx_body(source_path: Path, target_doc: Document) -> None:
                 new_rel_id = target_part.relate_to(new_part, rel.reltype)
                 image_map[rel_id] = new_rel_id
     except Exception as exc:
-        logger.debug("Image relationship mapping partial (%s) — text will still copy", exc)
+        logger.warning(
+            "Image relationship mapping failed for %s (%s) — "
+            "text content will copy but embedded images may be lost",
+            source_path.name, exc,
+        )
 
     # Deep-copy body elements (paragraphs, tables, etc.)
     for element in source.element.body:

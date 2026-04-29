@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import json
 import logging
 import logging.handlers
 from datetime import datetime
@@ -63,7 +64,7 @@ def generate_audit_trail(build_context: Dict[str, Any], audit_dir: str | Path = 
     audit_path = Path(audit_dir)
     audit_path.mkdir(parents=True, exist_ok=True)
 
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
     filename = f"audit_{timestamp}.json"
 
     record: Dict[str, Any] = {

@@ -18,11 +18,12 @@ class GapHandler:
         self._registry_path = Path(registry_path)
 
     def _next_id(self, codes: dict) -> str:
-        existing = [k for k in codes if k.startswith("CUSTOM-")]
+        # Format must match Validator regex: ^\d{3}-[A-Z]{2,8}-[A-Z]{2,8}$
+        existing = [k for k in codes if k.startswith("999-CUS-")]
         if not existing:
-            return "CUSTOM-001"
-        numbers = [int(k.split("-")[1]) for k in existing]
-        return f"CUSTOM-{max(numbers) + 1:03d}"
+            return "999-CUS-001"
+        numbers = [int(k.split("-")[2]) for k in existing if k.split("-")[2].isdigit()]
+        return f"999-CUS-{max(numbers, default=0) + 1:03d}"
 
     def create(self, boq_item: str, project_type: str) -> str:
         """
@@ -41,7 +42,7 @@ class GapHandler:
 
         codes[code_id] = {
             "code_id": code_id,
-            "category": "CUSTOM",
+            "category": "CUS",
             "phase": "GEN",
             "variation": f"{len(codes):03d}",
             "activity_name_ar": boq_item,

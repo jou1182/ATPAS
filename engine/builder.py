@@ -98,8 +98,8 @@ class Builder:
         try:
             cfg = load_json(Path(master_config))
             self._owner_specs: Dict[str, Dict] = cfg.get("owner_specifications", {})
-        except (FileNotFoundError, ValueError):
-            logger.warning("master_config.json not found or invalid — owner names will fall back to owner_id")
+        except (FileNotFoundError, ValueError, OSError):
+            logger.warning("master_config.json not loadable — owner names will fall back to owner_id")
             self._owner_specs = {}
 
     # ------------------------------------------------------------------
@@ -333,6 +333,7 @@ class Builder:
         activities = {
             a["code_id"]: a
             for a in project_meta.get("activity_sequence", [])
+            if isinstance(a, dict) and "code_id" in a
         }
 
         for code_id in ordered_codes:

@@ -90,9 +90,15 @@ class Validator:
     # ------------------------------------------------------------------
 
     def _check_format(self, code_id: str, errors: List[str]) -> None:
-        """Reject malformed or potentially unsafe code IDs before any filesystem use."""
+        """Reject malformed or potentially unsafe code IDs before any filesystem use.
+
+        Custom codes (is_custom: True) use the 999-CUS-NNN format which differs
+        from the standard NNN-AAA-BBB pattern — they are exempt from the regex check.
+        """
         if any(ch in code_id for ch in ("/", "\\", "..", "~", "\x00")):
             errors.append(f"الكود يحتوي على محارف غير مسموحة في المسارات: {code_id!r}")
+        elif self._codes.get(code_id, {}).get("is_custom"):
+            pass  # custom codes (999-CUS-NNN) bypass the regex — format intentionally differs
         elif not _CODE_ID_PATTERN.match(code_id):
             errors.append(
                 f"صيغة الكود غير صالحة: {code_id!r} — المطلوب NNN-XXX-YYY "
@@ -168,7 +174,7 @@ class Validator:
             code = self._codes.get(code_id)
             if not code:
                 continue
-            for dep in code.get("dependencies", []):
+            for dep in (code.get("dependencies") or []):
                 if dep not in selected_set:
                     warnings.append(
                         f"الكود {code_id} يحتاج إلى {dep} الذي غير موجود في القائمة"

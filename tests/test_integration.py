@@ -378,7 +378,7 @@ def test_gap_handler_code_in_build(registry_codes, tmp_path):
 
     handler = GapHandler(str(isolated))
     custom_id = handler.create("أعمال صرف صحي خاصة", "wastewater")
-    assert custom_id.startswith("CUSTOM-")
+    assert custom_id.startswith("999-CUS-")
 
     # Reload codes from the updated isolated registry
     updated_codes = json.loads(isolated.read_text(encoding="utf-8"))["codes"]

@@ -191,6 +191,52 @@ def test_dependency_resolver_transitive(resolver):
 
 
 # ---------------------------------------------------------------------------
+# BUG-12: Custom codes (999-CUS-NNN) must pass format check
+# ---------------------------------------------------------------------------
+
+def test_custom_code_bypasses_format_check():
+    """GapHandler custom codes use 999-CUS-NNN — the regex exemption must apply."""
+    custom_codes = {
+        "999-CUS-001": {
+            "activity_name_ar": "أعمال خاصة",
+            "status": "active",
+            "project_ids": ["wastewater"],
+            "applicable_owners": [],
+            "dependencies": [],
+            "is_custom": True,
+        }
+    }
+    v = Validator(custom_codes)
+    is_valid, errors, _ = v.validate(["999-CUS-001"], "nwc", "wastewater")
+    assert is_valid, f"Custom code must pass validation, got errors: {errors}"
+    assert not any("صيغة" in e for e in errors), (
+        "_check_format must be skipped for is_custom codes"
+    )
+
+
+# ---------------------------------------------------------------------------
+# BUG-13: dependencies: null must not crash _check_dependencies
+# ---------------------------------------------------------------------------
+
+def test_null_dependencies_no_crash():
+    """A code with dependencies=null in JSON must not raise TypeError in validate()."""
+    patched = {
+        "001-SUR-BASE": {
+            "activity_name_ar": "مسح",
+            "status": "active",
+            "project_ids": ["wastewater"],
+            "applicable_owners": [],
+            "dependencies": None,   # null in JSON — same as BUG-10 in resolver
+        }
+    }
+    v = Validator(patched)
+    # Must NOT raise TypeError: 'NoneType' object is not iterable
+    is_valid, errors, warnings = v.validate(["001-SUR-BASE"], "nwc", "wastewater")
+    assert isinstance(errors, list)
+    assert isinstance(warnings, list)
+
+
+# ---------------------------------------------------------------------------
 # Bonus: DependencyResolver does NOT infinite-loop on circular edge case
 # ---------------------------------------------------------------------------
 

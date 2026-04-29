@@ -24,10 +24,17 @@ def _normalize(text: str) -> str:
 
 
 def _token_overlap_score(query_tokens: list[str], candidate_tokens: list[str]) -> float:
-    """Score based on word-level overlap."""
+    """Score based on word-level overlap.
+
+    Requires minimum token length of 3 chars to avoid inflated scores from
+    Arabic particles (و، ا، في) or English stopwords (a, an, of).
+    """
     if not candidate_tokens or not query_tokens:
         return 0.0
-    matches = sum(1 for q in query_tokens if any(q in c or c in q for c in candidate_tokens))
+    matches = sum(
+        1 for q in query_tokens
+        if len(q) >= 3 and any(q == c or (len(q) >= 4 and q in c) for c in candidate_tokens)
+    )
     return min(matches / len(candidate_tokens), 1.0)
 
 

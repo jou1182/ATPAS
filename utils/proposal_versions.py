@@ -19,9 +19,10 @@ from typing import Any
 from utils.json_manager import load_json, save_json
 
 
-_DEFAULT_JSON_PATH = Path("output/reports/proposal_versions.json")
-_DEFAULT_CSV_PATH = Path("output/reports/proposal_versions.csv")
-_VERSION_PATH = Path("version.json")
+_PROJECT_ROOT = Path(__file__).resolve().parent.parent
+_DEFAULT_JSON_PATH = _PROJECT_ROOT / "output" / "reports" / "proposal_versions.json"
+_DEFAULT_CSV_PATH  = _PROJECT_ROOT / "output" / "reports" / "proposal_versions.csv"
+_VERSION_PATH      = _PROJECT_ROOT / "version.json"
 
 
 @dataclass(frozen=True)
@@ -94,7 +95,9 @@ class ProposalVersionManager:
         """Save one generated proposal version and return the stored entry."""
 
         history = self.load()
-        version_number = len(history) + 1
+        # Monotonic max — survives JSON resets without duplicate IDs
+        existing_max = max((e.get("version_number", 0) for e in history), default=0)
+        version_number = existing_max + 1
         now = datetime.now()
         output_path = Path(output_file)
         output_abs = str(output_path.resolve())

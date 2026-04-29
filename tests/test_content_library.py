@@ -60,14 +60,22 @@ class TestFind:
         assert result.name == "001-SUR-BASE.docx"
 
     def test_fuzzy_hyphen_insensitive_match(self, tmp_path):
-        """File named '001surbase.docx' must be found for code '001-SUR-BASE'."""
+        """Hyphen-stripped filenames ('001surbase.docx') are NOT matched for '001-SUR-BASE'.
+
+        Hyphen-insensitive matching was intentionally removed (security fix BUG-5)
+        to prevent wrong content from being served to a similar but different code.
+        Only exact-name and case-only matches are supported.
+        """
         lib = _make_lib(tmp_path)
         src = tmp_path / "source_documents"
         _make_minimal_docx(src / "001surbase.docx")
 
         result = lib.find("001-SUR-BASE")
 
-        assert result is not None, "find() should match via fuzzy/normalized lookup"
+        assert result is None, (
+            "find() must NOT match via hyphen-stripped lookup — "
+            "hyphen-insensitive fuzzy match was removed to prevent wrong-file delivery"
+        )
 
     def test_case_insensitive_match(self, tmp_path):
         lib = _make_lib(tmp_path)
@@ -136,23 +144,26 @@ class TestExists:
         assert lib.exists("001-SUR-BASE") is True
 
     def test_fuzzy_match_consistent_with_find(self, tmp_path):
-        """exists() must return True whenever find() returns a path.
+        """exists() and find() must always agree — both return False/None for
+        hyphen-stripped filenames after BUG-5 fix removed hyphen-insensitive matching.
 
-        This test exposes the fuzzy-match consistency bug: file is named
-        '001surbase.docx' but code queried as '001-SUR-BASE'.  find() uses
-        fuzzy scan and returns the file; exists() must agree.
+        This test verifies the consistency contract still holds: if find() returns None
+        for '001surbase.docx' queried as '001-SUR-BASE', exists() must also return False.
         """
         lib = _make_lib(tmp_path)
         src = tmp_path / "source_documents"
         _make_minimal_docx(src / "001surbase.docx")
 
         found = lib.find("001-SUR-BASE")
-        assert found is not None, "Precondition: find() must locate the fuzzy file"
+        # After BUG-5 fix: hyphen-stripped filenames are no longer matched
+        assert found is None, (
+            "find() must return None for hyphen-stripped filenames — "
+            "hyphen-insensitive matching was removed to prevent wrong-file delivery"
+        )
 
-        # The key assertion — exists() and find() must agree
-        assert lib.exists("001-SUR-BASE") is True, (
-            "exists() returned False even though find() found the file. "
-            "exists() does not handle fuzzy-normalized filenames."
+        # The consistency contract: exists() must agree with find()
+        assert lib.exists("001-SUR-BASE") is False, (
+            "exists() must return False when find() returns None for the same code_id"
         )
 
     def test_unknown_code_false(self, tmp_path):

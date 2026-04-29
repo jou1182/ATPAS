@@ -85,7 +85,7 @@ def test_creates_custom_code(tmp_path):
     reg_path.write_text(json.dumps(registry, ensure_ascii=False), encoding="utf-8")
     handler = GapHandler(str(reg_path))
     code_id = handler.create("أعمال خاصة جداً", "wastewater")
-    assert code_id.startswith("CUSTOM-")
+    assert code_id.startswith("999-CUS-")
     updated = json.loads(reg_path.read_text(encoding="utf-8"))
     assert code_id in updated["codes"]
 
@@ -97,8 +97,8 @@ def test_custom_ids_are_sequential(tmp_path):
     handler = GapHandler(str(reg_path))
     id1 = handler.create("بند أول", "wastewater")
     id2 = handler.create("بند ثاني", "wastewater")
-    assert id1 == "CUSTOM-001"
-    assert id2 == "CUSTOM-002"
+    assert id1 == "999-CUS-001"
+    assert id2 == "999-CUS-002"
 
 
 def test_created_code_has_required_fields(tmp_path):

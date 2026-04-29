@@ -56,7 +56,7 @@ class DependencyResolver:
         code = self._codes.get(code_id)
         if not code:
             return []
-        return list(code.get("dependencies", []))
+        return list(code.get("dependencies") or [])
 
     def resolve_with_order(
         self,
@@ -89,10 +89,13 @@ class DependencyResolver:
         # 3. Build result — walk BOQ order, inject extras before their consumer
         result: List[str] = []
         placed: Set[str] = set()
+        selected_set: Set[str] = set(selected_codes)
 
         for code_id in boq_order:
             if code_id not in self._codes:
                 continue  # unknown code — skip silently
+            if code_id not in selected_set:
+                continue  # user explicitly deselected — honour their choice
             self._inject_deps(code_id, extras, placed, result)
             if code_id not in placed:
                 result.append(code_id)
@@ -112,7 +115,7 @@ class DependencyResolver:
         result: List[str],
     ) -> None:
         """Recursively place transitive dependencies from *extras* before code_id."""
-        for dep in self._codes.get(code_id, {}).get("dependencies", []):
+        for dep in (self._codes.get(code_id, {}).get("dependencies") or []):
             if dep in extras and dep not in placed:
                 self._inject_deps(dep, extras, placed, result)
                 result.append(dep)
@@ -129,7 +132,7 @@ class DependencyResolver:
         if code_id not in self._codes:
             return
         visited.add(code_id)
-        for dep in self._codes[code_id].get("dependencies", []):
+        for dep in (self._codes[code_id].get("dependencies") or []):
             self._walk(dep, visited)
 
     def _sorted(self, code_ids: Set[str] | List[str]) -> List[str]:
