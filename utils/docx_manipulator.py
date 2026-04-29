@@ -28,8 +28,44 @@ def save_docx(doc: Document, path: str | Path) -> None:
 
 
 def new_docx() -> Document:
-    """Return a blank Document."""
-    return Document()
+    """Return a blank Document pre-configured for Arabic RTL content."""
+    doc = Document()
+    _configure_rtl_document(doc)
+    return doc
+
+
+def _configure_rtl_document(doc: Document) -> None:
+    """Set document-level RTL defaults (settings.xml + Normal style).
+
+    Two levels are needed for full compatibility:
+    1. ``<w:bidi>`` in ``settings.xml`` — tells Word the document is bidirectional.
+    2. ``<w:bidi>`` in the Normal paragraph style's ``<w:pPr>`` — makes every
+       paragraph that inherits Normal default to right-to-left.
+    Paragraphs with explicit alignment (e.g. CENTER on the cover) are unaffected
+    because paragraph-level settings override style defaults.
+    """
+    from docx.enum.text import WD_ALIGN_PARAGRAPH as _ALN
+
+    # ── 1. Document settings: mark document as bidirectional ─────────────
+    settings_el = doc.settings.element
+    if settings_el.find(qn("w:bidi")) is None:
+        bidi = OxmlElement("w:bidi")
+        bidi.set(qn("w:val"), "1")
+        settings_el.append(bidi)
+
+    # ── 2. Normal style: default direction = RTL, alignment = RIGHT ──────
+    try:
+        normal = doc.styles["Normal"]
+        pPr = normal.element.get_or_add_pPr()
+        if pPr.find(qn("w:bidi")) is None:
+            b = OxmlElement("w:bidi")
+            b.set(qn("w:val"), "1")
+            pPr.append(b)
+        # Only set if not already defined (don't override explicit overrides)
+        if normal.paragraph_format.alignment is None:
+            normal.paragraph_format.alignment = _ALN.RIGHT
+    except (KeyError, AttributeError):
+        pass
 
 
 # ---------------------------------------------------------------------------

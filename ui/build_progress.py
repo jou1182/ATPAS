@@ -575,19 +575,17 @@ class BuildProgressDialog(QDialog):
 
         try:
             if sys.platform == "win32":
+                # explorer.exe ALWAYS exits with code 1 even on success —
+                # use Popen (fire-and-forget) to avoid the false error.
                 if path.exists():
-                    # /select, highlights the file in the folder
-                    result = subprocess.run(["explorer", f"/select,{path}"], check=False)
+                    subprocess.Popen(["explorer", f"/select,{path}"])
                 else:
-                    result = subprocess.run(["explorer", str(folder)], check=False)
+                    subprocess.Popen(["explorer", str(folder)])
             elif sys.platform == "darwin":
                 cmd = ["open", "-R", str(path)] if path.exists() else ["open", str(folder)]
-                result = subprocess.run(cmd, check=False)
+                subprocess.run(cmd, check=False)
             else:
-                result = subprocess.run(["xdg-open", str(folder)], check=False)
-
-            if result.returncode != 0:
-                raise RuntimeError(f"Open command failed with exit code {result.returncode}")
+                subprocess.run(["xdg-open", str(folder)], check=False)
         except Exception as exc:  # noqa: BLE001
             QMessageBox.warning(self, "تعذّر فتح المجلد", f"تعذّر فتح المجلد:\n{exc}")
 

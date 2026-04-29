@@ -98,8 +98,8 @@ class Builder:
         try:
             cfg = load_json(Path(master_config))
             self._owner_specs: Dict[str, Dict] = cfg.get("owner_specifications", {})
-        except (FileNotFoundError, ValueError):
-            logger.warning("master_config.json not found or invalid — owner names will fall back to owner_id")
+        except (FileNotFoundError, ValueError, OSError):
+            logger.warning("master_config.json not loadable — owner names will fall back to owner_id")
             self._owner_specs = {}
 
     # ------------------------------------------------------------------
@@ -162,6 +162,11 @@ class Builder:
         self._add_toc_placeholder(doc)
         self._add_sections(doc, ordered_codes, project_meta, formatter)
         self._style_applier.apply_style(doc, owner_id)
+
+        # Final RTL pass: ensures ALL paragraphs (including content-library
+        # content and fallback paragraphs without a Formatter) are RTL.
+        # CENTER-aligned cover paragraphs are intentionally left unchanged.
+        self._apply_doc_rtl(doc)
 
         # --- Save ---
         save_docx(doc, output_path)
@@ -333,6 +338,7 @@ class Builder:
         activities = {
             a["code_id"]: a
             for a in project_meta.get("activity_sequence", [])
+            if isinstance(a, dict) and "code_id" in a
         }
 
         for code_id in ordered_codes:
@@ -419,6 +425,24 @@ class Builder:
             return load_json(path)
         except FileNotFoundError:
             return None
+
+    @staticmethod
+    def _apply_doc_rtl(doc: Document) -> None:
+        """Enforce RTL direction on every body paragraph after full assembly.
+
+        Called as the last step before saving — catches:
+        - Paragraphs from content-library ``.docx`` files (may have LTR source).
+        - Fallback paragraphs added directly via ``doc.add_paragraph()`` when
+          no :class:`~engine.formatter.Formatter` is available.
+        - Any paragraphs added by :class:`~engine.style_applier.StyleApplier`.
+
+        CENTER-aligned paragraphs (cover page title/stats) are preserved as-is.
+        """
+        from utils.docx_manipulator import set_rtl
+        for para in doc.paragraphs:
+            set_rtl(para)
+            if para.alignment != WD_ALIGN_PARAGRAPH.CENTER:
+                para.alignment = WD_ALIGN_PARAGRAPH.RIGHT
 
     def _write_audit(
         self,

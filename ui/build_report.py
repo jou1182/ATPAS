@@ -338,10 +338,11 @@ class BuildReportDialog(QDialog):
             return
         try:
             if sys.platform == "win32":
+                # explorer.exe always exits with code 1 — use Popen to avoid false error.
                 if path.exists():
-                    subprocess.run(["explorer", f"/select,{path}"], check=False)
+                    subprocess.Popen(["explorer", f"/select,{path}"])
                 else:
-                    subprocess.run(["explorer", str(folder)], check=False)
+                    subprocess.Popen(["explorer", str(folder)])
             elif sys.platform == "darwin":
                 subprocess.run(["open", str(folder)], check=False)
             else:
