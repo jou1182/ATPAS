@@ -10,6 +10,7 @@ without opening codes_registry.json directly.
 from __future__ import annotations
 
 import copy
+import os
 import re
 from datetime import date
 from pathlib import Path
@@ -40,6 +41,7 @@ from utils.registry_validator import validate_registry
 
 
 _REGISTRY_PATH = Path("codes_registry.json")
+_SOURCE_DOCS_DIR = Path("templates/source_documents")
 _CODE_ID_RE = re.compile(r"^\d{3}-[A-Z]{2,8}-[A-Z]{2,8}$")
 
 
@@ -271,6 +273,19 @@ class CodeManagerDialog(QDialog):
         action_row.addWidget(self._save_btn)
         form_layout.addLayout(action_row)
 
+        word_row = QHBoxLayout()
+        self._word_btn = QPushButton("📄  فتح / إنشاء محتوى Word")
+        self._word_btn.setObjectName("codeManagerWordBtn")
+        self._word_btn.setEnabled(False)
+        self._word_btn.setToolTip(
+            "يفتح ملف Word الخاص بهذا الكود في Microsoft Word.\n"
+            "إن لم يكن الملف موجوداً، يُنشئ قالباً جاهزاً للتحرير."
+        )
+        self._word_btn.clicked.connect(self._open_or_create_docx)
+        word_row.addStretch()
+        word_row.addWidget(self._word_btn)
+        form_layout.addLayout(word_row)
+
         splitter.addWidget(form_panel)
         splitter.addWidget(list_panel)
         splitter.setSizes([650, 330])
@@ -319,6 +334,21 @@ class CodeManagerDialog(QDialog):
                 background: #236040;
                 color: white;
             }
+            QPushButton#codeManagerWordBtn {
+                background: #1F3A56;
+                color: white;
+                border: none;
+                font-weight: 700;
+                min-width: 220px;
+            }
+            QPushButton#codeManagerWordBtn:hover {
+                background: #152433;
+                color: #F5D48B;
+            }
+            QPushButton#codeManagerWordBtn:disabled {
+                background: #C3BBAA;
+                color: #888;
+            }
             """
         )
 
@@ -356,6 +386,7 @@ class CodeManagerDialog(QDialog):
         entry = copy.deepcopy(self._codes.get(code_id, {}))
         self._is_new = False
         self._current_code_id = code_id
+        self._word_btn.setEnabled(True)
         self._code_id.setReadOnly(True)
         self._code_id.setText(code_id)
         self._name_ar.setText(str(entry.get("activity_name_ar", "")))
@@ -378,6 +409,7 @@ class CodeManagerDialog(QDialog):
     def _new_code(self) -> None:
         self._is_new = True
         self._current_code_id = None
+        self._word_btn.setEnabled(False)
         self._code_list.clearSelection()
         self._code_id.setReadOnly(False)
         self._code_id.setText("")
@@ -400,6 +432,7 @@ class CodeManagerDialog(QDialog):
 
     def _clear_form(self) -> None:
         self._current_code_id = None
+        self._word_btn.setEnabled(False)
         self._code_id.setText("")
         self._name_ar.setText("")
         self._name_en.setText("")
@@ -469,6 +502,79 @@ class CodeManagerDialog(QDialog):
         self._select_code(code_id)
         self.data_changed.emit()
         QMessageBox.information(self, "تم الحفظ", f"تم حفظ الكود {code_id} بنجاح.")
+
+    def _open_or_create_docx(self) -> None:
+        """Open the source .docx for the current code in Word.
+
+        If the file does not exist, create a structured Arabic template first,
+        notify the user, then open it.  The file is always opened via
+        os.startfile() which delegates to the system's default .docx handler.
+        """
+        code_id = self._current_code_id
+        if not code_id:
+            return
+
+        _SOURCE_DOCS_DIR.mkdir(parents=True, exist_ok=True)
+        docx_path = _SOURCE_DOCS_DIR / f"{code_id}.docx"
+
+        if not docx_path.exists():
+            self._create_docx_template(code_id, docx_path)
+            QMessageBox.information(
+                self,
+                "تم إنشاء قالب جديد",
+                f"تم إنشاء ملف Word للكود  {code_id}\n\n"
+                f"المسار:\n{docx_path.resolve()}\n\n"
+                "أضف المحتوى الفني واحفظ الملف — سيُدمج تلقائياً في العروض القادمة.",
+            )
+
+        try:
+            os.startfile(str(docx_path.resolve()))
+        except OSError as exc:
+            QMessageBox.warning(
+                self,
+                "تعذّر فتح الملف",
+                f"لم يتمكن النظام من فتح الملف:\n{docx_path}\n\n{exc}",
+            )
+
+    def _create_docx_template(self, code_id: str, path: Path) -> None:
+        """Write a minimal structured Arabic .docx template for code_id."""
+        from docx import Document
+        from docx.enum.text import WD_ALIGN_PARAGRAPH
+        from docx.shared import Pt
+
+        entry = self._codes.get(code_id, {})
+        name_ar = entry.get("activity_name_ar", code_id)
+        name_en = entry.get("activity_name_en", "")
+
+        doc = Document()
+
+        # Heading
+        h = doc.add_heading(f"{code_id}  —  {name_ar}", level=1)
+        h.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+
+        if name_en:
+            sub = doc.add_paragraph(name_en)
+            sub.alignment = WD_ALIGN_PARAGRAPH.LEFT
+            sub.runs[0].font.size = Pt(12)
+            sub.runs[0].italic = True
+
+        doc.add_paragraph()
+
+        # Standard technical sections
+        for section in [
+            "الوصف العام",
+            "المواصفات الفنية",
+            "طريقة التنفيذ",
+            "معايير الجودة والفحص",
+            "ملاحظات خاصة",
+        ]:
+            sh = doc.add_heading(section, level=2)
+            sh.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+            placeholder = doc.add_paragraph("[ أضف المحتوى هنا ]")
+            placeholder.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+            placeholder.runs[0].font.color.rgb = None  # default color
+
+        doc.save(str(path))
 
     def _toggle_status(self) -> None:
         current_status = self._status.currentData()
