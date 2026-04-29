@@ -1,9 +1,16 @@
 # ATPAS Tasks v2.0
 # Al-Rawaf Technical Proposal Automation System
 
-**Updated**: 2026-04-28  
-**Source**: docs/specification.md v3.0 + docs/superpowers/specs/2026-04-28-boq-order-design.md  
-**Total Tasks**: 52 | **Done**: 50 ✅ | **Remaining**: 2
+**Updated**: 2026-04-29  
+**Source**: docs/specification.md v3.0 + 5 World-Class Features (Apr-29)  
+**Total Tasks**: 57 | **Done**: 57 ✅ | **Remaining**: 0 🎉
+
+### 5 ميزات عالمية المستوى (2026-04-29) ✅ DONE
+- [x] F1: BOQ Coverage Report — تقرير تغطية BOQ بعد البناء
+- [x] F2: Dynamic Template Variables — حقول ديناميكية (اسم المشروع، الجهة، التاريخ)
+- [x] F3: Proposal Archive/Search — أرشيف 50 عرض قابل للبحث والتصفية
+- [x] F4: Batch Build — بناء متعدد المشاريع دفعة واحدة
+- [x] F5: Windows Taskbar Progress — شريط تقدم + إشعارات Windows
 
 ---
 
