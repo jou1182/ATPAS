@@ -28,8 +28,25 @@ def save_docx(doc: Document, path: str | Path) -> None:
 
 
 def new_docx() -> Document:
-    """Return a blank Document."""
-    return Document()
+    """Return a blank Document pre-configured for RTL Arabic content.
+
+    Sets the Normal style to right-aligned + bidirectional so every
+    paragraph inherits RTL by default.  Individual paragraphs that need
+    LTR (e.g. English sub-headings) override this at the paragraph level.
+    """
+    doc = Document()
+    # Patch the Normal style so all paragraphs inherit RTL
+    normal_pPr = doc.styles["Normal"].element.get_or_add_pPr()
+    # <w:bidi/> — enable bidirectional (RTL) text
+    if normal_pPr.find(qn("w:bidi")) is None:
+        normal_pPr.append(OxmlElement("w:bidi"))
+    # <w:jc w:val="right"/> — right-align by default
+    jc = normal_pPr.find(qn("w:jc"))
+    if jc is None:
+        jc = OxmlElement("w:jc")
+        normal_pPr.append(jc)
+    jc.set(qn("w:val"), "right")
+    return doc
 
 
 # ---------------------------------------------------------------------------

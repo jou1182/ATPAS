@@ -56,6 +56,16 @@ def main() -> int:
     apply_palette(app)
     app.setStyleSheet(get_stylesheet())
 
+    # ── License check ─────────────────────────────────────────────────
+    from utils.license_manager import is_activated
+    if not is_activated():
+        from PyQt5.QtWidgets import QDialog
+        from ui.activation_dialog import ActivationDialog
+        dlg = ActivationDialog()
+        if dlg.exec_() != QDialog.Accepted:
+            return 0   # user closed without activating
+
+    # ── Main window ────────────────────────────────────────────────────
     window = MainWindow(
         registry_path="codes_registry.json",
         config_path="master_config.json",

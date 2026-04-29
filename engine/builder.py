@@ -23,7 +23,7 @@ from engine.logger import generate_audit_trail
 from engine.style_applier import StyleApplier
 from engine.validator import Validator
 from utils.content_library import ContentLibrary
-from utils.docx_manipulator import new_docx, save_docx
+from utils.docx_manipulator import new_docx, save_docx, set_rtl
 from utils.image_processor import embed_image
 from utils.json_manager import load_json
 
@@ -353,11 +353,14 @@ class Builder:
             phase = activity.get("phase_name_ar", "")
 
             # Section heading — always shown regardless of content source
-            heading_text = f"{code_id}  —  {name_ar}"
+            # Arabic name leads (RTL convention): name_ar — code_id
+            heading_text = f"{name_ar}  —  {code_id}"
             if formatter:
                 formatter.add_heading(doc, heading_text, level=1)
             else:
-                doc.add_heading(heading_text, level=1)
+                h = doc.add_heading(heading_text, level=1)
+                h.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+                set_rtl(h)
 
             # Try content library first
             has_real_content = self._content_lib.insert_into(doc, code_id)
