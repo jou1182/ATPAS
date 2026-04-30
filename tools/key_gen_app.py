@@ -138,7 +138,7 @@ class PasswordDialog(QDialog):
     def __init__(self, font_family: str) -> None:
         super().__init__()
         self.setWindowTitle("ATPAS — Key Generator")
-        self.setFixedSize(420, 260)
+        self.setFixedSize(440, 280)
         self.setWindowFlag(Qt.WindowContextHelpButtonHint, False)
         self.setLayoutDirection(Qt.RightToLeft)
         self._font = font_family
@@ -150,7 +150,7 @@ class PasswordDialog(QDialog):
         root.setContentsMargins(0, 0, 0, 0)
         root.setSpacing(0)
 
-        # Header
+        # ── Header ──────────────────────────────────────────────────────────
         hdr = QWidget()
         hdr.setStyleSheet("""
             background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
@@ -158,56 +158,78 @@ class PasswordDialog(QDialog):
             border-bottom: 3px solid #C9921B;
         """)
         hl = QVBoxLayout(hdr)
-        hl.setContentsMargins(24, 16, 24, 16)
-        t = QLabel("🔑  مولّد أكواد الترخيص")
-        t.setStyleSheet(f"color:#FFF; font-size:16px; font-weight:800; font-family:'{self._font}'; background:transparent;")
-        t.setAlignment(Qt.AlignRight)
-        s = QLabel("ATPAS Developer Tool — For Internal Use Only")
-        s.setStyleSheet(f"color:#C9921B; font-size:10px; font-family:'{self._font}'; background:transparent;")
-        s.setAlignment(Qt.AlignRight)
+        hl.setContentsMargins(24, 16, 24, 14)
+        hl.setSpacing(4)
+
+        t = QLabel("مولّد أكواد الترخيص")
+        t.setStyleSheet(
+            f"color:#FFF; font-size:17px; font-weight:800;"
+            f"font-family:'{self._font}'; background:transparent;"
+        )
+        t.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+
+        s = QLabel("ATPAS  —  Developer Tool  |  For Internal Use Only")
+        s.setStyleSheet(
+            f"color:#C9921B; font-size:10px; font-weight:500;"
+            f"font-family:'{self._font}'; background:transparent;"
+        )
+        s.setLayoutDirection(Qt.LeftToRight)
+        s.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+
         hl.addWidget(t)
         hl.addWidget(s)
         root.addWidget(hdr)
 
-        # Body
+        # ── Body ─────────────────────────────────────────────────────────────
         body = QWidget()
         body.setStyleSheet("background:#F5F0E8;")
         bl = QVBoxLayout(body)
-        bl.setContentsMargins(28, 22, 28, 22)
-        bl.setSpacing(12)
+        bl.setContentsMargins(30, 24, 30, 24)
+        bl.setSpacing(10)
 
-        lbl = QLabel("كلمة مرور المطوّر:")
-        lbl.setStyleSheet(f"font-family:'{self._font}'; font-size:13px; font-weight:700; color:#152433;")
-        lbl.setAlignment(Qt.AlignRight)
+        lbl = QLabel("كلمة مرور المطوّر")
+        lbl.setStyleSheet(
+            f"font-family:'{self._font}'; font-size:13px;"
+            f"font-weight:700; color:#152433;"
+        )
+        lbl.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
         bl.addWidget(lbl)
 
         self._pw = QLineEdit()
         self._pw.setEchoMode(QLineEdit.Password)
         self._pw.setPlaceholderText("أدخل كلمة المرور...")
         self._pw.setAlignment(Qt.AlignRight)
+        self._pw.setFixedHeight(42)
         self._pw.setStyleSheet(f"""
             QLineEdit {{
                 font-family:'{self._font}'; font-size:13px;
                 background:#FFF; border:1.5px solid #C3BBAA;
-                border-radius:6px; padding:9px 12px; color:#121B28;
+                border-radius:7px; padding:0px 12px; color:#121B28;
             }}
-            QLineEdit:focus {{ border-color:#C9921B; }}
+            QLineEdit:focus {{ border-color:#C9921B; border-width:2px; }}
         """)
         self._pw.returnPressed.connect(self._check)
         bl.addWidget(self._pw)
 
         self._err = QLabel("")
         self._err.setAlignment(Qt.AlignCenter)
-        self._err.setStyleSheet(f"color:#B03030; font-family:'{self._font}'; font-size:12px;")
+        self._err.setFixedHeight(20)
+        self._err.setStyleSheet(
+            f"color:#B03030; font-family:'{self._font}'; font-size:12px;"
+        )
         bl.addWidget(self._err)
 
-        btn = QPushButton("دخول  ←")
+        bl.addSpacing(4)
+
+        btn = QPushButton("دخول")
         btn.setCursor(Qt.PointingHandCursor)
+        btn.setFixedHeight(44)
         btn.setStyleSheet(f"""
             QPushButton {{
-                font-family:'{self._font}'; font-size:13px; font-weight:800;
+                font-family:'{self._font}'; font-size:14px; font-weight:800;
                 background:#1C3045; color:#FFF; border:none;
-                border-radius:7px; padding:11px;
+                border-radius:8px; padding:0px;
+                letter-spacing:1px;
             }}
             QPushButton:hover   {{ background:#2A4A63; }}
             QPushButton:pressed {{ background:#152433; }}
@@ -300,10 +322,19 @@ class KeyGenWindow(QMainWindow):
         lay.setContentsMargins(24, 0, 24, 0)
 
         left = QVBoxLayout()
-        t = QLabel("🔑  مولّد أكواد الترخيص — ATPAS")
-        t.setStyleSheet(f"color:#FFF; font-size:18px; font-weight:800; font-family:'{self._font}'; background:transparent;")
-        s = QLabel("Al-Rawaf Contracting  ·  Developer Internal Tool  ·  لا توزَّع هذه الأداة")
-        s.setStyleSheet(f"color:#C9921B; font-size:10px; font-family:'{self._font}'; background:transparent;")
+        left.setSpacing(3)
+        t = QLabel("مولّد أكواد الترخيص — ATPAS")
+        t.setStyleSheet(
+            f"color:#FFF; font-size:18px; font-weight:800;"
+            f"font-family:'{self._font}'; background:transparent;"
+        )
+        t.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        s = QLabel("Al-Rawaf Contracting  |  Developer Internal Tool  |  لا توزَّع هذه الأداة")
+        s.setStyleSheet(
+            f"color:#C9921B; font-size:10px; font-weight:500;"
+            f"font-family:'{self._font}'; background:transparent;"
+        )
+        s.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
         left.addWidget(t)
         left.addWidget(s)
 
