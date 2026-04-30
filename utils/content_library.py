@@ -202,33 +202,47 @@ def _copy_docx_body(source_path: Path, target_doc: Document) -> None:
     Deep-copy all body elements from source .docx into target_doc,
     re-mapping image relationships so embedded images are preserved.
     """
+    from docx.opc.part import Part
+    from docx.opc.packuri import PackURI
+
     source = Document(str(source_path))
     target_body = target_doc.element.body
     target_part = target_doc.part
 
-    # Build a map of image relationships in source
+    # Build a map of image relationships in source.
+    # Each image gets a unique partname (counter-based) to prevent collisions
+    # when multiple source files contain images named image1.png, image2.png…
     image_map: Dict[str, str] = {}
-    try:
-        for rel_id, rel in source.part.rels.items():
-            if "image" in rel.reltype:
-                # Add the image to the target document part and record new rId
-                image_data = rel.target_part.blob
-                image_ext = rel.target_part.content_type.split("/")[-1]
-                from docx.opc.part import Part
-                from docx.opc.constants import RELATIONSHIP_TYPE as RT
-                new_part = target_part._package.part_factory(
-                    rel.target_part.partname,
-                    rel.target_part.content_type,
-                    image_data,
-                )
-                new_rel_id = target_part.relate_to(new_part, rel.reltype)
-                image_map[rel_id] = new_rel_id
-    except Exception as exc:
-        logger.warning(
-            "Image relationship mapping failed for %s (%s) — "
-            "text content will copy but embedded images may be lost",
-            source_path.name, exc,
-        )
+    _img_counter = 0
+    for rel_id, rel in source.part.rels.items():
+        if "image" not in rel.reltype:
+            continue
+        try:
+            image_data = rel.target_part.blob
+            content_type = rel.target_part.content_type
+            # Normalise extension
+            ext = content_type.split("/")[-1].lower()
+            if ext == "jpeg":
+                ext = "jpg"
+            elif ext == "x-emf":
+                ext = "emf"
+            elif ext == "x-wmf":
+                ext = "wmf"
+
+            # Unique partname — avoids collisions across multiple source files
+            _img_counter += 1
+            unique_id = f"{abs(hash(source_path))}_{_img_counter}"
+            new_partname = PackURI(f"/word/media/atpas_{unique_id}.{ext}")
+
+            new_part = Part(new_partname, content_type, image_data)
+            new_rel_id = target_part.relate_to(new_part, rel.reltype)
+            image_map[rel_id] = new_rel_id
+            logger.debug("Mapped image %s -> %s (%s)", rel_id, new_rel_id, new_partname)
+        except Exception as exc:
+            logger.warning(
+                "Skipping image %s in %s — %s: %s",
+                rel_id, source_path.name, type(exc).__name__, exc,
+            )
 
     # Deep-copy body elements (paragraphs, tables, etc.)
     for element in source.element.body:

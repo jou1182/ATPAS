@@ -2,7 +2,7 @@
 **التاريخ:** 2026-04-27  
 **الإصدار:** 1.0  
 **المسؤول:** د. يوسف سليم  
-**الحالة:** موافق عليه ✅ — جاهز للتطوير
+**الحالة:** مُنفَّذ ✅ — `engine/boq_importer.py` · `engine/boq_matcher.py` · `engine/gap_handler.py` · `ui/boq_review_panel.py`
 
 ---
 
