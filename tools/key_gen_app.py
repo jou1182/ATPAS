@@ -462,13 +462,18 @@ class KeyGenWindow(QMainWindow):
         lay.addWidget(self._key_display)
 
         btn_row = QHBoxLayout()
-        copy_btn = self._make_btn("📋 نسخ", "#C9921B", width=80, height=36, font_size=12)
+        copy_btn = self._make_btn("📋 نسخ الكود", "#C9921B", width=100, height=36, font_size=12)
         copy_btn.clicked.connect(self._copy_key)
 
-        wa_btn = self._make_btn("💬 واتساب", "#25D366", width=110, height=36, font_size=12)
+        copy_msg_btn = self._make_btn("📩 نسخ الرسالة", "#2B4A63", width=120, height=36, font_size=12)
+        copy_msg_btn.clicked.connect(self._copy_whatsapp_msg)
+        self._copy_msg_btn = copy_msg_btn
+
+        wa_btn = self._make_btn("💬 واتساب", "#25D366", width=100, height=36, font_size=12)
         wa_btn.clicked.connect(self._send_whatsapp)
 
         btn_row.addWidget(copy_btn)
+        btn_row.addWidget(copy_msg_btn)
         btn_row.addWidget(wa_btn)
         btn_row.addStretch()
         lay.addLayout(btn_row)
@@ -655,27 +660,46 @@ class KeyGenWindow(QMainWindow):
             btn.setText("✅ تم النسخ")
             QTimer.singleShot(1500, lambda: btn.setText(orig))
 
-    def _send_whatsapp(self) -> None:
-        if not self._last_key:
-            QMessageBox.information(self, "تنبيه", "ولّد الكود أولاً ثم اضغط واتساب.")
-            return
+    def _build_whatsapp_msg(self) -> str:
+        """يبني نص الرسالة الجاهزة للإرسال عبر واتساب أو أي تطبيق."""
         customer = self._name_input.text().strip() or "عزيزي العميل"
         _, days  = DURATIONS[self._dur_combo.currentIndex()]
         expiry   = (datetime.now() + timedelta(days=days)).strftime("%Y-%m-%d")
-        msg = (
+        label    = DURATIONS[self._dur_combo.currentIndex()][0].strip()
+        return (
             f"السلام عليكم {customer}،\n\n"
             f"شكراً لاشترائك نظام ATPAS.\n\n"
             f"كود الترخيص الخاص بجهازك:\n"
             f"{self._last_key}\n\n"
+            f"نوع الترخيص: {label}\n"
             f"صالح حتى: {expiry}\n\n"
             f"خطوات التفعيل:\n"
-            f"1. افتح البرنامج\n"
-            f"2. في نافذة التفعيل، الصق الكود أعلاه\n"
-            f"3. اضغط «تفعيل البرنامج»\n\n"
+            f"١. افتح البرنامج ATPAS.exe\n"
+            f"٢. في نافذة التفعيل، الصق الكود أعلاه\n"
+            f"٣. اضغط «تفعيل البرنامج»\n\n"
             f"ملاحظة: هذا الكود يعمل على جهازك الحالي فقط.\n"
+            f"للدعم: jou1182@gmail.com\n\n"
             f"مع تحيات فريق الرواف 🏗"
         )
+
+    def _copy_whatsapp_msg(self) -> None:
+        """ينسخ رسالة واتساب الجاهزة إلى الحافظة بدون فتح المتصفح."""
+        if not self._last_key:
+            QMessageBox.information(self, "تنبيه", "ولّد الكود أولاً ثم اضغط نسخ الرسالة.")
+            return
+        msg = self._build_whatsapp_msg()
+        QApplication.clipboard().setText(msg)
+        btn = self._copy_msg_btn
+        orig = btn.text()
+        btn.setText("✅ تم نسخ الرسالة")
+        QTimer.singleShot(2000, lambda: btn.setText(orig))
+
+    def _send_whatsapp(self) -> None:
+        if not self._last_key:
+            QMessageBox.information(self, "تنبيه", "ولّد الكود أولاً ثم اضغط واتساب.")
+            return
         import urllib.parse
+        msg = self._build_whatsapp_msg()
         webbrowser.open(f"https://wa.me/?text={urllib.parse.quote(msg)}")
 
     # ── History table ──────────────────────────────────────────────────────

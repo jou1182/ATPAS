@@ -69,6 +69,51 @@ def _configure_rtl_document(doc: Document) -> None:
 
 
 # ---------------------------------------------------------------------------
+# Trial watermark
+# ---------------------------------------------------------------------------
+
+def add_trial_watermark(doc: Document) -> None:
+    """
+    يضيف إشعار «نسخة تجريبية» في نهاية المستند عند استخدام ترخيص تجريبي (يوم واحد).
+    يظهر كفاصل واضح في نهاية الوثيقة حتى لا تُستخدم في مشاريع حقيقية.
+    """
+    from docx.enum.text import WD_ALIGN_PARAGRAPH
+
+    # سطر فاصل
+    sep = doc.add_paragraph()
+    sep.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    run_sep = sep.add_run("─" * 55)
+    run_sep.font.color.rgb = RGBColor(0xCC, 0x00, 0x00)
+    run_sep.font.size = Pt(9)
+
+    # نص التحذير
+    p = doc.add_paragraph()
+    p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    run = p.add_run("⚠  نسخة تجريبية — TRIAL VERSION  ⚠")
+    run.bold = True
+    run.font.size = Pt(13)
+    run.font.color.rgb = RGBColor(0xCC, 0x00, 0x00)
+
+    # تفاصيل
+    note = doc.add_paragraph()
+    note.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    run_note = note.add_run(
+        "هذه الوثيقة صادرة من نسخة تجريبية مجانية من نظام ATPAS.\n"
+        "للحصول على نسخة كاملة تواصل مع المطوّر: jou1182@gmail.com"
+    )
+    run_note.font.size = Pt(10)
+    run_note.font.color.rgb = RGBColor(0x88, 0x00, 0x00)
+    run_note.font.italic = True
+
+    # سطر فاصل سفلي
+    sep2 = doc.add_paragraph()
+    sep2.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    run_sep2 = sep2.add_run("─" * 55)
+    run_sep2.font.color.rgb = RGBColor(0xCC, 0x00, 0x00)
+    run_sep2.font.size = Pt(9)
+
+
+# ---------------------------------------------------------------------------
 # Paragraph extraction
 # ---------------------------------------------------------------------------
 

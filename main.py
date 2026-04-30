@@ -3,9 +3,16 @@
 
 """ATPAS — نقطة الدخول الرئيسية للتطبيق المجمّع (EXE)."""
 
-import sys
+import logging
 import os
+import sys
 from pathlib import Path
+
+# ── رقم الإصدار — عدّله عند كل إصدار جديد ────────────────────────────────
+APP_VERSION = "1.0.0"
+# ─────────────────────────────────────────────────────────────────────────────
+
+_EXPIRY_WARNING_DAYS = 7   # عدد الأيام التي يُظهَر فيها التحذير قبل الانتهاء
 
 
 def _fix_working_dir() -> None:
@@ -19,16 +26,30 @@ def _fix_working_dir() -> None:
         os.chdir(sys._MEIPASS)  # type: ignore[attr-defined]
 
 
+def _setup_logging() -> None:
+    """إعداد نظام تسجيل الأخطاء في %APPDATA%/ATPAS/logs/atpas.log."""
+    try:
+        logs_dir = Path(os.environ.get("APPDATA", Path.home())) / "ATPAS" / "logs"
+        from engine.logger import setup_logging
+        setup_logging(logs_dir=logs_dir, level=logging.INFO)
+        logging.getLogger("atpas.main").info(
+            "ATPAS v%s started — logs: %s", APP_VERSION, logs_dir
+        )
+    except Exception:
+        pass   # لا يوقف البرنامج إذا فشل الـ logging
+
+
 def main() -> int:
     _fix_working_dir()
+    _setup_logging()
 
     # ── DPI: يجب إعداده قبل إنشاء QApplication ─────────────────────────
     # PassThrough يمنع تقريب عامل التكبير — يعطي صورة حادة على كل شاشة
     os.environ.setdefault("QT_SCALE_FACTOR_ROUNDING_POLICY", "PassThrough")
     os.environ.setdefault("QT_AUTO_SCREEN_SCALE_FACTOR", "1")
 
-    from PyQt5.QtWidgets import QApplication
-    from PyQt5.QtCore import Qt
+    from PyQt5.QtCore import Qt, QTimer
+    from PyQt5.QtWidgets import QApplication, QMessageBox
     from ui.main_window import MainWindow
 
     QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
@@ -37,7 +58,7 @@ def main() -> int:
     app = QApplication(sys.argv)
     app.setApplicationName("ATPAS")
     app.setApplicationDisplayName("نظام بناء العروض الفنية - الرواف")
-    app.setApplicationVersion("3.0.0")
+    app.setApplicationVersion(APP_VERSION)
     app.setOrganizationName("Al-Rawaf Contracting")
 
     # ── Apply theme ────────────────────────────────────────────────────
@@ -55,6 +76,10 @@ def main() -> int:
         dlg = ActivationDialog(message=license_status["message"])
         if dlg.exec_() != ActivationDialog.Accepted or not dlg.was_activated():
             return 0   # المستخدم أغلق شاشة التفعيل → لا يفتح البرنامج
+        # أعد قراءة الترخيص بعد التفعيل
+        license_status = check_saved_license()
+
+    days_left = license_status.get("days_left")
 
     # ── فتح النافذة الرئيسية ───────────────────────────────────────────
     window = MainWindow(
@@ -62,6 +87,23 @@ def main() -> int:
         config_path="master_config.json",
     )
     window.show()
+
+    # ── تحذير انتهاء الترخيص (يظهر بعد 800ms من فتح النافذة) ──────────
+    if days_left is not None and 0 < days_left <= _EXPIRY_WARNING_DAYS:
+        unit = "يوم" if days_left > 1 else "يوم واحد"
+        msg = (
+            f"⚠️  ترخيصك ينتهي خلال {days_left} {unit}!\n\n"
+            "تواصل مع المطوّر لتجديد ترخيصك قبل انقطاع الخدمة.\n\n"
+            "📧  البريد: jou1182@gmail.com"
+        )
+        QTimer.singleShot(
+            800,
+            lambda: QMessageBox.warning(window, "تنبيه — انتهاء الترخيص قريباً", msg),
+        )
+        logging.getLogger("atpas.main").warning(
+            "License expiring in %d day(s).", days_left
+        )
+
     return app.exec_()
 
 

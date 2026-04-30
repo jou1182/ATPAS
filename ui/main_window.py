@@ -91,7 +91,17 @@ def _safe_int(value: Any, default: int) -> int:
     except (TypeError, ValueError):
         return default
 
-_DEFAULT_WINDOW_TITLE_AR = "نظام بناء العروض الفنية - الرواف"
+def _get_version() -> str:
+    """يجلب رقم الإصدار من QApplication إن كان متاحاً."""
+    try:
+        from PyQt5.QtWidgets import QApplication
+        v = QApplication.applicationVersion()
+        return f" v{v}" if v else ""
+    except Exception:
+        return ""
+
+
+_DEFAULT_WINDOW_TITLE_AR = "نظام بناء العروض الفنية — الرواف"
 
 # Rotating status bar tips — shown every ~10 s during idle
 _STATUS_TIPS: list[str] = [
@@ -224,7 +234,7 @@ class MainWindow(QMainWindow):
 
     def _configure_window(self) -> None:
         ui_cfg = self.config_data.get("ui_config", {})
-        title = ui_cfg.get("window_title") or _DEFAULT_WINDOW_TITLE_AR
+        title = ui_cfg.get("window_title") or (_DEFAULT_WINDOW_TITLE_AR + _get_version())
         width = max(_safe_int(ui_cfg.get("window_width"), 1400), 1280)
         height = max(_safe_int(ui_cfg.get("window_height"), 860), 700)
 

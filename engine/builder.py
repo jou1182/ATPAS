@@ -23,7 +23,7 @@ from engine.logger import generate_audit_trail
 from engine.style_applier import StyleApplier
 from engine.validator import Validator
 from utils.content_library import ContentLibrary
-from utils.docx_manipulator import new_docx, save_docx, set_rtl
+from utils.docx_manipulator import add_trial_watermark, new_docx, save_docx, set_rtl
 from utils.image_processor import embed_image
 from utils.json_manager import load_json
 
@@ -167,6 +167,16 @@ class Builder:
         # content and fallback paragraphs without a Formatter) are RTL.
         # CENTER-aligned cover paragraphs are intentionally left unchanged.
         self._apply_doc_rtl(doc)
+
+        # --- علامة مائية للنسخة التجريبية (ترخيص يوم واحد) ---
+        try:
+            from utils.license_manager import check_saved_license
+            lic = check_saved_license()
+            if lic.get("days_left") is not None and lic["days_left"] <= 1:
+                add_trial_watermark(doc)
+                logger.info("Trial watermark added (days_left=%s)", lic["days_left"])
+        except Exception:
+            pass   # لا يوقف البناء إذا فشل فحص الترخيص
 
         # --- Save ---
         save_docx(doc, output_path)
