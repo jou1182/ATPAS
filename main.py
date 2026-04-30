@@ -3,24 +3,9 @@
 
 """ATPAS — نقطة الدخول الرئيسية للتطبيق المجمّع (EXE)."""
 
-import json
 import sys
 import os
 from pathlib import Path
-
-
-def _read_version() -> str:
-    """Read the application version from version.json.
-
-    Falls back to "unknown" so a missing file never crashes startup.
-    version.json is the single source of truth — never hardcode the version
-    string inside Python files.
-    """
-    try:
-        with open("version.json", encoding="utf-8") as f:
-            return str(json.load(f).get("version", "unknown"))
-    except (OSError, ValueError, KeyError):
-        return "unknown"
 
 
 def _fix_working_dir() -> None:
@@ -37,6 +22,11 @@ def _fix_working_dir() -> None:
 def main() -> int:
     _fix_working_dir()
 
+    # ── DPI: يجب إعداده قبل إنشاء QApplication ─────────────────────────
+    # PassThrough يمنع تقريب عامل التكبير — يعطي صورة حادة على كل شاشة
+    os.environ.setdefault("QT_SCALE_FACTOR_ROUNDING_POLICY", "PassThrough")
+    os.environ.setdefault("QT_AUTO_SCREEN_SCALE_FACTOR", "1")
+
     from PyQt5.QtWidgets import QApplication
     from PyQt5.QtCore import Qt
     from ui.main_window import MainWindow
@@ -47,7 +37,7 @@ def main() -> int:
     app = QApplication(sys.argv)
     app.setApplicationName("ATPAS")
     app.setApplicationDisplayName("نظام بناء العروض الفنية - الرواف")
-    app.setApplicationVersion(_read_version())
+    app.setApplicationVersion("3.0.0")
     app.setOrganizationName("Al-Rawaf Contracting")
 
     # ── Apply theme ────────────────────────────────────────────────────
@@ -56,16 +46,17 @@ def main() -> int:
     apply_palette(app)
     app.setStyleSheet(get_stylesheet())
 
-    # ── License check ─────────────────────────────────────────────────
-    from utils.license_manager import is_activated
-    if not is_activated():
-        from PyQt5.QtWidgets import QDialog
-        from ui.activation_dialog import ActivationDialog
-        dlg = ActivationDialog()
-        if dlg.exec_() != QDialog.Accepted:
-            return 0   # user closed without activating
+    # ── التحقق من الترخيص ──────────────────────────────────────────────
+    from utils.license_manager import check_saved_license
+    from ui.activation_dialog import ActivationDialog
 
-    # ── Main window ────────────────────────────────────────────────────
+    license_status = check_saved_license()
+    if not license_status["valid"]:
+        dlg = ActivationDialog(message=license_status["message"])
+        if dlg.exec_() != ActivationDialog.Accepted or not dlg.was_activated():
+            return 0   # المستخدم أغلق شاشة التفعيل → لا يفتح البرنامج
+
+    # ── فتح النافذة الرئيسية ───────────────────────────────────────────
     window = MainWindow(
         registry_path="codes_registry.json",
         config_path="master_config.json",

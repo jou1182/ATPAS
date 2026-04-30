@@ -183,7 +183,8 @@ class HeaderWidget(QWidget):
         super().__init__(parent)
         self.setObjectName("appHeader")
         self.setAttribute(Qt.WA_StyledBackground, True)
-        self.setFixedHeight(72)
+        self.setMinimumHeight(60)   # مرن — لا يُقطع على شاشات DPI عالية
+        self.setMaximumHeight(90)
         self.setLayoutDirection(Qt.RightToLeft)
         self._build_info = _load_build_info()
         self._setup(active_codes)
@@ -200,8 +201,8 @@ class HeaderWidget(QWidget):
         """)
 
         layout = QHBoxLayout(self)
-        layout.setContentsMargins(20, 0, 20, 0)
-        layout.setSpacing(16)
+        layout.setContentsMargins(12, 4, 12, 4)
+        layout.setSpacing(6)
 
         # ── شعار هندسي ─────────────────────────────────────────────────
         logo = LogoMark(self)
@@ -278,9 +279,10 @@ class HeaderWidget(QWidget):
                 background: transparent;
                 border: 1px solid {border};
                 border-radius: 5px;
-                padding: 5px 14px;
-                font-size: 12px;
+                padding: 4px 10px;
+                font-size: 11px;
                 font-weight: 700;
+                min-width: 70px;
             }}
             QPushButton:hover {{
                 background: {hover_bg};

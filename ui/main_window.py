@@ -225,12 +225,12 @@ class MainWindow(QMainWindow):
     def _configure_window(self) -> None:
         ui_cfg = self.config_data.get("ui_config", {})
         title = ui_cfg.get("window_title") or _DEFAULT_WINDOW_TITLE_AR
-        width = max(_safe_int(ui_cfg.get("window_width"), 1280), 960)
-        height = max(_safe_int(ui_cfg.get("window_height"), 860), 640)
+        width = max(_safe_int(ui_cfg.get("window_width"), 1400), 1280)
+        height = max(_safe_int(ui_cfg.get("window_height"), 860), 700)
 
         self.setWindowTitle(title)
         self.resize(width, height)
-        self.setMinimumSize(960, 640)
+        self.setMinimumSize(1280, 700)   # يضمن ظهور كل أزرار الهيدر
         self.setLayoutDirection(Qt.RightToLeft)
 
         self.setStatusBar(QStatusBar(self))

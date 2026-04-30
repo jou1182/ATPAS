@@ -1,152 +1,297 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-
 """
-ATPAS Machine-Bound License Manager
+نظام ترخيص ATPAS — License Manager
 ====================================
-كل ترخيص مرتبط بجهاز واحد فقط عبر بصمة رقمية فريدة.
-لا يمكن نقل الترخيص أو مشاركته — من اشترى، يشغّل على جهازه فقط.
+آلية الحماية:
+  - كل كود مربوط بـ Hardware ID فريد للجهاز (Machine GUID + MAC)
+  - الكود يحتوي على تاريخ الانتهاء مُضمَّن داخله
+  - التحقق يتم بالكامل بدون إنترنت (Offline)
+  - لا يعمل الكود على جهاز غير الجهاز الأصلي
 
-تدفق العمل:
-  1. المستخدم يشتري الكورس/البرنامج
-  2. يرسل Machine ID (16 حرف يظهر في نافذة التفعيل)
-  3. المطور يُولّد License Key باستخدام generate_key_for_machine()
-  4. المستخدم يُدخل الـ Key → يُفعَّل البرنامج على جهازه
-  5. أي جهاز آخر → مفتاح مختلف → لا يعمل
+تنسيق الكود:
+  ATPAS-XXXX-XXXXXXXXXXXX
+  │     │    └─ 12 حرف = توقيع HMAC
+  │     └────── 4 حرف  = تاريخ الانتهاء (hex days منذ 2024-01-01)
+  └──────────── بادئة ثابتة
 
-الملف المحفوظ: license.dat (في مجلد التطبيق)
+مثال:  ATPAS-0168-A3F29C1B4D7E
 """
 
 from __future__ import annotations
 
 import hashlib
+import hmac
+import json
+import os
 import platform
+import sys
 import uuid
+from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Tuple
 
-# ---------------------------------------------------------------------------
-# Internal secret — NEVER change after first release (breaks existing keys)
-# Obfuscated: XOR each byte with 0x5A so it doesn't appear as plain text
-# in strings dumps or memory scans.
-# ---------------------------------------------------------------------------
-_OBF = [
-    0x1B, 0x2E, 0x37, 0x12, 0x0B, 0x24, 0x37, 0x00,
-    0x18, 0x26, 0x3E, 0x11, 0x08, 0x37, 0x28, 0x3F,
-    0x25, 0x3C, 0x38, 0x09, 0x1D, 0x3B, 0x38, 0x0E,
-]
-_ATPAS_SECRET: str = "".join(chr(b ^ 0x5A) for b in _OBF)
+# ── المفتاح السري — مقسّم لمنع الاكتشاف السهل ──────────────────────────
+# (في الإنتاج: يُشفَّر أو يُوزَّع على أجزاء أكثر)
+_P1 = b"\x52\x61\x77\x61\x66"      # Rawaf
+_P2 = b"\x2d\x41\x54\x50\x41\x53"  # -ATPAS
+_P3 = b"\x2d\x4c\x49\x43\x2d"      # -LIC-
+_P4 = b"\x32\x30\x32\x34\x58\x39"  # 2024X9
+_HMAC_KEY: bytes = _P1 + _P2 + _P3 + _P4
 
-_LICENSE_FILE = Path("license.dat")
+# ── نقطة مرجعية للتاريخ ──────────────────────────────────────────────────
+_EPOCH = datetime(2024, 1, 1)
+
+# ── مسار ملف الترخيص المحفوظ ─────────────────────────────────────────────
+def _license_path() -> Path:
+    """يُخزَّن في %APPDATA%/ATPAS/license.dat على Windows."""
+    if sys.platform == "win32":
+        base = Path(os.environ.get("APPDATA", Path.home()))
+    else:
+        base = Path.home() / ".config"
+    folder = base / "ATPAS"
+    folder.mkdir(parents=True, exist_ok=True)
+    return folder / "license.dat"
 
 
-# ---------------------------------------------------------------------------
-# Machine fingerprint
-# ---------------------------------------------------------------------------
+# ════════════════════════════════════════════════════════════════════════════
+# بصمة الجهاز
+# ════════════════════════════════════════════════════════════════════════════
 
-def get_machine_id() -> str:
-    """Return a stable 16-character uppercase fingerprint for this machine.
-
-    Combines:
-      - Network adapter MAC address  (hardware)
-      - Windows MachineGuid registry (OS installation identity)
-      - Processor string             (partial, for extra entropy)
-
-    The result is hashed so none of the raw values are exposed.
+def get_hardware_id() -> str:
     """
-    components: list[str] = []
-
-    # 1. MAC address (survives OS reinstall on same hardware)
-    components.append(str(uuid.getnode()))
-
-    # 2. Windows Machine GUID (survives hardware swaps on same OS install)
-    try:
-        import winreg  # noqa: PLC0415
-        key = winreg.OpenKey(
-            winreg.HKEY_LOCAL_MACHINE,
-            r"SOFTWARE\Microsoft\Cryptography",
-        )
-        guid, _ = winreg.QueryValueEx(key, "MachineGuid")
-        components.append(str(guid))
-    except Exception:
-        components.append("no-guid")
-
-    # 3. Processor (partial — binds to CPU architecture)
-    components.append(platform.processor()[:24])
-
-    raw = "|".join(components)
-    digest = hashlib.sha256(raw.encode("utf-8")).hexdigest().upper()
-    return f"{digest[0:4]}-{digest[4:8]}-{digest[8:12]}-{digest[12:16]}"
-
-
-# ---------------------------------------------------------------------------
-# Key generation & verification
-# ---------------------------------------------------------------------------
-
-def generate_key_for_machine(machine_id: str) -> str:
-    """Developer tool: generate a valid license key for a given Machine ID.
-
-    Run this on the developer's side after the customer sends their
-    Machine ID.  Never ship this function in a way that's easy to call —
-    it's the "key factory".
-
-    Example:
-        >>> generate_key_for_machine("A1B2-C3D4-E5F6-G7H8")
-        'ATPAS-XXXXX-XXXXX-XXXXX-XXXXX'
+    يولّد معرّفاً فريداً وثابتاً لهذا الجهاز.
+    يجمع بين: Windows Machine GUID + MAC Address + اسم الجهاز.
+    النتيجة: XXXX-XXXX-XXXX-XXXX (16 حرف hex بصيغة مقسّمة)
     """
-    machine_id = machine_id.replace("-", "").upper()
-    raw = f"{machine_id}:{_ATPAS_SECRET}:ATPAS-2026"
-    digest = hashlib.sha256(raw.encode("utf-8")).hexdigest().upper()
-    return f"ATPAS-{digest[0:5]}-{digest[5:10]}-{digest[10:15]}-{digest[15:20]}"
+    parts: list[str] = []
+
+    # 1. Windows Machine GUID — الأكثر ثباتاً
+    if sys.platform == "win32":
+        try:
+            import winreg  # type: ignore[import]
+            key = winreg.OpenKey(
+                winreg.HKEY_LOCAL_MACHINE,
+                r"SOFTWARE\Microsoft\Cryptography",
+            )
+            guid, _ = winreg.QueryValueEx(key, "MachineGuid")
+            winreg.CloseKey(key)
+            parts.append(str(guid))
+        except Exception:
+            pass
+
+    # 2. MAC Address
+    mac = uuid.getnode()
+    parts.append(f"{mac:012x}")
+
+    # 3. اسم الجهاز
+    parts.append(platform.node().lower())
+
+    raw = "|".join(parts)
+    digest = hashlib.sha256(raw.encode("utf-8")).hexdigest()
+    hw = digest[:16].upper()
+    return f"{hw[0:4]}-{hw[4:8]}-{hw[8:12]}-{hw[12:16]}"
 
 
-def verify_license(license_key: str) -> bool:
-    """Return True if license_key is valid for THIS machine."""
-    machine_id = get_machine_id()
-    expected = generate_key_for_machine(machine_id)
-    return license_key.strip().upper() == expected.upper()
+# ════════════════════════════════════════════════════════════════════════════
+# توليد الكود (يستخدمه المطوّر فقط — لا يُضمَّن في EXE العميل)
+# ════════════════════════════════════════════════════════════════════════════
 
+def generate_key(hardware_id: str, days_valid: int = 365) -> str:
+    """
+    يولّد كود ترخيص مربوط بـ hardware_id وصالح لمدة days_valid يوماً.
 
-# ---------------------------------------------------------------------------
-# Activation state
-# ---------------------------------------------------------------------------
-
-def is_activated() -> bool:
-    """Return True if a valid license is stored for this machine."""
-    if not _LICENSE_FILE.exists():
-        return False
-    try:
-        stored = _LICENSE_FILE.read_text(encoding="utf-8").strip()
-        return verify_license(stored)
-    except Exception:
-        return False
-
-
-def activate(license_key: str) -> Tuple[bool, str]:
-    """Attempt activation with the given key.
+    Args:
+        hardware_id: بصمة جهاز العميل (يحصل عليها من شاشة التفعيل)
+        days_valid:  مدة الصلاحية بالأيام (افتراضي: 365)
 
     Returns:
-        (True,  success_message_ar)  on success
-        (False, error_message_ar)    on failure
+        كود بصيغة ATPAS-XXXX-XXXXXXXXXXXX
     """
-    if verify_license(license_key):
-        try:
-            _LICENSE_FILE.write_text(
-                license_key.strip().upper(), encoding="utf-8"
-            )
-        except OSError as exc:
-            return False, f"تعذّر حفظ ملف الترخيص: {exc}"
-        return True, "تم التفعيل بنجاح ✅\nمرحباً بك في نظام ATPAS."
-    return (
-        False,
-        "مفتاح الترخيص غير صحيح ❌\n"
-        "تأكد من:\n"
-        "  • نسخ المفتاح كاملاً دون مسافات إضافية\n"
-        "  • أن المفتاح صدر لهذا الجهاز تحديداً",
-    )
+    hw_clean = hardware_id.replace("-", "").upper()
+
+    # تاريخ الانتهاء كعدد أيام منذ _EPOCH
+    expiry_dt = datetime.now() + timedelta(days=days_valid)
+    expiry_days = (expiry_dt - _EPOCH).days           # عدد صحيح
+    expiry_hex  = f"{expiry_days:04X}"                # 4 حروف hex
+
+    # التوقيع: HMAC(secret, hw + expiry_hex)
+    payload = f"{hw_clean}:{expiry_hex}".encode("utf-8")
+    sig = hmac.new(_HMAC_KEY, payload, hashlib.sha256).hexdigest()[:12].upper()
+
+    return f"ATPAS-{expiry_hex}-{sig}"
 
 
-def revoke() -> None:
-    """Remove the stored license (for testing / uninstall)."""
-    if _LICENSE_FILE.exists():
-        _LICENSE_FILE.unlink(missing_ok=True)
+# ════════════════════════════════════════════════════════════════════════════
+# التحقق من الكود (يعمل على جهاز العميل)
+# ════════════════════════════════════════════════════════════════════════════
+
+def _parse_key(license_key: str) -> tuple[str, str] | None:
+    """يفكّك الكود → (expiry_hex, sig) أو None إذا كان التنسيق خاطئاً."""
+    key = license_key.strip().upper().replace(" ", "")
+    if key.startswith("ATPAS-"):
+        key = key[6:]
+    parts = key.split("-")
+    if len(parts) != 2 or len(parts[0]) != 4 or len(parts[1]) != 12:
+        return None
+    return parts[0], parts[1]
+
+
+def verify_key(license_key: str, hardware_id: str | None = None) -> dict:
+    """
+    يتحقق من صحة كود الترخيص لهذا الجهاز.
+
+    Returns:
+        {
+          "valid": bool,
+          "message": str,          # رسالة عربية للمستخدم
+          "expiry": datetime | None,
+          "days_left": int | None,
+        }
+    """
+    if hardware_id is None:
+        hardware_id = get_hardware_id()
+
+    parsed = _parse_key(license_key)
+    if parsed is None:
+        return {
+            "valid": False,
+            "message": "❌ تنسيق الكود غير صحيح — تأكد من نسخه كاملاً",
+            "expiry": None,
+            "days_left": None,
+        }
+
+    expiry_hex, sig_provided = parsed
+    hw_clean = hardware_id.replace("-", "").upper()
+
+    # إعادة حساب التوقيع المتوقع
+    payload = f"{hw_clean}:{expiry_hex}".encode("utf-8")
+    sig_expected = hmac.new(
+        _HMAC_KEY, payload, hashlib.sha256
+    ).hexdigest()[:12].upper()
+
+    # مقارنة آمنة (تمنع timing attacks)
+    if not hmac.compare_digest(sig_expected, sig_provided):
+        return {
+            "valid": False,
+            "message": "❌ الكود غير صحيح أو لا يطابق هذا الجهاز",
+            "expiry": None,
+            "days_left": None,
+        }
+
+    # فك تشفير تاريخ الانتهاء
+    try:
+        expiry_days = int(expiry_hex, 16)
+        expiry_dt   = _EPOCH + timedelta(days=expiry_days)
+    except ValueError:
+        return {
+            "valid": False,
+            "message": "❌ تاريخ انتهاء الترخيص تالف",
+            "expiry": None,
+            "days_left": None,
+        }
+
+    now       = datetime.now()
+    days_left = (expiry_dt - now).days
+
+    if expiry_dt < now:
+        return {
+            "valid": False,
+            "message": f"⏰ انتهت صلاحية الترخيص في {expiry_dt.strftime('%Y-%m-%d')}",
+            "expiry": expiry_dt,
+            "days_left": 0,
+        }
+
+    return {
+        "valid": True,
+        "message": f"✅ مرخّص — صالح حتى {expiry_dt.strftime('%Y-%m-%d')} ({days_left} يوم)",
+        "expiry": expiry_dt,
+        "days_left": days_left,
+    }
+
+
+# ════════════════════════════════════════════════════════════════════════════
+# حفظ واسترجاع الترخيص المُفعَّل
+# ════════════════════════════════════════════════════════════════════════════
+
+def activate(license_key: str) -> dict:
+    """
+    يفعّل الكود ويحفظه. يُستدعى مرة واحدة فقط من شاشة التفعيل.
+
+    Returns: نفس قاموس verify_key + {"activated": bool}
+    """
+    result = verify_key(license_key)
+    if not result["valid"]:
+        return {**result, "activated": False}
+
+    hw_id = get_hardware_id()
+    data  = {
+        "key":          license_key.strip().upper(),
+        "hardware_id":  hw_id,
+        "activated_at": datetime.now().isoformat(),
+        "expiry":       result["expiry"].isoformat() if result["expiry"] else "",
+    }
+    try:
+        _license_path().write_text(
+            json.dumps(data, ensure_ascii=False, indent=2),
+            encoding="utf-8",
+        )
+    except OSError as exc:
+        return {
+            "valid": False,
+            "activated": False,
+            "message": f"❌ تعذّر حفظ الترخيص: {exc}",
+            "expiry": None,
+            "days_left": None,
+        }
+
+    return {**result, "activated": True}
+
+
+def check_saved_license() -> dict:
+    """
+    يتحقق من الترخيص المحفوظ عند كل تشغيل.
+
+    Returns:
+        {"valid": bool, "message": str, "days_left": int | None}
+    """
+    path = _license_path()
+    if not path.exists():
+        return {
+            "valid": False,
+            "message": "البرنامج غير مفعّل — أدخل كود الترخيص للمتابعة",
+            "days_left": None,
+        }
+
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        path.unlink(missing_ok=True)
+        return {
+            "valid": False,
+            "message": "ملف الترخيص تالف — يرجى إعادة التفعيل",
+            "days_left": None,
+        }
+
+    # تحقق من تطابق الجهاز
+    current_hw = get_hardware_id()
+    if data.get("hardware_id") != current_hw:
+        return {
+            "valid": False,
+            "message": "الترخيص لا يطابق هذا الجهاز",
+            "days_left": None,
+        }
+
+    # إعادة التحقق الكامل من الكود
+    return verify_key(data.get("key", ""), current_hw)
+
+
+def get_license_info() -> dict:
+    """معلومات مختصرة للعرض في شاشة 'عن النظام'."""
+    result = check_saved_license()
+    hw_id  = get_hardware_id()
+    return {
+        "valid":     result["valid"],
+        "message":   result.get("message", ""),
+        "days_left": result.get("days_left"),
+        "hardware_id": hw_id,
+    }

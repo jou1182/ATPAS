@@ -28,25 +28,44 @@ def save_docx(doc: Document, path: str | Path) -> None:
 
 
 def new_docx() -> Document:
-    """Return a blank Document pre-configured for RTL Arabic content.
-
-    Sets the Normal style to right-aligned + bidirectional so every
-    paragraph inherits RTL by default.  Individual paragraphs that need
-    LTR (e.g. English sub-headings) override this at the paragraph level.
-    """
+    """Return a blank Document pre-configured for Arabic RTL content."""
     doc = Document()
-    # Patch the Normal style so all paragraphs inherit RTL
-    normal_pPr = doc.styles["Normal"].element.get_or_add_pPr()
-    # <w:bidi/> — enable bidirectional (RTL) text
-    if normal_pPr.find(qn("w:bidi")) is None:
-        normal_pPr.append(OxmlElement("w:bidi"))
-    # <w:jc w:val="right"/> — right-align by default
-    jc = normal_pPr.find(qn("w:jc"))
-    if jc is None:
-        jc = OxmlElement("w:jc")
-        normal_pPr.append(jc)
-    jc.set(qn("w:val"), "right")
+    _configure_rtl_document(doc)
     return doc
+
+
+def _configure_rtl_document(doc: Document) -> None:
+    """Set document-level RTL defaults (settings.xml + Normal style).
+
+    Two levels are needed for full compatibility:
+    1. ``<w:bidi>`` in ``settings.xml`` — tells Word the document is bidirectional.
+    2. ``<w:bidi>`` in the Normal paragraph style's ``<w:pPr>`` — makes every
+       paragraph that inherits Normal default to right-to-left.
+    Paragraphs with explicit alignment (e.g. CENTER on the cover) are unaffected
+    because paragraph-level settings override style defaults.
+    """
+    from docx.enum.text import WD_ALIGN_PARAGRAPH as _ALN
+
+    # ── 1. Document settings: mark document as bidirectional ─────────────
+    settings_el = doc.settings.element
+    if settings_el.find(qn("w:bidi")) is None:
+        bidi = OxmlElement("w:bidi")
+        bidi.set(qn("w:val"), "1")
+        settings_el.append(bidi)
+
+    # ── 2. Normal style: default direction = RTL, alignment = RIGHT ──────
+    try:
+        normal = doc.styles["Normal"]
+        pPr = normal.element.get_or_add_pPr()
+        if pPr.find(qn("w:bidi")) is None:
+            b = OxmlElement("w:bidi")
+            b.set(qn("w:val"), "1")
+            pPr.append(b)
+        # Only set if not already defined (don't override explicit overrides)
+        if normal.paragraph_format.alignment is None:
+            normal.paragraph_format.alignment = _ALN.RIGHT
+    except (KeyError, AttributeError):
+        pass
 
 
 # ---------------------------------------------------------------------------
