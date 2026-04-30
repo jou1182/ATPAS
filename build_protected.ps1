@@ -74,7 +74,16 @@ foreach ($f in $CriticalFiles) {
 }
 Write-Host "  ✅ تم استعادة الكود الأصلي" -ForegroundColor Green
 
+# ── 6. تنظيف _internal من الملفات غير الضرورية ───────────────────────
+Write-Host "[6/6] تنظيف _internal ..." -ForegroundColor Yellow
+if (Test-Path "dist\ATPAS\_internal") {
+    & "$PSScriptRoot\tools\clean_internal.ps1" "dist\ATPAS\_internal"
+} else {
+    Write-Host "  ⚠  لا يوجد مجلد _internal (قد يكون single-file build)" -ForegroundColor Yellow
+}
+
 Write-Host "`n=====================================================" -ForegroundColor Green
 Write-Host "  ✅ البناء الآمن اكتمل — dist\ATPAS\" -ForegroundColor Green
 Write-Host "  🔒 الملفات المحمية: license_manager | activation_dialog | main" -ForegroundColor Green
+Write-Host "  🧹 _internal: منظَّف ومُحسَّن" -ForegroundColor Green
 Write-Host "=====================================================`n" -ForegroundColor Green
