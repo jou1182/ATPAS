@@ -26,6 +26,8 @@ hiddenimports = (
         'openpyxl',
         'docx2pdf',
         'difflib',
+        # PyArmor runtime — required by obfuscated modules (license_manager, activation_dialog, main)
+        'pyarmor_runtime_000000',
     ]
 )
 
@@ -44,11 +46,13 @@ datas = [
     ('output',               'output'),
     # Generic assets (icons, fonts)
     ('assets',               'assets'),
+    # PyArmor runtime — تشغيل الملفات المشفَّرة (license_manager, activation_dialog, main)
+    ('pyarmor_runtime_000000', 'pyarmor_runtime_000000'),
 ]
 
 a = Analysis(
     ['main.py'],
-    pathex=['.'],
+    pathex=['.', 'pyarmor_runtime_000000'],
     binaries=[],
     datas=datas,
     hiddenimports=hiddenimports,

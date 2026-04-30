@@ -68,3 +68,8 @@ env/
 
 # أداة المطوّر — لا تُوزَّع
 tools/generate_license.py
+
+# PyArmor obfuscation temp
+.obf/
+pyarmor_runtime_000000/
+*.bak
