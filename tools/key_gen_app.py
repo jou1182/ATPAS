@@ -7,8 +7,6 @@ ATPAS License Key Generator
 تُوزَّع EXE مشفَّراً، لا تُرسَل للعملاء
 """
 
-from __future__ import annotations
-
 import csv
 import hashlib
 import hmac
@@ -18,6 +16,7 @@ import sys
 import uuid
 import webbrowser
 from datetime import datetime, timedelta
+from typing import List, Optional
 from pathlib import Path
 
 os.environ.setdefault("QT_SCALE_FACTOR_ROUNDING_POLICY", "PassThrough")
@@ -76,7 +75,7 @@ def is_valid_hw_id(hw_id: str) -> bool:
 # Log helpers
 # ═══════════════════════════════════════════════════════════════════════════
 
-def _load_log() -> list[dict]:
+def _load_log() -> List[dict]:
     _LOG_DIR.mkdir(parents=True, exist_ok=True)
     if not _LOG_FILE.exists():
         return []
@@ -86,7 +85,7 @@ def _load_log() -> list[dict]:
         return []
 
 
-def _save_log(entries: list[dict]) -> None:
+def _save_log(entries: List[dict]) -> None:
     _LOG_DIR.mkdir(parents=True, exist_ok=True)
     _LOG_FILE.write_text(
         json.dumps(entries, ensure_ascii=False, indent=2), "utf-8"
@@ -537,7 +536,7 @@ class KeyGenWindow(QMainWindow):
 
     def _make_btn(
         self, text: str, color: str, *,
-        width: int | None = None,
+        width: Optional[int] = None,
         height: int = 38,
         font_size: int = 13,
     ) -> QPushButton:
