@@ -69,9 +69,10 @@
 
 1.  **التحقق البرمجي:** شغل `python -m compileall ui engine utils` ثم `python -m pytest tests -q`.
 2.  **التحقق التشغيلي:** شغل التطبيق من `main.py` وتأكد أن التعديل يعمل كما هو متوقع.
-3.  **البناء:** شغل `$env:ATPAS_BUILD_NO_PROMPT='1'; .\build_exe.bat`. هذا سيقوم بتحديث الـ `ATPAS.exe` في مجلد `dist`.
-4.  **التوثيق:** إذا كان التعديل جوهرياً (مثل إضافة حقل جديد في الـ JSON)، حدّث ملف `CHANGELOG.md` وملف SSOT.
-5.  **المزامنة:** شغل ملف `نسخة_على_GitHub.bat` أو استخدم أوامر Git لضمان أن التعديلات مرفوعة للمستودع السحابي.
+3.  **البناء للاختبار السريع:** شغل `$env:ATPAS_BUILD_NO_PROMPT='1'; .\build_exe.bat` (بدون PyArmor).
+4.  **البناء للإصدار النهائي للعميل:** شغل `.\build_protected.ps1` — يُشفّر 3 ملفات حساسة بـ PyArmor، يبني EXE، ثم يُنظّف `_internal` (يوفّر ~18 MB).
+5.  **التوثيق:** إذا كان التعديل جوهرياً (مثل إضافة حقل جديد في الـ JSON)، حدّث ملف `CHANGELOG.md` وملف SSOT.
+6.  **المزامنة:** شغل ملف `نسخة_على_GitHub.bat` أو استخدم أوامر Git لضمان أن التعديلات مرفوعة للمستودع السحابي.
 
 ---
 
@@ -85,4 +86,40 @@
 *   **الأداء:** البرنامج يستخدم تقنية تحسين الأداء عند تحميل القوائم؛ لا تغير منطق الـ `setUpdatesEnabled` إلا إذا كنت تعرف ما تفعله.
 
 ---
+
+## 7. نشر مكتبة المحتوى في EXE الموزَّع
+
+عند إضافة ملفات Word جديدة إلى مكتبة المحتوى، **لا تحتاج إعادة بناء EXE** — فقط انسخ الملفات إلى:
+
+```text
+dist\ATPAS\_internal\templates\source_documents\{CODE_ID}.docx
+```
+
+للشرح التفصيلي لبناء المكتبة: [`docs/CONTENT_LIBRARY_GUIDE_AR.md`](CONTENT_LIBRARY_GUIDE_AR.md)
+
+---
+
+## 8. الترخيص وحماية الكود
+
+| الملف | الوظيفة |
+|---|---|
+| `utils/license_manager.py` | توليد + التحقق من المفاتيح (HMAC-SHA256 مرتبط بـ Hardware ID) |
+| `tools/generate_license.py` | أداة المطوّر لتوليد مفاتيح العملاء |
+| `dist/ATPAS_LicenseGenerator.exe` | نسخة EXE مستقلة لمولّد المفاتيح |
+
+**إعادة بناء LicenseGenerator.exe:**
+```powershell
+pyinstaller license_generator.spec
+```
+
+**الملفات المحمية بـ PyArmor في إصدارات العملاء:**
+- `utils/license_manager.py`
+- `ui/activation_dialog.py`
+- `main.py`
+
+لا ترفع `dist/ATPAS_LicenseGenerator.exe` إلى GitHub أو تشاركه مع العملاء — هو للمطوّر فقط.
+
+---
+
 *تم إعداد هذا الدليل لضمان أعلى معايير الجودة والاستمرارية لشركة الرواف.*
+*آخر تحديث: 2026-04-30 | ATPAS v3.1*
