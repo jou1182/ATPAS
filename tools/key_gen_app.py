@@ -273,8 +273,9 @@ DURATIONS = [
 class KeyGenWindow(QMainWindow):
     def __init__(self, font_family: str) -> None:
         super().__init__()
-        self._font   = font_family
+        self._font      = font_family
         self._last_key: str = ""
+        self._log_cache: List[dict] = []   # in-memory cache, refreshed on generate
         self.setWindowTitle("ATPAS — مولّد أكواد الترخيص  |  Developer Tool")
         self.setMinimumSize(900, 680)
         self.setLayoutDirection(Qt.RightToLeft)
@@ -599,13 +600,36 @@ class KeyGenWindow(QMainWindow):
 
     # ── Logic ──────────────────────────────────────────────────────────────
 
+    # ── Renewal helper ─────────────────────────────────────────────────────────
+
+    def _find_prev_license(self, hw_id: str) -> Optional[dict]:
+        """Return the most recent log entry for this HW ID, or None."""
+        clean = hw_id.replace("-", "").upper()
+        for entry in self._log_cache:
+            if entry.get("hw_id", "").replace("-", "").upper() == clean:
+                return entry
+        return None
+
     def _on_hw_changed(self, text: str) -> None:
         clean = text.strip().upper()
         if not clean:
             self._hw_status.setText("")
         elif is_valid_hw_id(clean):
-            self._hw_status.setText("✅ Hardware ID صحيح")
-            self._hw_status.setStyleSheet(f"font-family:'{self._font}'; font-size:11px; color:#2B7549; font-weight:700;")
+            prev = self._find_prev_license(clean)
+            if prev:
+                customer = prev.get("customer", "—")
+                expiry   = prev.get("expiry", "—")
+                self._hw_status.setText(
+                    f"🔄  جهاز مُسجَّل مسبقاً — العميل: {customer}  |  انتهاء سابق: {expiry}"
+                )
+                self._hw_status.setStyleSheet(
+                    f"font-family:'{self._font}'; font-size:11px; color:#C9921B; font-weight:700;"
+                )
+            else:
+                self._hw_status.setText("✅  Hardware ID صحيح — جهاز جديد")
+                self._hw_status.setStyleSheet(
+                    f"font-family:'{self._font}'; font-size:11px; color:#2B7549; font-weight:700;"
+                )
         else:
             self._hw_status.setText("⚠  يجب أن يكون 16 حرف hex (0-9 A-F) بصيغة XXXX-XXXX-XXXX-XXXX")
             self._hw_status.setStyleSheet(f"font-family:'{self._font}'; font-size:11px; color:#B03030;")
@@ -624,6 +648,26 @@ class KeyGenWindow(QMainWindow):
             )
             return
 
+        # ── فحص التجديد: هل هذا الجهاز لديه ترخيص سابق؟ ────────────────
+        prev = self._find_prev_license(hw)
+        if prev:
+            prev_customer = prev.get("customer", "—")
+            prev_expiry   = prev.get("expiry", "—")
+            prev_days     = prev.get("days", "—")
+            answer = QMessageBox.question(
+                self,
+                "⚠  تجديد ترخيص — جهاز مسجَّل مسبقاً",
+                f"هذا الجهاز لديه ترخيص مُسجَّل في السجل:\n\n"
+                f"  العميل السابق : {prev_customer}\n"
+                f"  مدة الترخيص  : {prev_days} يوم\n"
+                f"  تاريخ الانتهاء: {prev_expiry}\n\n"
+                f"هل تريد توليد كود تجديد جديد لهذا الجهاز؟",
+                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.Yes,
+            )
+            if answer != QMessageBox.Yes:
+                return
+
         label, days = DURATIONS[self._dur_combo.currentIndex()]
         key        = generate_key(hw, days)
         expiry_dt  = datetime.now() + timedelta(days=days)
@@ -637,7 +681,7 @@ class KeyGenWindow(QMainWindow):
         self._key_display.setStyleSheet(orig.replace("#EEF8F2", "#D4F5E3"))
         QTimer.singleShot(400, lambda: self._key_display.setStyleSheet(orig))
 
-        # Log
+        # Log + refresh cache
         entry = {
             "date":     datetime.now().strftime("%Y-%m-%d %H:%M"),
             "customer": customer,
@@ -647,6 +691,7 @@ class KeyGenWindow(QMainWindow):
             "key":      key,
         }
         append_log(entry)
+        self._log_cache = _load_log()   # refresh so next HW check sees new entry
         self._insert_table_row(entry, prepend=True)
         self._update_stats()
 
@@ -705,7 +750,8 @@ class KeyGenWindow(QMainWindow):
     # ── History table ──────────────────────────────────────────────────────
 
     def _load_history(self) -> None:
-        for entry in _load_log():
+        self._log_cache = _load_log()
+        for entry in self._log_cache:
             self._insert_table_row(entry)
         self._update_stats()
 
@@ -744,6 +790,7 @@ class KeyGenWindow(QMainWindow):
         )
         if r == QMessageBox.Yes:
             _save_log([])
+            self._log_cache = []
             self._table.setRowCount(0)
             self._update_stats()
 
