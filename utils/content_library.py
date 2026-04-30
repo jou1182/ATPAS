@@ -245,6 +245,12 @@ def _copy_docx_body(source_path: Path, target_doc: Document) -> None:
             )
 
     # Deep-copy body elements (paragraphs, tables, etc.)
+    # Insert BEFORE <w:sectPr> — matching python-docx's own add_paragraph/add_heading
+    # behaviour.  Using lxml's append() would place content AFTER sectPr, which
+    # causes all section headings to cluster before sectPr while all copied content
+    # falls after it, breaking the interleaved heading→content structure.
+    sect_pr = target_body.find(qn("w:sectPr"))
+
     for element in source.element.body:
         tag = element.tag.split("}")[-1] if "}" in element.tag else element.tag
         if tag == "sectPr":
@@ -253,7 +259,11 @@ def _copy_docx_body(source_path: Path, target_doc: Document) -> None:
         # Remap image rIds in the copied node
         if image_map:
             _remap_image_ids(node, image_map)
-        target_body.append(node)
+        # Insert before sectPr to maintain correct document order
+        if sect_pr is not None:
+            sect_pr.addprevious(node)
+        else:
+            target_body.append(node)
 
 
 def _remap_image_ids(node: Any, image_map: Dict[str, str]) -> None:
