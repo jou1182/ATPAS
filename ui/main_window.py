@@ -58,6 +58,7 @@ from ui.build_history import BuildHistoryManager, BuildHistoryDialog
 from ui.proposal_archive_dialog import ProposalArchiveDialog
 from ui.import_wizard import ImportWizardDialog
 from ui.checkbox_selector import CheckboxSelectorWidget
+from ui.about_dialog import AboutDialog
 from ui.code_manager_dialog import CodeManagerDialog
 from ui.header_widget import HeaderWidget
 from ui.help_dialog import HelpDialog
@@ -602,33 +603,9 @@ class MainWindow(QMainWindow):
         self._activity_log.append("فتح آخر عرض فني", {"path": str(path)})
 
     def _on_about(self) -> None:
-        """Show a compact executive about/status card."""
-        health = build_system_health_report(
-            registry_data=self.registry_data,
-            config_data=self.config_data,
-            presets_data=self.presets_data,
-            source_documents_dir=Path("templates/source_documents"),
-        )
-        latest = self._version_manager.latest(1)
-        latest_text = latest[0].get("output_name", "لا يوجد") if latest else "لا يوجد"
-        activities = self._activity_log.latest(3)
-        activity_text = "\n".join(
-            f"- {a.get('timestamp_display', '')}: {a.get('action_ar', '')}"
-            for a in activities
-        ) or "- لا يوجد نشاط مسجل بعد."
-        version = load_json("version.json", default={})
-        self._show_info_box(
-            "عن نظام ATPAS",
-            "نظام بناء العروض الفنية - الرواف",
-            (
-                f"الإصدار: {version.get('version', 'dev')}\n"
-                f"تاريخ البناء: {version.get('build_date', 'dev')} {version.get('build_time', '')}\n"
-                f"درجة صحة النظام: {health.score}% - {health.status_ar}\n"
-                f"الأكواد النشطة: {health.active_codes}\n"
-                f"آخر عرض: {latest_text}\n\n"
-                f"آخر نشاط:\n{activity_text}"
-            ),
-        )
+        """نافذة 'عن نظام ATPAS' — إصدار، ترخيص، HW ID، دعم."""
+        dlg = AboutDialog(parent=self)
+        dlg.exec_()
 
     def _open_path(self, path: Path) -> None:
         """Open a local file/folder with the platform default handler."""

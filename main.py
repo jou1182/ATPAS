@@ -90,16 +90,24 @@ def main() -> int:
 
     # ── تحذير انتهاء الترخيص (يظهر بعد 800ms من فتح النافذة) ──────────
     if days_left is not None and 0 < days_left <= _EXPIRY_WARNING_DAYS:
-        unit = "يوم" if days_left > 1 else "يوم واحد"
-        msg = (
-            f"⚠️  ترخيصك ينتهي خلال {days_left} {unit}!\n\n"
-            "تواصل مع المطوّر لتجديد ترخيصك قبل انقطاع الخدمة.\n\n"
-            "📧  البريد: jou1182@gmail.com"
-        )
-        QTimer.singleShot(
-            800,
-            lambda: QMessageBox.warning(window, "تنبيه — انتهاء الترخيص قريباً", msg),
-        )
+        from utils.license_manager import get_hardware_id
+        expiry_str = license_status.get("expiry", "")
+        if hasattr(expiry_str, "strftime"):
+            expiry_str = expiry_str.strftime("%Y-%m-%d")
+        hw_id = get_hardware_id()
+
+        from ui.expiry_warning_dialog import ExpiryWarningDialog
+
+        def _show_expiry_warning():
+            dlg = ExpiryWarningDialog(
+                days_left=days_left,
+                expiry_date=str(expiry_str),
+                hardware_id=hw_id,
+                parent=window,
+            )
+            dlg.exec_()
+
+        QTimer.singleShot(800, _show_expiry_warning)
         logging.getLogger("atpas.main").warning(
             "License expiring in %d day(s).", days_left
         )
