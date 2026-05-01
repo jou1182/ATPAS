@@ -200,7 +200,8 @@ class ContentLibrary:
 def _copy_docx_body(source_path: Path, target_doc: Document) -> None:
     """
     Deep-copy all body elements from source .docx into target_doc,
-    re-mapping image relationships so embedded images are preserved.
+    re-mapping image relationships and numbering definitions so that
+    embedded images and numbered lists are fully preserved with RTL direction.
     """
     from docx.opc.part import Part
     from docx.opc.packuri import PackURI
@@ -209,9 +210,9 @@ def _copy_docx_body(source_path: Path, target_doc: Document) -> None:
     target_body = target_doc.element.body
     target_part = target_doc.part
 
-    # Build a map of image relationships in source.
-    # Each image gets a unique partname (counter-based) to prevent collisions
-    # when multiple source files contain images named image1.png, image2.png…
+    # ── 1. Image relationship mapping ────────────────────────────────────
+    # Each image gets a unique partname to prevent collisions when multiple
+    # source files contain images named image1.png, image2.png, etc.
     image_map: Dict[str, str] = {}
     _img_counter = 0
     for rel_id, rel in source.part.rels.items():
@@ -220,7 +221,6 @@ def _copy_docx_body(source_path: Path, target_doc: Document) -> None:
         try:
             image_data = rel.target_part.blob
             content_type = rel.target_part.content_type
-            # Normalise extension
             ext = content_type.split("/")[-1].lower()
             if ext == "jpeg":
                 ext = "jpg"
@@ -229,7 +229,6 @@ def _copy_docx_body(source_path: Path, target_doc: Document) -> None:
             elif ext == "x-wmf":
                 ext = "wmf"
 
-            # Unique partname — avoids collisions across multiple source files
             _img_counter += 1
             unique_id = f"{abs(hash(source_path))}_{_img_counter}"
             new_partname = PackURI(f"/word/media/atpas_{unique_id}.{ext}")
@@ -244,33 +243,182 @@ def _copy_docx_body(source_path: Path, target_doc: Document) -> None:
                 rel_id, source_path.name, type(exc).__name__, exc,
             )
 
-    # Deep-copy body elements (paragraphs, tables, etc.)
-    # Insert BEFORE <w:sectPr> — matching python-docx's own add_paragraph/add_heading
-    # behaviour.  Using lxml's append() would place content AFTER sectPr, which
-    # causes all section headings to cluster before sectPr while all copied content
-    # falls after it, breaking the interleaved heading→content structure.
+    # ── 2. Numbering definitions — copy + RTL-patch ───────────────────────
+    # Source paragraphs reference numIds defined in source's numbering.xml.
+    # Without copying these definitions the target document has no record of
+    # them, so Word falls back to generating default LTR numbered lists.
+    # We copy every abstractNum/num, remap their IDs to avoid conflicts with
+    # whatever the target already has, and patch each level to RTL layout:
+    #   • lvlJc  "left"  → "right"
+    #   • w:ind  w:left  → w:right  (indent from right margin, not left)
+    num_id_map: Dict[str, str] = _copy_numbering_rtl(source, target_doc)
+
+    # ── 3. Body elements — deep copy, insert before <w:sectPr> ───────────
+    # python-docx's add_heading / add_paragraph inserts before sectPr.
+    # Using lxml append() would place content after sectPr, breaking the
+    # interleaved heading → content structure we rely on.
     sect_pr = target_body.find(qn("w:sectPr"))
 
     for element in source.element.body:
         tag = element.tag.split("}")[-1] if "}" in element.tag else element.tag
         if tag == "sectPr":
-            continue  # skip section properties — keep target's layout
+            continue  # keep target's page layout, not source's
         node = deepcopy(element)
-        # Remap image rIds in the copied node
         if image_map:
             _remap_image_ids(node, image_map)
-        # Insert before sectPr to maintain correct document order
+        if num_id_map:
+            _remap_num_ids(node, num_id_map)
         if sect_pr is not None:
             sect_pr.addprevious(node)
         else:
             target_body.append(node)
 
 
+# ---------------------------------------------------------------------------
+# Numbering copy + RTL patch
+# ---------------------------------------------------------------------------
+
+def _copy_numbering_rtl(source: Document, target_doc: Document) -> Dict[str, str]:
+    """
+    Copy all abstractNum / num definitions from *source* into *target_doc*,
+    patching each level for RTL layout, and return {old_numId → new_numId}.
+
+    RTL patches per list level
+    --------------------------
+    * ``<w:lvlJc val="left">``  →  ``val="right"``
+    * ``<w:ind w:left="X" …>``  →  ``<w:ind w:right="X" …>``
+      (indentation measured from the **right** margin in RTL paragraphs)
+
+    ID collision avoidance
+    ----------------------
+    The target document likely already has its own abstractNum / num
+    definitions (python-docx ships a default template with numbering.xml).
+    We compute the current maximum IDs and start our new entries above that
+    ceiling, so there is no risk of clashing with pre-existing definitions.
+    """
+    # Source numbering part — bail early if absent
+    try:
+        src_num_part = source.part.numbering_part
+    except AttributeError:
+        src_num_part = None
+    if src_num_part is None:
+        return {}
+
+    src_el = src_num_part._element  # <w:numbering>
+
+    # Target numbering part — must exist (python-docx default template has one)
+    try:
+        tgt_num_part = target_doc.part.numbering_part
+    except AttributeError:
+        tgt_num_part = None
+    if tgt_num_part is None:
+        logger.warning("Target document has no numbering part — list numbering skipped")
+        return {}
+
+    tgt_el = tgt_num_part._element  # <w:numbering>
+
+    # ── Compute safe starting IDs above current maxima ────────────────
+    def _max_attr(parent, child_tag: str, attr: str) -> int:
+        vals = []
+        for el in parent.findall(qn(child_tag)):
+            v = el.get(qn(attr))
+            if v is not None:
+                try:
+                    vals.append(int(v))
+                except ValueError:
+                    pass
+        return max(vals, default=-1)
+
+    next_abs_id = _max_attr(tgt_el, "w:abstractNum", "w:abstractNumId") + 1
+    next_num_id = _max_attr(tgt_el, "w:num",         "w:numId")         + 1
+
+    # ── Copy abstractNums with new IDs + RTL patch ────────────────────
+    abs_id_map: Dict[str, str] = {}
+    for abs_num in src_el.findall(qn("w:abstractNum")):
+        old_id = abs_num.get(qn("w:abstractNumId"))
+        if old_id is None:
+            continue
+        new_id = str(next_abs_id)
+        abs_id_map[old_id] = new_id
+        next_abs_id += 1
+
+        node = deepcopy(abs_num)
+        node.set(qn("w:abstractNumId"), new_id)
+        _patch_abstractnum_rtl(node)
+        # abstractNums must precede nums in the XML
+        first_num = tgt_el.find(qn("w:num"))
+        if first_num is not None:
+            first_num.addprevious(node)
+        else:
+            tgt_el.append(node)
+
+    # ── Copy nums with new IDs, updating abstractNumId references ─────
+    num_id_map: Dict[str, str] = {}
+    for num in src_el.findall(qn("w:num")):
+        old_id = num.get(qn("w:numId"))
+        if old_id is None:
+            continue
+        new_id = str(next_num_id)
+        num_id_map[old_id] = new_id
+        next_num_id += 1
+
+        node = deepcopy(num)
+        node.set(qn("w:numId"), new_id)
+        # Remap the abstractNumId reference inside this <w:num>
+        abs_ref = node.find(qn("w:abstractNumId"))
+        if abs_ref is not None:
+            old_abs = abs_ref.get(qn("w:val"))
+            if old_abs in abs_id_map:
+                abs_ref.set(qn("w:val"), abs_id_map[old_abs])
+        tgt_el.append(node)
+
+    logger.debug(
+        "Copied numbering from %s: %d abstractNums, %d nums",
+        source.part.package.main_document_part.partname
+        if hasattr(source.part, "package") else "source",
+        len(abs_id_map), len(num_id_map),
+    )
+    return num_id_map
+
+
+def _patch_abstractnum_rtl(abs_num) -> None:
+    """Flip each list level in *abs_num* from LTR to RTL layout."""
+    for lvl in abs_num.findall(qn("w:lvl")):
+        # Justification: left → right
+        lvl_jc = lvl.find(qn("w:lvlJc"))
+        if lvl_jc is not None and lvl_jc.get(qn("w:val")) == "left":
+            lvl_jc.set(qn("w:val"), "right")
+
+        # Paragraph indent: swap w:left ↔ w:right so indentation is
+        # measured from the right margin (RTL convention).
+        pPr = lvl.find(qn("w:pPr"))
+        if pPr is None:
+            continue
+        ind = pPr.find(qn("w:ind"))
+        if ind is None:
+            continue
+        left_val  = ind.get(qn("w:left"))
+        right_val = ind.get(qn("w:right"))
+        if left_val is not None:
+            ind.set(qn("w:right"), left_val)
+            del ind.attrib[qn("w:left")]
+        if right_val is not None:
+            # Preserve what was the right value as left (for mixed docs)
+            ind.set(qn("w:left"), right_val)
+
+
+def _remap_num_ids(node: Any, num_id_map: Dict[str, str]) -> None:
+    """Update every ``<w:numId val="…">`` in *node* with remapped IDs."""
+    for num_id_el in node.iter(qn("w:numId")):
+        old_val = num_id_el.get(qn("w:val"))
+        if old_val and old_val in num_id_map:
+            num_id_el.set(qn("w:val"), num_id_map[old_val])
+
+
 def _remap_image_ids(node: Any, image_map: Dict[str, str]) -> None:
     """Update r:embed and r:id attributes in blip/image elements."""
-    blip_tag = qn("a:blip")
     embed_attr = qn("r:embed")
-    link_attr = qn("r:link")
+    link_attr  = qn("r:link")
     for el in node.iter():
         for attr in (embed_attr, link_attr):
             old_id = el.get(attr)

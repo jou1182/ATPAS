@@ -63,7 +63,9 @@ def main() -> int:
 
     # ── Apply theme ────────────────────────────────────────────────────
     from ui.theme import apply_palette, get_stylesheet, load_fonts
+    from ui.theme import get_font
     load_fonts()
+    app.setFont(get_font())
     apply_palette(app)
     app.setStyleSheet(get_stylesheet())
 

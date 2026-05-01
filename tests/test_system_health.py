@@ -7,6 +7,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from docx import Document
+
 from utils.system_health import (
     build_system_health_report,
     render_html_report,
@@ -14,6 +16,14 @@ from utils.system_health import (
     save_html_report,
     save_system_health_report,
 )
+from utils.docx_manipulator import set_rtl
+
+
+def _make_valid_docx(path: Path, text: str = "محتوى فني تجريبي") -> None:
+    doc = Document()
+    para = doc.add_paragraph(text)
+    set_rtl(para)
+    doc.save(str(path))
 
 
 def _registry() -> dict:
@@ -47,7 +57,7 @@ def _config() -> dict:
 def test_health_report_counts_clean_data(tmp_path: Path) -> None:
     docs_dir = tmp_path / "source_documents"
     docs_dir.mkdir()
-    (docs_dir / "001-SUR-BASE.docx").write_bytes(b"fake docx for health count")
+    _make_valid_docx(docs_dir / "001-SUR-BASE.docx")
 
     report = build_system_health_report(
         _registry(),
@@ -63,6 +73,8 @@ def test_health_report_counts_clean_data(tmp_path: Path) -> None:
     assert report.presets_count == 1
     assert report.linked_documents_count == 1
     assert report.missing_documents_count == 0
+    assert report.checked_word_documents_count == 1
+    assert report.word_content_issue_count == 0
     assert report.errors == []
 
 

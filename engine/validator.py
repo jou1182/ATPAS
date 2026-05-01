@@ -81,7 +81,7 @@ class Validator:
         self._check_forbidden(selected_codes, owner_spec, errors)
         self._check_exclusive_groups(selected_codes, errors)
         self._check_mandatory(selected_codes, owner_spec, warnings)
-        self._check_dependencies(selected_codes, warnings)
+        self._check_dependencies(selected_codes, project_ids, warnings)
 
         return len(errors) == 0, errors, warnings
 
@@ -168,17 +168,66 @@ class Validator:
                     f"الكود الإلزامي للجهة '{owner_spec.get('owner_id', '?')}' غير مُضمَّن: {code_id}"
                 )
 
-    def _check_dependencies(self, selected_codes: List[str], warnings: List[str]) -> None:
+    def _check_dependencies(
+        self,
+        selected_codes: List[str],
+        project_ids: List[str],
+        warnings: List[str],
+    ) -> None:
         selected_set = set(selected_codes)
         for code_id in selected_codes:
             code = self._codes.get(code_id)
             if not code:
                 continue
-            for dep in (code.get("dependencies") or []):
+            deps = list(code.get("dependencies") or [])
+            deps = [
+                dep for dep in deps
+                if self._dependency_applies_to_projects(dep, project_ids)
+            ]
+            if self._is_alternative_dependency_set(code, deps):
+                if not any(dep in selected_set for dep in deps):
+                    warnings.append(
+                        f"الكود {code_id} يحتاج إلى أحد الأكواد التالية: {', '.join(deps)}"
+                    )
+                continue
+            for dep in deps:
                 if dep not in selected_set:
                     warnings.append(
                         f"الكود {code_id} يحتاج إلى {dep} الذي غير موجود في القائمة"
                     )
+
+    def _dependency_applies_to_projects(self, dep_code_id: str, project_ids: List[str]) -> bool:
+        dep = self._codes.get(dep_code_id)
+        if not dep:
+            return True
+        dep_projects = dep.get("project_ids") or []
+        return not dep_projects or any(pid in dep_projects for pid in project_ids)
+
+    def _is_alternative_dependency_set(self, code: Dict, deps: List[str]) -> bool:
+        if len(deps) < 2:
+            return False
+
+        note = str(code.get("dependencies_note", ""))
+        if "أي" in note or "any" in note.lower():
+            return True
+
+        dep_records = [self._codes.get(dep, {}) for dep in deps]
+        if dep_records and all("excavation_type" in dep for dep in dep_records):
+            return True
+
+        project_sets = [
+            set(dep.get("project_ids") or [])
+            for dep in dep_records
+            if dep.get("project_ids")
+        ]
+        if len(project_sets) == len(deps):
+            for idx, current in enumerate(project_sets):
+                others = set().union(*(s for j, s in enumerate(project_sets) if j != idx))
+                if current & others:
+                    return False
+            return True
+
+        return False
 
     # ------------------------------------------------------------------
     # Loader

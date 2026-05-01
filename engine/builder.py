@@ -168,6 +168,23 @@ class Builder:
         # CENTER-aligned cover paragraphs are intentionally left unchanged.
         self._apply_doc_rtl(doc)
 
+        # Font pass: apply owner's body font to every run in the document.
+        # Content-library paragraphs (deep-copied from source .docx files)
+        # retain their original typefaces after insertion, so we must override
+        # them here — after all content is assembled — to get a uniform font.
+        # Both ASCII (w:ascii) and complex-script/Arabic (w:cs) attributes are
+        # set so Arabic text does not fall back to Word's default Arabic font.
+        if style_spec:
+            body_font = style_spec.get("fonts", {}).get("body", {}).get("family")
+            if body_font:
+                from utils.docx_manipulator import (
+                    apply_font_family_to_document,
+                    set_document_default_font,
+                )
+                apply_font_family_to_document(doc, body_font)
+                set_document_default_font(doc, body_font)
+                logger.debug("Applied font '%s' to all paragraphs", body_font)
+
         # --- علامة مائية للنسخة التجريبية (ترخيص يوم واحد) ---
         try:
             from utils.license_manager import check_saved_license
@@ -365,7 +382,6 @@ class Builder:
             activity = activities.get(code_id, {})
             name_ar = code.get("activity_name_ar", code_id)
             name_en = code.get("activity_name_en", "")
-            phase = activity.get("phase_name_ar", "")
 
             # Section heading — always shown regardless of content source
             # Arabic name leads (RTL convention): name_ar — code_id
@@ -394,19 +410,6 @@ class Builder:
                         formatter.add_body_paragraph(doc, description)
                     else:
                         doc.add_paragraph(description)
-
-                pages = code.get("page_count", 0)
-                images = code.get("image_count", 0)
-                meta_para = doc.add_paragraph(
-                    f"الصفحات: {pages}  |  الصور: {images}  |  المرحلة: {phase}"
-                )
-                meta_para.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-
-                if images > 0:
-                    img_ph = doc.add_paragraph(
-                        f"[{images} صورة — ضع ملف {code_id}.docx في templates/source_documents/]"
-                    )
-                    img_ph.alignment = WD_ALIGN_PARAGRAPH.CENTER
             else:
                 logger.info("Used content library for %s", code_id)
 

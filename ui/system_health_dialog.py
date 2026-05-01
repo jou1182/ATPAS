@@ -166,7 +166,7 @@ class SystemHealthDialog(QDialog):
           <meta charset="utf-8">
           <style>
             body {{
-              font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+              font-family: 'Tajawal';
               color: #121B28;
               direction: rtl;
               text-align: right;
@@ -210,7 +210,7 @@ class SystemHealthDialog(QDialog):
             .path {{
               direction: ltr;
               unicode-bidi: embed;
-              font-family: Consolas, 'Courier New', monospace;
+              font-family: Tajawal;
               display: inline-block;
             }}
           </style>
@@ -228,6 +228,8 @@ class SystemHealthDialog(QDialog):
             <tr><td>ملفات Word الموجودة</td><td>{r.source_documents_count}</td></tr>
             <tr><td>الأكواد المرتبطة بمحتوى Word</td><td>{r.linked_documents_count}</td></tr>
             <tr><td>أكواد بلا ملف Word مطابق</td><td>{r.missing_documents_count}</td></tr>
+            <tr><td>ملفات Word المفحوصة</td><td>{r.checked_word_documents_count}</td></tr>
+            <tr><td>ملاحظات جودة محتوى Word</td><td>{r.word_content_issue_count}</td></tr>
           </table>
 
           <h2>المشاكل والإجراءات المقترحة</h2>
@@ -355,6 +357,8 @@ def _plain_text_report(report: SystemHealthReport) -> str:
         f"الأنماط الجاهزة: {report.presets_count}",
         f"ملفات Word الموجودة: {report.source_documents_count}",
         f"أكواد بلا ملف Word مطابق: {report.missing_documents_count}",
+        f"ملفات Word المفحوصة: {report.checked_word_documents_count}",
+        f"ملاحظات جودة محتوى Word: {report.word_content_issue_count}",
         "",
         "الملاحظات:",
     ]

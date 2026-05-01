@@ -38,7 +38,7 @@ from PyQt5.QtWidgets import (
 _STYLE_BASE = """<!DOCTYPE html>
 <html dir="rtl"><head><meta charset="utf-8">
 <style>
-  body  { font-family:'Segoe UI','Tahoma',Arial,sans-serif; font-size:13px;
+  body  { font-family:'Tajawal'; font-size:13px;
           color:#121B28; direction:rtl; text-align:right;
           margin:10px 14px; padding:0; unicode-bidi:embed; }
   h2    { color:#152433; border-bottom:2px solid #C9921B;
@@ -65,7 +65,7 @@ _STYLE_BASE = """<!DOCTYPE html>
           text-align:right; direction:rtl; }
   .line { margin:3px 0; text-align:right; direction:rtl; }
   .ltr  { direction:ltr; unicode-bidi:embed; display:inline-block;
-          font-family:Consolas,'Courier New',monospace; }
+          font-family:Tajawal; }
   table { width:100%; border-collapse:collapse; margin:10px 0; }
   th    { background:#152433; color:#C9921B; padding:8px 12px;
           font-weight:700; text-align:right; direction:rtl; }
@@ -73,7 +73,7 @@ _STYLE_BASE = """<!DOCTYPE html>
           text-align:right; direction:rtl; }
   tr:nth-child(even) td { background:#F5F5F5; }
   kbd   { background:#E8E8E8; border:1px solid #999; border-radius:4px;
-          padding:2px 7px; font-size:12px; font-family:Consolas,monospace; }
+          padding:2px 7px; font-size:12px; font-family:Tajawal; }
   .badge{ background:#C9921B; color:white; border-radius:4px;
           padding:2px 8px; font-size:11px; font-weight:700; }
 </style></head>
@@ -133,7 +133,7 @@ _CODES_HTML = _STYLE_BASE + """
 <h2>الأكواد والمراحل — مرجع سريع</h2>
 
 <h3>تركيب الكود</h3>
-<div class="step" style="font-family: Consolas, monospace; font-size: 14px; text-align: center; direction: ltr;">
+<div class="step" style="font-family: Tajawal; font-size: 14px; text-align: center; direction: ltr;">
   001 - SUR - BASE<br>
   <span style="color: #888; font-size: 11px;">
     الفئة — المرحلة — التنويع

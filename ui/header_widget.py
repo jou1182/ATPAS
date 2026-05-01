@@ -172,6 +172,8 @@ class HeaderWidget(QWidget):
     health_requested = pyqtSignal()
     #: يُطلق عند الضغط على زر إدارة الأكواد — MainWindow يفتح CodeManagerDialog
     code_manager_requested = pyqtSignal()
+    #: يفتح مركز إدارة مكتبة Word
+    content_library_requested = pyqtSignal()
     #: يفتح آخر عرض Word تم إنشاؤه
     last_proposal_requested = pyqtSignal()
     #: يعرض بطاقة تعريف النظام
@@ -361,6 +363,20 @@ class HeaderWidget(QWidget):
         ))
         codes_btn.clicked.connect(self.code_manager_requested.emit)
         layout.addWidget(codes_btn)
+
+        # ── زر مكتبة Word 📚 ──────────────────────────────────────────
+        library_btn = QPushButton("📚  المكتبة", self)
+        library_btn.setToolTip("إدارة ملفات Word وحالات اعتماد المحتوى")
+        library_btn.setCursor(Qt.PointingHandCursor)
+        library_btn.setStyleSheet(_hdr_btn_style.format(
+            fg="#CFA7FF",
+            border="#CFA7FF70",
+            hover_bg="#CFA7FF20",
+            hover_border="#CFA7FF",
+            pressed_bg="#CFA7FF40",
+        ))
+        library_btn.clicked.connect(self.content_library_requested.emit)
+        layout.addWidget(library_btn)
 
         # ── زر آخر عرض 📄 ─────────────────────────────────────────────
         last_btn = QPushButton("📄  آخر عرض", self)

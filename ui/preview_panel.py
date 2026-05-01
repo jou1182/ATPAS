@@ -488,7 +488,7 @@ class PreviewPanelWidget(QWidget):
                 f"<td>{pages}</td><td>{content}</td></tr>"
             )
         return (
-            "<html dir='rtl'><body style='font-family: Tahoma; color:#121B28;'>"
+            "<html dir='rtl'><body style='font-family: Tajawal; color:#121B28;'>"
             "<table width='100%' cellspacing='0' cellpadding='7' "
             "style='border-collapse:collapse;'>"
             "<tr style='background:#152433;color:#F5D48B;'>"

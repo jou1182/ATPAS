@@ -67,6 +67,88 @@ def _configure_rtl_document(doc: Document) -> None:
     except (KeyError, AttributeError):
         pass
 
+    # ── 3. Section properties: mark section as RTL ───────────────────────
+    # Word reads <w:bidi/> in <w:sectPr> to decide the layout direction of
+    # auto-generated content — most importantly the Table of Contents.
+    # Without this flag, the TOC is generated LTR even when all paragraphs
+    # and styles are explicitly RTL.
+    try:
+        body_el = doc.element.body
+        sect_pr = body_el.find(qn("w:sectPr"))
+        if sect_pr is not None and sect_pr.find(qn("w:bidi")) is None:
+            bidi_sec = OxmlElement("w:bidi")
+            sect_pr.append(bidi_sec)
+    except Exception:
+        pass  # non-fatal; document still functions without it
+
+    # ── 4. Heading styles: force RTL + right alignment ───────────────────
+    for style_name in ("Heading 1", "Heading 2", "Heading 3"):
+        try:
+            style = doc.styles[style_name]
+            pPr = style.element.get_or_add_pPr()
+            b = pPr.find(qn("w:bidi"))
+            if b is None:
+                b = OxmlElement("w:bidi")
+                pPr.append(b)
+            b.set(qn("w:val"), "1")
+            jc = pPr.find(qn("w:jc"))
+            if jc is None:
+                jc = OxmlElement("w:jc")
+                pPr.append(jc)
+            jc.set(qn("w:val"), "right")
+        except (KeyError, AttributeError):
+            pass
+
+    # ── 4. TOC styles: create if absent, always set RTL + right ──────────
+    # python-docx's default template does not include TOC 1/2/3 styles.
+    # We inject them so Word uses RTL formatting when it auto-generates the TOC.
+    # Style IDs "TOC1"/"TOC2"/"TOC3" match Word's built-in identifiers.
+    _TOC_STYLE_SPECS = [
+        ("TOC1", "toc 1", 1),
+        ("TOC2", "toc 2", 2),
+        ("TOC3", "toc 3", 3),
+    ]
+    styles_el = doc.styles.element
+    existing_ids = {
+        el.get(qn("w:styleId"))
+        for el in styles_el.findall(qn("w:style"))
+    }
+    for style_id, style_name_val, indent_level in _TOC_STYLE_SPECS:
+        if style_id in existing_ids:
+            # Update existing style
+            for el in styles_el.findall(qn("w:style")):
+                if el.get(qn("w:styleId")) == style_id:
+                    pPr = el.find(qn("w:pPr"))
+                    if pPr is None:
+                        pPr = OxmlElement("w:pPr")
+                        el.append(pPr)
+                    _ensure_rtl_right(pPr)
+        else:
+            # Create a new RTL TOC style
+            style_el = OxmlElement("w:style")
+            style_el.set(qn("w:type"), "paragraph")
+            style_el.set(qn("w:styleId"), style_id)
+
+            name_el = OxmlElement("w:name")
+            name_el.set(qn("w:val"), style_name_val)
+            style_el.append(name_el)
+
+            based_el = OxmlElement("w:basedOn")
+            based_el.set(qn("w:val"), "Normal")
+            style_el.append(based_el)
+
+            pPr_el = OxmlElement("w:pPr")
+            _ensure_rtl_right(pPr_el)
+            # Indent for nested TOC levels
+            if indent_level > 1:
+                ind_el = OxmlElement("w:ind")
+                indent_twips = str(360 * (indent_level - 1))
+                ind_el.set(qn("w:right"), indent_twips)
+                pPr_el.append(ind_el)
+            style_el.append(pPr_el)
+
+            styles_el.append(style_el)
+
 
 # ---------------------------------------------------------------------------
 # Trial watermark
@@ -166,15 +248,117 @@ def set_paragraph_font(
     italic: bool = False,
     color_hex: Optional[str] = None,
 ) -> None:
-    """Apply font properties to every run in a paragraph."""
+    """Apply font properties to every run in a paragraph.
+
+    Sets both the ASCII font (``w:ascii``) **and** the complex-script font
+    (``w:cs``) so Arabic/RTL text uses the intended typeface rather than
+    falling back to Word's default Arabic font.
+    """
     for run in para.runs:
-        run.font.name = family
         run.font.size = Pt(size_pt)
         run.bold = bold
         run.italic = italic
         if color_hex:
             r, g, b = _hex_to_rgb(color_hex)
             run.font.color.rgb = RGBColor(r, g, b)
+        # Set ASCII + complex-script (Arabic) font via OOXML
+        # run.font.name alone only sets w:ascii; w:cs is needed for Arabic text.
+        rPr = run._r.get_or_add_rPr()
+        rFonts = rPr.find(qn("w:rFonts"))
+        if rFonts is None:
+            rFonts = OxmlElement("w:rFonts")
+            rPr.insert(0, rFonts)
+        rFonts.set(qn("w:ascii"), family)
+        rFonts.set(qn("w:hAnsi"), family)
+        rFonts.set(qn("w:cs"), family)
+        run.font.name = family  # keep python-docx internal state in sync
+
+
+def apply_font_family_to_document(doc: Document, family: str) -> None:
+    """Apply *family* to every run in the document — body paragraphs and tables.
+
+    Preserves bold / italic / color set by the source .docx files.
+    Sets both ``w:ascii`` and ``w:cs`` (complex-script) so Arabic text
+    actually renders in the chosen typeface rather than falling back to
+    Word's default Arabic font.
+
+    Call this **after** all content has been assembled and RTL applied so
+    that content-library paragraphs (deep-copied from source files) also
+    receive the correct font.
+
+    Note: ``doc.paragraphs`` does not include table-cell paragraphs, so
+    both body paragraphs *and* table cells are iterated explicitly.
+    """
+    # Body paragraphs
+    for para in doc.paragraphs:
+        _apply_font_to_runs(para.runs, family)
+    # Table cell paragraphs
+    for table in doc.tables:
+        for row in table.rows:
+            for cell in row.cells:
+                for para in cell.paragraphs:
+                    _apply_font_to_runs(para.runs, family)
+
+
+def _apply_font_to_runs(runs, family: str) -> None:
+    """Set ASCII + complex-script font on a sequence of Run objects."""
+    for run in runs:
+        run.font.name = family
+        rPr = run._r.get_or_add_rPr()
+        rFonts = rPr.find(qn("w:rFonts"))
+        if rFonts is None:
+            rFonts = OxmlElement("w:rFonts")
+            rPr.insert(0, rFonts)
+        rFonts.set(qn("w:ascii"), family)
+        rFonts.set(qn("w:hAnsi"), family)
+        rFonts.set(qn("w:cs"), family)
+
+
+def set_document_default_font(doc: Document, family: str) -> None:
+    """Set *family* as the document-wide default font in styles.xml.
+
+    Covers two locations:
+    1. ``Normal`` style ``<w:rPr>`` — affects paragraphs that inherit Normal.
+    2. ``<w:docDefaults>/<w:rPrDefault>`` — lowest-priority fallback used
+       when Word generates new content (e.g. auto-generated TOC entries).
+    """
+    # 1. Normal style rPr
+    try:
+        normal = doc.styles["Normal"]
+        rPr = normal.element.get_or_add_rPr()
+        rFonts = rPr.find(qn("w:rFonts"))
+        if rFonts is None:
+            rFonts = OxmlElement("w:rFonts")
+            rPr.insert(0, rFonts)
+        rFonts.set(qn("w:ascii"), family)
+        rFonts.set(qn("w:hAnsi"), family)
+        rFonts.set(qn("w:cs"), family)
+    except (KeyError, AttributeError):
+        pass
+
+    # 2. docDefaults rPrDefault
+    try:
+        styles_el = doc.styles.element
+        doc_defaults = styles_el.find(qn("w:docDefaults"))
+        if doc_defaults is None:
+            return
+        rPr_default = doc_defaults.find(qn("w:rPrDefault"))
+        if rPr_default is None:
+            rPr_default = OxmlElement("w:rPrDefault")
+            doc_defaults.append(rPr_default)
+        rPr = rPr_default.find(qn("w:rPr"))
+        if rPr is None:
+            rPr = OxmlElement("w:rPr")
+            rPr_default.append(rPr)
+        rFonts = rPr.find(qn("w:rFonts"))
+        if rFonts is None:
+            rFonts = OxmlElement("w:rFonts")
+            rPr.insert(0, rFonts)
+        rFonts.set(qn("w:ascii"), family)
+        rFonts.set(qn("w:hAnsi"), family)
+        rFonts.set(qn("w:cs"), family)
+    except (AttributeError, TypeError):
+        pass
 
 
 def set_rtl(para: Paragraph) -> None:
@@ -200,6 +384,21 @@ def clear_document(doc: Document) -> None:
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
+def _ensure_rtl_right(pPr) -> None:
+    """Add/update <w:bidi val="1"> and <w:jc val="right"> on a pPr element."""
+    b = pPr.find(qn("w:bidi"))
+    if b is None:
+        b = OxmlElement("w:bidi")
+        pPr.append(b)
+    b.set(qn("w:val"), "1")
+
+    jc = pPr.find(qn("w:jc"))
+    if jc is None:
+        jc = OxmlElement("w:jc")
+        pPr.append(jc)
+    jc.set(qn("w:val"), "right")
+
 
 def _hex_to_rgb(hex_color: str) -> Tuple[int, int, int]:
     """Convert '#RRGGBB' to (R, G, B) integers."""

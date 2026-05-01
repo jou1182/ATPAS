@@ -190,6 +190,29 @@ def test_dependency_resolver_transitive(resolver):
     assert len(missing) > 0
 
 
+def test_alternative_excavation_dependency_does_not_add_all_excavation_types(resolver, validator):
+    selected = ["002-MAT-SITE", "002-EXC-FINE", "002-WST-EXC", "003-PIP-SEW"]
+
+    full = resolver.resolve(selected)
+
+    assert "002-EXC-FINE" in full
+    assert "002-EXC-OPEN" not in full
+    assert "002-EXC-TUNNEL" not in full
+    assert "002-EXC-PAV" not in full
+
+    _valid, _errors, warnings = validator.validate(selected, "nwc", "wastewater")
+    assert not any("002-EXC-OPEN" in warning for warning in warnings)
+    assert not any("002-EXC-TUNNEL" in warning for warning in warnings)
+
+
+def test_project_specific_alternative_dependency_skips_other_network_type(validator):
+    selected = ["002-MAT-SITE", "002-EXC-FINE", "003-PIP-SEW", "003-PIP-FIT"]
+
+    _valid, _errors, warnings = validator.validate(selected, "nwc", "wastewater")
+
+    assert not any("003-PIP-WAT" in warning for warning in warnings)
+
+
 # ---------------------------------------------------------------------------
 # BUG-12: Custom codes (999-CUS-NNN) must pass format check
 # ---------------------------------------------------------------------------

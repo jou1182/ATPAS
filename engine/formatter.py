@@ -109,7 +109,9 @@ class Formatter:
         self._apply_font(para, style_key, color_override=color)
         if self._rtl:
             set_rtl(para)
-            para.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+            # Preserve CENTER alignment (cover page title / stats paragraphs)
+            if para.alignment != WD_ALIGN_PARAGRAPH.CENTER:
+                para.alignment = WD_ALIGN_PARAGRAPH.RIGHT
 
     def _apply_font(
         self,

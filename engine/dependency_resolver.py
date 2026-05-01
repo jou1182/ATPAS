@@ -132,8 +132,46 @@ class DependencyResolver:
         if code_id not in self._codes:
             return
         visited.add(code_id)
-        for dep in (self._codes[code_id].get("dependencies") or []):
+        for dep in self._effective_dependencies(code_id, visited):
             self._walk(dep, visited)
+
+    def _effective_dependencies(self, code_id: str, selected_or_visited: Set[str]) -> List[str]:
+        """Return dependencies still needed, honoring alternative dependency lists."""
+
+        code = self._codes.get(code_id, {})
+        deps = list(code.get("dependencies") or [])
+        if not deps or not self._is_alternative_dependency_set(code, deps):
+            return deps
+
+        if any(dep in selected_or_visited for dep in deps):
+            return []
+        return [deps[0]]
+
+    def _is_alternative_dependency_set(self, code: Dict, deps: List[str]) -> bool:
+        if len(deps) < 2:
+            return False
+
+        note = str(code.get("dependencies_note", ""))
+        if "أي" in note or "any" in note.lower():
+            return True
+
+        dep_records = [self._codes.get(dep, {}) for dep in deps]
+        if dep_records and all("excavation_type" in dep for dep in dep_records):
+            return True
+
+        project_sets = [
+            set(dep.get("project_ids") or [])
+            for dep in dep_records
+            if dep.get("project_ids")
+        ]
+        if len(project_sets) == len(deps):
+            for idx, current in enumerate(project_sets):
+                others = set().union(*(s for j, s in enumerate(project_sets) if j != idx))
+                if current & others:
+                    return False
+            return True
+
+        return False
 
     def _sorted(self, code_ids: Set[str] | List[str]) -> List[str]:
         """Sort codes by their sequence_order, unknown codes go last."""

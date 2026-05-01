@@ -192,7 +192,7 @@ class AboutDialog(QDialog):
         self._hw_field = QLineEdit(hw_id)
         self._hw_field.setReadOnly(True)
         self._hw_field.setAlignment(Qt.AlignCenter)
-        self._hw_field.setFont(QFont("Consolas", 13))
+        self._hw_field.setFont(QFont("Tajawal", 13))
         self._hw_field.setFixedHeight(38)
         self._hw_field.setStyleSheet("""
             QLineEdit {

@@ -112,7 +112,7 @@ class ActivationDialog(QDialog):
         self._hw_display.setStyleSheet("""
             background:#FFFFFF; border:1.5px solid #C9921B;
             border-radius:6px; padding:8px 12px;
-            font-family:'Consolas','Courier New',monospace;
+            font-family:'Tajawal';
             font-size:15px; font-weight:700; color:#152433;
             letter-spacing:2px;
         """)
@@ -157,7 +157,7 @@ class ActivationDialog(QDialog):
         self._key_input.setStyleSheet("""
             background:#FFFFFF; border:1.5px solid #C3BBAA;
             border-radius:6px; padding:10px 14px;
-            font-family:'Consolas','Courier New',monospace;
+            font-family:'Tajawal';
             font-size:14px; letter-spacing:1px; color:#121B28;
         """)
         self._key_input.textChanged.connect(self._on_key_changed)
@@ -289,7 +289,7 @@ class ActivationDialog(QDialog):
         self._key_input.setStyleSheet("""
             background:#FFFFFF; border:1.5px solid #C3BBAA;
             border-radius:6px; padding:10px 14px;
-            font-family:'Consolas','Courier New',monospace;
+            font-family:'Tajawal';
             font-size:14px; letter-spacing:1px; color:#121B28;
         """)
 

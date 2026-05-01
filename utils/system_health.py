@@ -14,6 +14,7 @@ from pathlib import Path
 from typing import Any, Iterable
 
 from utils.registry_validator import validate_registry
+from utils.word_content_audit import audit_docx_file
 
 
 @dataclass(frozen=True)
@@ -39,6 +40,8 @@ class SystemHealthReport:
     source_documents_count: int
     linked_documents_count: int
     missing_documents_count: int
+    checked_word_documents_count: int = 0
+    word_content_issue_count: int = 0
     issues: list[HealthIssue] = field(default_factory=list)
 
     @property
@@ -59,6 +62,8 @@ class SystemHealthReport:
         penalty = len(self.errors) * 14 + len(self.warnings) * 4
         if self.missing_documents_count:
             penalty += min(18, self.missing_documents_count)
+        if self.word_content_issue_count:
+            penalty += min(12, self.word_content_issue_count * 2)
         return max(0, min(100, 100 - penalty))
 
     @property
@@ -95,6 +100,8 @@ def render_markdown_report(report: SystemHealthReport) -> str:
         f"| ملفات Word الموجودة | {report.source_documents_count} |",
         f"| الأكواد المرتبطة بمحتوى Word | {report.linked_documents_count} |",
         f"| أكواد بلا ملف Word مطابق | {report.missing_documents_count} |",
+        f"| ملفات Word المفحوصة | {report.checked_word_documents_count} |",
+        f"| ملاحظات جودة محتوى Word | {report.word_content_issue_count} |",
         "",
         "## الملاحظات والإجراءات المقترحة",
         "",
@@ -160,7 +167,7 @@ def render_html_report(report: SystemHealthReport) -> str:
   <title>تقرير صحة نظام ATPAS</title>
   <style>
     body {{
-      font-family: Tahoma, Arial, sans-serif;
+      font-family: Tajawal, sans-serif;
       direction: rtl;
       color: #121B28;
       background: #FEFCF7;
@@ -215,6 +222,8 @@ def render_html_report(report: SystemHealthReport) -> str:
     <tr><td>ملفات Word الموجودة</td><td>{report.source_documents_count}</td></tr>
     <tr><td>الأكواد المرتبطة بمحتوى Word</td><td>{report.linked_documents_count}</td></tr>
     <tr><td>أكواد بلا ملف Word مطابق</td><td>{report.missing_documents_count}</td></tr>
+    <tr><td>ملفات Word المفحوصة</td><td>{report.checked_word_documents_count}</td></tr>
+    <tr><td>ملاحظات جودة محتوى Word</td><td>{report.word_content_issue_count}</td></tr>
   </table>
   <h2>الملاحظات والإجراءات المقترحة</h2>
   <table>
@@ -256,7 +265,13 @@ def build_system_health_report(
     issues.extend(_code_reference_issues(codes, projects, owners))
     issues.extend(_preset_reference_issues(presets, codes, projects, owners))
 
-    linked_documents, missing_documents, content_issues = _content_issues(codes, docs_dir, doc_files)
+    (
+        linked_documents,
+        missing_documents,
+        checked_word_documents,
+        word_content_issue_count,
+        content_issues,
+    ) = _content_issues(codes, docs_dir, doc_files)
     issues.extend(content_issues)
 
     active_codes = sum(1 for entry in codes.values() if entry.get("status") == "active")
@@ -294,6 +309,8 @@ def build_system_health_report(
         source_documents_count=len(doc_files),
         linked_documents_count=linked_documents,
         missing_documents_count=missing_documents,
+        checked_word_documents_count=checked_word_documents,
+        word_content_issue_count=word_content_issue_count,
         issues=issues,
     )
 
@@ -450,9 +467,11 @@ def _content_issues(
     codes: dict[str, Any],
     docs_dir: Path,
     doc_files: set[str],
-) -> tuple[int, int, list[HealthIssue]]:
+) -> tuple[int, int, int, int, list[HealthIssue]]:
     issues: list[HealthIssue] = []
     linked_documents = 0
+    checked_word_documents = 0
+    word_content_issue_count = 0
     missing_codes: list[str] = []
 
     for code_id, entry in codes.items():
@@ -463,6 +482,16 @@ def _content_issues(
         expected_name = declared if isinstance(declared, str) and declared.strip() else f"{code_id}.docx"
         if expected_name in doc_files:
             linked_documents += 1
+            audit = audit_docx_file(docs_dir / expected_name, code_id=code_id, code_data=entry)
+            checked_word_documents += 1
+            for audit_issue in audit.issues:
+                word_content_issue_count += 1
+                issues.append(HealthIssue(
+                    audit_issue.severity,
+                    f"templates/source_documents/{expected_name}",
+                    f"{code_id}: {audit_issue.message_ar}",
+                    audit_issue.suggestion_ar,
+                ))
         else:
             missing_codes.append(code_id)
 
@@ -483,7 +512,13 @@ def _content_issues(
             "أضف ملفات DOCX للأكواد المهمة أو اربطها من مكتبة المحتوى.",
         ))
 
-    return linked_documents, len(missing_codes), issues
+    return (
+        linked_documents,
+        len(missing_codes),
+        checked_word_documents,
+        word_content_issue_count,
+        issues,
+    )
 
 
 def _iter_strings(value: Any) -> Iterable[str]:

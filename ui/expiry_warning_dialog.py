@@ -136,7 +136,7 @@ class ExpiryWarningDialog(QDialog):
         self._hw_field.setFixedHeight(38)
         self._hw_field.setStyleSheet("""
             QLineEdit {
-                font-family:'Consolas','Courier New',monospace;
+                font-family:'Tajawal';
                 font-size:14px; font-weight:700; letter-spacing:1px;
                 background:#FFF9F0; border:1.5px solid #FFAB91;
                 border-radius:6px; padding:0 10px; color:#4A0000;

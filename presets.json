@@ -13,7 +13,7 @@
         "002-MAT-SITE", "002-EXC-FINE", "002-WST-EXC",
         "003-PIP-SEW", "003-PIP-FIT",
         "004-TST-LEK", "004-QC-INSTALL",
-        "005-BKF-SND", "005-RST-ASP", "005-HND-DOC", "005-HND-FIN"
+        "005-BKF-SND", "005-BKF-SOL", "005-RST-ASP", "005-HND-DOC", "005-HND-FIN"
       ]
     },
     "ww_nwc_main": {
@@ -61,7 +61,7 @@
         "002-MAT-SITE", "002-EXC-FINE", "002-WST-EXC",
         "003-PIP-WAT", "003-PIP-FIT",
         "004-TST-LEK", "004-TST-HYD", "004-QC-INSTALL",
-        "005-BKF-SND", "005-RST-ASP", "005-HND-DOC", "005-HND-FIN"
+        "005-BKF-SND", "005-BKF-SOL", "005-RST-ASP", "005-HND-DOC", "005-HND-FIN"
       ]
     },
     "ws_nwc_main": {

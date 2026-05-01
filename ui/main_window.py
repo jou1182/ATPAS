@@ -60,6 +60,8 @@ from ui.import_wizard import ImportWizardDialog
 from ui.checkbox_selector import CheckboxSelectorWidget
 from ui.about_dialog import AboutDialog
 from ui.code_manager_dialog import CodeManagerDialog
+from ui.content_library_dialog import ContentLibraryDialog
+from ui.final_review_dialog import FinalReviewDialog
 from ui.header_widget import HeaderWidget
 from ui.help_dialog import HelpDialog
 from ui.preview_panel import PreviewPanelWidget
@@ -70,10 +72,15 @@ from ui.system_health_dialog import SystemHealthDialog
 from ui.welcome_overlay import show_if_first_run
 from ui.motion import motion_ms, motion_single_shot, prefers_reduced_motion
 from utils.activity_log import ActivityLog
+from utils.content_approval import ContentApprovalManager
 from utils.content_library import ContentLibrary
+from utils.final_approval_report import save_final_approval_report
 from utils.json_manager import load_json
+from utils.proposal_comparison import compare_with_latest_similar
 from utils.proposal_versions import ProposalVersionManager
+from utils.proposal_readiness import analyze_proposal_readiness
 from utils.system_health import build_system_health_report
+from utils.word_content_audit import audit_selected_content
 
 def _get_output_dir(settings: QSettings | None = None) -> Path:
     """Return the output directory — next to EXE when frozen, else local."""
@@ -323,6 +330,7 @@ class MainWindow(QMainWindow):
         self._header.settings_requested.connect(self._on_settings)
         self._header.health_requested.connect(self._on_system_health)
         self._header.code_manager_requested.connect(self._on_code_manager)
+        self._header.content_library_requested.connect(self._on_content_library)
         self._header.last_proposal_requested.connect(self._on_open_last_proposal)
         self._header.about_requested.connect(self._on_about)
         self._header.boq_import_requested.connect(self._on_import_boq)
@@ -522,26 +530,59 @@ class MainWindow(QMainWindow):
             )
             return
 
-        missing_content = [
-            cid for cid in selected
-            if not ContentLibrary().exists(cid)
-            and not self.registry_data.get("codes", {}).get(cid, {}).get("_custom", False)
+        _valid, validation_errors, validation_warnings = self._validator.validate(
+            selected,
+            oid,
+            pids,
+        )
+        content_audits = audit_selected_content(
+            self.registry_data.get("codes", {}),
+            selected,
+            ContentLibrary(),
+        )
+        approval_manager = ContentApprovalManager()
+        unapproved_content = [
+            audit.code_id for audit in content_audits
+            if audit.exists and not approval_manager.state_for(audit.code_id, audit).approved
         ]
-        if missing_content:
-            sample = ", ".join(missing_content[:8])
-            more = "" if len(missing_content) <= 8 else f"\nو{len(missing_content) - 8} كود آخر."
-            reply = QMessageBox.question(
-                self,
-                "تنبيه قبل البناء",
-                "يمكن إنشاء ملف Word الآن، لكن بعض الأكواد المختارة لا تملك محتوى Word حقيقيًا.\n\n"
-                f"الأكواد الناقصة: {sample}{more}\n\n"
-                "هل تريد المتابعة واستخدام النصوص البديلة؟",
-                QMessageBox.Yes | QMessageBox.No,
-                QMessageBox.No,
-            )
-            if reply != QMessageBox.Yes:
-                self._show_status("تم إلغاء البناء حتى يتم استكمال محتوى Word.", hold_ms=6_000)
-                return
+        readiness = analyze_proposal_readiness(
+            codes=self.registry_data.get("codes", {}),
+            selected_codes=selected,
+            validation_errors=validation_errors,
+            validation_warnings=validation_warnings,
+            content_audits=content_audits,
+            unapproved_content_codes=unapproved_content,
+            resolver=self._resolver,
+        )
+        comparison = compare_with_latest_similar(
+            manager=self._version_manager,
+            project_id=pid,
+            owner_id=oid,
+            current_codes=readiness.resolved_codes,
+            current_page_count=readiness.total_pages,
+        )
+        project_label = " + ".join(
+            self.config_data.get("projects", {}).get(project_id, {}).get("name_ar", project_id)
+            for project_id in pids
+        )
+        owner_label = (
+            self.config_data
+            .get("owner_specifications", {})
+            .get(oid, {})
+            .get("owner_name_ar", oid)
+        )
+        final_review = FinalReviewDialog(
+            readiness=readiness,
+            codes=self.registry_data.get("codes", {}),
+            project_label=project_label,
+            owner_label=owner_label,
+            comparison=comparison,
+            content_audits=content_audits,
+            parent=self,
+        )
+        if final_review.exec_() != FinalReviewDialog.Accepted:
+            self._show_status("تم إلغاء البناء من شاشة الاعتماد النهائي.", hold_ms=5_000)
+            return
 
         output_dir = _get_output_dir(self._settings)
         try:
@@ -566,6 +607,25 @@ class MainWindow(QMainWindow):
             self._show_status("تم إلغاء بناء العرض", hold_ms=4_000)
             return
         template_vars = vars_dlg.get_vars()
+
+        try:
+            approval_html, approval_json = save_final_approval_report(
+                output_dir=output_dir,
+                project_id=pid,
+                owner_id=oid,
+                project_label=project_label,
+                owner_label=owner_label,
+                readiness=readiness,
+                comparison=comparison,
+                content_audits=content_audits,
+                template_vars=template_vars,
+            )
+            self._activity_log.append(
+                "اعتماد نهائي قبل البناء",
+                {"html": str(approval_html), "json": str(approval_json)},
+            )
+        except Exception as exc:  # noqa: BLE001
+            self._logger.warning("Final approval report save failed: %s", exc)
 
         dialog = BuildProgressDialog(
             codes=self.registry_data.get("codes", {}),
@@ -787,6 +847,11 @@ class MainWindow(QMainWindow):
         """Open code manager and refresh the UI after safe edits."""
         dialog = CodeManagerDialog(self.registry_data, self.config_data, parent=self)
         dialog.data_changed.connect(self._reload_after_import)
+        dialog.exec_()
+
+    def _on_content_library(self) -> None:
+        """Open the Word content library approval center."""
+        dialog = ContentLibraryDialog(self.registry_data, parent=self)
         dialog.exec_()
 
     # ------------------------------------------------------------------

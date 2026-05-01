@@ -48,8 +48,8 @@ TITLE_FONT_SIZE = 20
 BADGE_FONT_SIZE = 11
 
 # ── Fonts ──────────────────────────────────────────────────────────
-MAIN_FONT = "'Tajawal', 'Segoe UI', 'Arial', 'Tahoma', sans-serif"
-CODE_FONT = "'Consolas', 'Courier New', monospace"
+MAIN_FONT = "'Tajawal'"
+CODE_FONT = "'Tajawal'"
 
 def get_font(size: int = BASE_FONT_SIZE, weight: int = -1, italic: bool = False) -> QFont:
     """Helper to create a QFont instance with Tajawal as primary."""
