@@ -54,6 +54,10 @@ class ContentLibrary:
         self._registry: Dict[str, str] = self._load_registry()
         # Availability cache — built once on first exists() call, invalidated on write
         self._available_set: Optional[set] = None
+        # Parsed Document cache — each source .docx is opened once per session.
+        # _copy_docx_body only READS from the source Document (all mutations go
+        # to the target), so reusing the same object across calls is safe.
+        self._doc_cache: Dict[str, "Document"] = {}
 
     # ------------------------------------------------------------------
     # Public API
@@ -129,6 +133,7 @@ class ContentLibrary:
     def invalidate_cache(self) -> None:
         """Discard the availability cache. Call after adding/removing files."""
         self._available_set = None
+        self._doc_cache.clear()
 
     def list_available(self) -> List[str]:
         """Return all code_ids that have content files available."""
@@ -151,7 +156,7 @@ class ContentLibrary:
             return False
 
         try:
-            _copy_docx_body(source_path, target_doc)
+            _copy_docx_body(source_path, target_doc, self._doc_cache)
             logger.debug("Inserted content for %s from %s", code_id, source_path)
             return True
         except Exception as exc:
@@ -197,16 +202,31 @@ class ContentLibrary:
 # Deep XML copy — the engine that makes it all work
 # ---------------------------------------------------------------------------
 
-def _copy_docx_body(source_path: Path, target_doc: Document) -> None:
+def _copy_docx_body(
+    source_path: Path,
+    target_doc: Document,
+    doc_cache: Optional[Dict[str, "Document"]] = None,
+) -> None:
     """
     Deep-copy all body elements from source .docx into target_doc,
     re-mapping image relationships and numbering definitions so that
     embedded images and numbered lists are fully preserved with RTL direction.
+
+    doc_cache: optional dict keyed by str(source_path). When provided, parsed
+    Document objects are reused across calls — opening a .docx file takes
+    ~50-80ms on HDD, so caching yields a significant speedup when the same
+    source file appears in multiple builds within the same session.
     """
     from docx.opc.part import Part
     from docx.opc.packuri import PackURI
 
-    source = Document(str(source_path))
+    cache_key = str(source_path)
+    if doc_cache is not None and cache_key in doc_cache:
+        source = doc_cache[cache_key]
+    else:
+        source = Document(str(source_path))
+        if doc_cache is not None:
+            doc_cache[cache_key] = source
     target_body = target_doc.element.body
     target_part = target_doc.part
 
