@@ -98,14 +98,14 @@ class PresetsPanelWidget(QWidget):
 
         save_btn = QPushButton("💾 حفظ")
         save_btn.setFixedWidth(70)
-        save_btn.setToolTip("حفظ الاختيار الحالي كـ Preset جديد")
+        save_btn.setToolTip("حفظ الاختيار الحالي كنمط جاهز جديد")
         save_btn.setStyleSheet(_btn_style)
         save_btn.setCursor(Qt.PointingHandCursor)
         save_btn.clicked.connect(self.save_requested.emit)
 
         hist_btn = QPushButton("📋 سجل")
         hist_btn.setFixedWidth(70)
-        hist_btn.setToolTip("عرض آخر 10 بنات مع إمكانية إعادة التطبيق")
+        hist_btn.setToolTip("عرض آخر 10 عمليات بناء مع إمكانية إعادة التطبيق")
         hist_btn.setStyleSheet(_btn_style)
         hist_btn.setCursor(Qt.PointingHandCursor)
         hist_btn.clicked.connect(self.history_requested.emit)

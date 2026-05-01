@@ -227,7 +227,7 @@ class _JobListScreen(QWidget):
 
         # Add-job buttons
         add_row = QHBoxLayout()
-        add_preset_btn = QPushButton("+ إضافة وظيفة من Preset")
+        add_preset_btn = QPushButton("+ إضافة وظيفة من نمط جاهز")
         add_preset_btn.setStyleSheet(_STYLE_SECONDARY)
         add_preset_btn.clicked.connect(self._add_from_preset)
         add_row.addWidget(add_preset_btn)

@@ -157,7 +157,7 @@ class ProjectSelectorWidget(QGroupBox):
         owner_h.setContentsMargins(0, 0, 0, 0)
         owner_h.addWidget(self._owner_combo, stretch=1)
         add_btn = QPushButton("+")
-        add_btn.setFixedWidth(32)
+        add_btn.setFixedSize(40, 32)
         add_btn.setToolTip("إضافة جهة مالكة جديدة (للمشرف فقط)")
         add_btn.clicked.connect(self._on_add_owner)
         owner_h.addWidget(add_btn)

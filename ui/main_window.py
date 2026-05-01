@@ -118,7 +118,7 @@ _STATUS_TIPS: list[str] = [
     "📋 التبعيات الهندسية تُحلّ تلقائياً — العرض دائماً مكتمل",
     "🔍 ابحث بالاسم أو رقم الكود في خانة البحث",
     "📄 الملف الناتج .docx متوافق مع جميع إصدارات Word",
-    "🏗️ يدعم 6 أنواع مشاريع و9 جهات مالكة في منطقة الرياض",
+    "🏗️ يدعم 6 أنواع مشاريع و20 جهة مالكة بتصفية ذكية للأكواد",
     "📁 استخدم زر «فتح المجلد» لتحديد الملف مباشرةً في Explorer",
 ]
 
@@ -411,7 +411,7 @@ class MainWindow(QMainWindow):
         then tick all preset codes on the freshly rebuilt checkbox list.
         """
         if not project_ids or not owner_id:
-            self._show_status("الـ Preset غير مكتمل — لا يوجد مشروع أو جهة", hold_ms=4_000)
+            self._show_status("النمط الجاهز غير مكتمل — لا يوجد مشروع أو جهة", hold_ms=4_000)
             return
 
         # apply_preset sets checkboxes + owner combo; their signals fire
@@ -424,7 +424,7 @@ class MainWindow(QMainWindow):
 
         proj_label = " + ".join(project_ids)
         self._show_status(
-            f"✅ تم تطبيق الـ Preset — المشروع: {proj_label} | "
+            f"✅ تم تطبيق النمط الجاهز — المشروع: {proj_label} | "
             f"الجهة: {owner_id} | {len(code_ids)} كود مُختار",
             hold_ms=7_000,
         )
@@ -452,7 +452,7 @@ class MainWindow(QMainWindow):
             return
 
         name, ok = QInputDialog.getText(
-            self, "حفظ كـ Preset", "اسم الـ Preset:",
+            self, "حفظ كنمط جاهز", "اسم النمط الجاهز:",
         )
         name = name.strip()
         if not ok or not name:
@@ -477,14 +477,14 @@ class MainWindow(QMainWindow):
                 json.dump(presets_data, f, ensure_ascii=False, indent=2)
             self._presets_panel.refresh(presets_data)
             self._show_status(
-                f'✅ تم حفظ Preset "{name}" بنجاح ({len(codes)} كود)',
+                f'✅ تم حفظ النمط الجاهز "{name}" بنجاح ({len(codes)} كود)',
                 hold_ms=6_000,
             )
         except Exception as exc:  # noqa: BLE001
             self._logger.exception("Failed saving preset: %s", exc)
             self._show_error_box(
                 "تعذّر حفظ النمط الجاهز",
-                "لم يتم حفظ النمط. راجع صلاحيات ملف presets.json أو جرّب مرة أخرى.",
+                "لم يتم حفظ النمط الجاهز. راجع صلاحيات ملف presets.json أو جرّب مرة أخرى.",
                 str(exc),
             )
 
