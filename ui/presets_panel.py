@@ -26,17 +26,18 @@ from PyQt5.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
+from ui import theme
 from ui.motion import motion_ms, prefers_reduced_motion
 
 # Distinct colours per preset group (border accent only — stays subtle)
 _GROUP_COLORS: dict[str, str] = {
-    "صرف صحي":        "#1565C0",
-    "مياه":            "#2E7D32",
-    "طرق وأسفلت":     "#E65100",
-    "إنشاءات":         "#E0B84D",
-    "مشاريع مزدوجة":   "#F28B82",
+    "صرف صحي":        theme.CTX_INFRA,
+    "مياه":            theme.CTX_WATER,
+    "طرق وأسفلت":     theme.CTX_ROAD,
+    "إنشاءات":         theme.CTX_BUILD,
+    "مشاريع مزدوجة":   theme.CTX_MIXED,
 }
-_DEFAULT_COLOR = "#455A64"
+_DEFAULT_COLOR = theme.NEUTRAL
 
 
 class PresetsPanelWidget(QWidget):

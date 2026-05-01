@@ -24,6 +24,7 @@ from PyQt5.QtWidgets import (
     QWidget,
 )
 
+from ui import theme
 from utils.activity_log import ActivityLog
 from utils.system_health import (
     HealthIssue,
@@ -60,10 +61,10 @@ class SystemHealthDialog(QDialog):
 
         cards = QHBoxLayout()
         cards.setSpacing(10)
-        cards.addWidget(self._metric_card("درجة الجاهزية", f"{self._report.score}%", "#152433"))
+        cards.addWidget(self._metric_card("درجة الجاهزية", f"{self._report.score}%", theme.HEADER))
         cards.addWidget(self._metric_card("الحالة", self._report.status_ar, self._status_color()))
-        cards.addWidget(self._metric_card("أخطاء", str(len(self._report.errors)), "#B03030"))
-        cards.addWidget(self._metric_card("تحذيرات", str(len(self._report.warnings)), "#B56618"))
+        cards.addWidget(self._metric_card("أخطاء", str(len(self._report.errors)), theme.ERROR))
+        cards.addWidget(self._metric_card("تحذيرات", str(len(self._report.warnings)), theme.WARNING))
         root.addLayout(cards)
 
         self._browser = QTextBrowser(self)
@@ -130,7 +131,7 @@ class SystemHealthDialog(QDialog):
 
         label_w = QLabel(label)
         label_w.setAlignment(Qt.AlignCenter)
-        label_w.setStyleSheet("color: #5A6B7C; font-size: 11px; font-weight: 700;")
+        label_w.setStyleSheet(f"color: {theme.TEXT2}; font-size: 11px; font-weight: 700;")
 
         value_w = QLabel(value)
         value_w.setAlignment(Qt.AlignCenter)
@@ -142,20 +143,21 @@ class SystemHealthDialog(QDialog):
         card.setStyleSheet(
             """
             QWidget#healthCard {
-                background: #FAF0DC;
+                background: #FEFCF7;
                 border: 1px solid #D5CFBF;
+                border-top: 3px solid %s;
                 border-radius: 10px;
             }
-            """
+            """ % color
         )
         return card
 
     def _status_color(self) -> str:
         if self._report.errors:
-            return "#B03030"
+            return theme.ERROR
         if self._report.warnings:
-            return "#B56618"
-        return "#2B7549"
+            return theme.WARNING
+        return theme.SUCCESS
 
     def _render_html(self) -> str:
         r = self._report
@@ -196,13 +198,13 @@ class SystemHealthDialog(QDialog):
               padding: 7px 8px;
               vertical-align: top;
             }}
-            .ok {{ color: #2B7549; font-weight: 800; }}
-            .error {{ color: #B03030; font-weight: 800; }}
-            .warning {{ color: #B56618; font-weight: 800; }}
-            .info {{ color: #1C5D85; font-weight: 800; }}
+            .ok {{ color: {theme.SUCCESS}; font-weight: 800; }}
+            .error {{ color: {theme.ERROR}; font-weight: 800; }}
+            .warning {{ color: {theme.WARNING}; font-weight: 800; }}
+            .info {{ color: {theme.INFO}; font-weight: 800; }}
             .empty {{
-              background: #EAF5EF;
-              border-right: 4px solid #2B7549;
+              background: {theme.SUCCESS_PALE};
+              border-right: 4px solid {theme.SUCCESS};
               padding: 10px 12px;
               border-radius: 8px;
               margin: 10px 0;
@@ -230,6 +232,8 @@ class SystemHealthDialog(QDialog):
             <tr><td>أكواد بلا ملف Word مطابق</td><td>{r.missing_documents_count}</td></tr>
             <tr><td>ملفات Word المفحوصة</td><td>{r.checked_word_documents_count}</td></tr>
             <tr><td>ملاحظات جودة محتوى Word</td><td>{r.word_content_issue_count}</td></tr>
+            <tr><td>خط الإخراج الإجباري</td><td>{html.escape(r.output_font_family)}</td></tr>
+            <tr><td>عقد الإخراج</td><td>{html.escape(r.output_contract_status_ar)}</td></tr>
           </table>
 
           <h2>المشاكل والإجراءات المقترحة</h2>
@@ -359,6 +363,8 @@ def _plain_text_report(report: SystemHealthReport) -> str:
         f"أكواد بلا ملف Word مطابق: {report.missing_documents_count}",
         f"ملفات Word المفحوصة: {report.checked_word_documents_count}",
         f"ملاحظات جودة محتوى Word: {report.word_content_issue_count}",
+        f"خط الإخراج الإجباري: {report.output_font_family}",
+        f"عقد الإخراج: {report.output_contract_status_ar}",
         "",
         "الملاحظات:",
     ]

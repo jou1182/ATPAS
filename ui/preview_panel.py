@@ -37,21 +37,22 @@ from PyQt5.QtWidgets import (
 )
 
 from utils.content_library import ContentLibrary
+from ui import theme
 from ui.motion import motion_ms, prefers_reduced_motion
 
 _CONTENT_LIB = ContentLibrary()   # shared singleton — reads templates/source_documents/
 
-_COLOR_ERROR = "#C62828"
-_COLOR_WARNING = "#E65100"
-_COLOR_OK = "#1B5E20"
-_COLOR_INFO = "#1E4F86"
+_COLOR_ERROR = theme.ERROR
+_COLOR_WARNING = theme.WARNING
+_COLOR_OK = theme.SUCCESS
+_COLOR_INFO = theme.INFO
 
-_BG_CONTENT_REAL = "#ECF6EF"
-_BG_CONTENT_PLACEHOLDER = "#F5F1E8"
-_BG_ERROR = "#FDEEEE"
-_BG_WARNING = "#FFF4E7"
-_BG_OK = "#EAF5EF"
-_BG_INFO = "#EEF3FA"
+_BG_CONTENT_REAL = theme.SUCCESS_PALE
+_BG_CONTENT_PLACEHOLDER = theme.NEUTRAL_PALE
+_BG_ERROR = theme.ERROR_PALE
+_BG_WARNING = theme.WARNING_PALE
+_BG_OK = theme.SUCCESS_PALE
+_BG_INFO = theme.INFO_PALE
 
 
 def _section_title(text: str) -> QLabel:
@@ -156,18 +157,18 @@ class PreviewPanelWidget(QWidget):
             "(يمكن فتحه في Excel للمراجعة أو المقارنة)"
         )
         self._export_btn.setCursor(Qt.PointingHandCursor)
-        self._export_btn.setStyleSheet("""
-            QPushButton {
+        self._export_btn.setStyleSheet(f"""
+            QPushButton {{
                 background: transparent;
-                color: #1B6B9A;
-                border: 1px solid #1B6B9A60;
+                color: {theme.INFO};
+                border: 1px solid {theme.INFO}60;
                 border-radius: 5px;
                 font-size: 11px;
                 padding: 4px 14px;
-            }
-            QPushButton:hover  { background: #E3F1FA; border-color: #1B6B9A; }
-            QPushButton:pressed { background: #C8E5F5; }
-            QPushButton:disabled { color: #AAB8C4; border-color: #DDEAF4; }
+            }}
+            QPushButton:hover  {{ background: {theme.INFO_PALE}; border-color: {theme.INFO}; }}
+            QPushButton:pressed {{ background: #C8E5F5; }}
+            QPushButton:disabled {{ color: #AAB8C4; border-color: #DDEAF4; }}
         """)
         self._export_btn.clicked.connect(self._on_export_csv)
         export_row.addStretch()
@@ -386,7 +387,7 @@ class PreviewPanelWidget(QWidget):
                 item.setForeground(QColor(_COLOR_OK))
                 item.setBackground(QColor(_BG_CONTENT_REAL))
             else:
-                item.setForeground(QColor("#5B6672"))
+                item.setForeground(QColor(theme.NEUTRAL))
                 item.setBackground(QColor(_BG_CONTENT_PLACEHOLDER))
             self._codes_list.addItem(item)
 
@@ -439,7 +440,7 @@ class PreviewPanelWidget(QWidget):
             f"{content_note}  |  {status_text}"
         )
         bg_color = _BG_ERROR if errors else _BG_OK
-        border_color = "#E3B6B6" if errors else "#B9D9C2"
+        border_color = theme.ERROR if errors else theme.SUCCESS
         self._summary_label.setStyleSheet(
             f"font-weight: bold; padding: 5px 8px; color: {status_color}; "
             f"background: {bg_color}; border: 1px solid {border_color}; border-radius: 7px;"
@@ -457,19 +458,19 @@ class PreviewPanelWidget(QWidget):
         missing_content = [cid for cid in selected_codes if not _CONTENT_LIB.exists(cid)]
         if errors:
             text = f"جاهزية التسليم: غير جاهز - {len(errors)} خطأ يمنع البناء"
-            color, bg, border = "#B03030", "#FDEEEE", "#E3B6B6"
+            color, bg, border = _COLOR_ERROR, _BG_ERROR, theme.ERROR
         elif missing_content:
             text = (
                 f"جاهزية التسليم: يحتاج مراجعة محتوى - "
                 f"{len(missing_content)} كود بلا ملف Word"
             )
-            color, bg, border = "#B56618", "#FFF4E7", "#E6C190"
+            color, bg, border = _COLOR_WARNING, _BG_WARNING, theme.WARNING
         elif warnings:
             text = f"جاهزية التسليم: صالح مع {len(warnings)} تحذير"
-            color, bg, border = "#B56618", "#FFF4E7", "#E6C190"
+            color, bg, border = _COLOR_WARNING, _BG_WARNING, theme.WARNING
         else:
             text = "جاهزية التسليم: جاهز للتسليم"
-            color, bg, border = "#2B7549", "#EAF5EF", "#B9D9C2"
+            color, bg, border = _COLOR_OK, _BG_OK, theme.SUCCESS
         self._readiness_label.setText(text)
         self._readiness_label.setStyleSheet(
             f"font-weight: 900; padding: 6px 10px; color: {color}; "

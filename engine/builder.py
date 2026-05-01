@@ -23,7 +23,13 @@ from engine.logger import generate_audit_trail
 from engine.style_applier import StyleApplier
 from engine.validator import Validator
 from utils.content_library import ContentLibrary
-from utils.docx_manipulator import add_trial_watermark, new_docx, save_docx, set_rtl
+from utils.docx_manipulator import (
+    add_trial_watermark,
+    enforce_document_rtl,
+    new_docx,
+    save_docx,
+    set_rtl,
+)
 from utils.image_processor import embed_image
 from utils.json_manager import load_json
 
@@ -34,6 +40,7 @@ _METADATA_DIR = _PROJECT_ROOT
 _STYLE_DIR = _PROJECT_ROOT / "templates" / "style_templates"
 _SOURCE_DOCS_DIR = _PROJECT_ROOT / "templates" / "source_documents"
 _MASTER_CONFIG = _PROJECT_ROOT / "master_config.json"
+_OUTPUT_FONT_FAMILY = "Tajawal"
 
 
 class Builder:
@@ -163,28 +170,6 @@ class Builder:
         self._add_sections(doc, ordered_codes, project_meta, formatter)
         self._style_applier.apply_style(doc, owner_id)
 
-        # Final RTL pass: ensures ALL paragraphs (including content-library
-        # content and fallback paragraphs without a Formatter) are RTL.
-        # CENTER-aligned cover paragraphs are intentionally left unchanged.
-        self._apply_doc_rtl(doc)
-
-        # Font pass: apply owner's body font to every run in the document.
-        # Content-library paragraphs (deep-copied from source .docx files)
-        # retain their original typefaces after insertion, so we must override
-        # them here — after all content is assembled — to get a uniform font.
-        # Both ASCII (w:ascii) and complex-script/Arabic (w:cs) attributes are
-        # set so Arabic text does not fall back to Word's default Arabic font.
-        if style_spec:
-            body_font = style_spec.get("fonts", {}).get("body", {}).get("family")
-            if body_font:
-                from utils.docx_manipulator import (
-                    apply_font_family_to_document,
-                    set_document_default_font,
-                )
-                apply_font_family_to_document(doc, body_font)
-                set_document_default_font(doc, body_font)
-                logger.debug("Applied font '%s' to all paragraphs", body_font)
-
         # --- علامة مائية للنسخة التجريبية (ترخيص يوم واحد) ---
         try:
             from utils.license_manager import check_saved_license
@@ -194,6 +179,8 @@ class Builder:
                 logger.info("Trial watermark added (days_left=%s)", lic["days_left"])
         except Exception:
             pass   # لا يوقف البناء إذا فشل فحص الترخيص
+
+        self._finalize_arabic_layout(doc)
 
         # --- Save ---
         save_docx(doc, output_path)
@@ -210,6 +197,19 @@ class Builder:
             "success", None, elapsed, file_size
         )
         return True, None
+
+    @staticmethod
+    def _finalize_arabic_layout(doc: Document) -> None:
+        """Apply the final non-negotiable Arabic output rules before saving."""
+        from utils.docx_manipulator import (
+            apply_font_family_to_document,
+            set_document_default_font,
+        )
+
+        Builder._apply_doc_rtl(doc)
+        apply_font_family_to_document(doc, _OUTPUT_FONT_FAMILY)
+        set_document_default_font(doc, _OUTPUT_FONT_FAMILY)
+        logger.debug("Applied output font '%s' to the full document", _OUTPUT_FONT_FAMILY)
 
     def estimate_pages(self, selected_codes: List[str]) -> int:
         """Estimate total page count for the selected codes.
@@ -450,21 +450,18 @@ class Builder:
 
     @staticmethod
     def _apply_doc_rtl(doc: Document) -> None:
-        """Enforce RTL direction on every body paragraph after full assembly.
+        """Enforce RTL direction after full assembly.
 
         Called as the last step before saving — catches:
         - Paragraphs from content-library ``.docx`` files (may have LTR source).
         - Fallback paragraphs added directly via ``doc.add_paragraph()`` when
           no :class:`~engine.formatter.Formatter` is available.
         - Any paragraphs added by :class:`~engine.style_applier.StyleApplier`.
+        - Table-cell paragraphs, headers, and footers.
 
         CENTER-aligned paragraphs (cover page title/stats) are preserved as-is.
         """
-        from utils.docx_manipulator import set_rtl
-        for para in doc.paragraphs:
-            set_rtl(para)
-            if para.alignment != WD_ALIGN_PARAGRAPH.CENTER:
-                para.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+        enforce_document_rtl(doc)
 
     def _write_audit(
         self,

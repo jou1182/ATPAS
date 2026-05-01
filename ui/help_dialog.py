@@ -29,6 +29,8 @@ from PyQt5.QtWidgets import (
     QWidget,
 )
 
+from ui import theme
+
 
 # ─────────────────────────────────────────────────────────────────────────────
 # محتوى التبويبات (HTML عربي موجّه من اليمين لليسار)
@@ -57,10 +59,10 @@ _STYLE_BASE = """<!DOCTYPE html>
   .tip  { background:#FFF8E7; border-right:4px solid #C9921B;
           border-radius:6px; padding:8px 12px; margin:8px 0; font-size:12px;
           text-align:right; direction:rtl; }
-  .warn { background:#FFF3E0; border-right:4px solid #E65100;
+  .warn { background:#FFF4E6; border-right:4px solid __WARNING__;
           border-radius:6px; padding:8px 12px; margin:8px 0;
           text-align:right; direction:rtl; }
-  .ok   { background:#E8F5E9; border-right:4px solid #2E7D32;
+  .ok   { background:#EAF5EF; border-right:4px solid __SUCCESS__;
           border-radius:6px; padding:8px 12px; margin:8px 0;
           text-align:right; direction:rtl; }
   .line { margin:3px 0; text-align:right; direction:rtl; }
@@ -77,7 +79,7 @@ _STYLE_BASE = """<!DOCTYPE html>
   .badge{ background:#C9921B; color:white; border-radius:4px;
           padding:2px 8px; font-size:11px; font-weight:700; }
 </style></head>
-"""
+""".replace("__WARNING__", theme.WARNING).replace("__SUCCESS__", theme.SUCCESS)
 
 _HOW_TO_HTML = _STYLE_BASE + """
 <body dir="rtl">

@@ -404,6 +404,24 @@ class TestApplyFontFamilyToDocument:
                 assert rFonts.get(qn("w:ascii")) == "Tajawal", \
                     "Table cell run did not receive font"
 
+    def test_header_and_footer_receive_font(self):
+        """Header/footer runs must also get the output font."""
+        from utils.docx_manipulator import apply_font_family_to_document
+        doc = Document()
+        doc.sections[0].header.paragraphs[0].add_run("رأس الصفحة")
+        doc.sections[0].footer.paragraphs[0].add_run("تذييل الصفحة")
+
+        apply_font_family_to_document(doc, "Tajawal")
+
+        for part in (doc.sections[0].header, doc.sections[0].footer):
+            for r_el in part._element.iter(qn("w:r")):
+                rPr = r_el.find(qn("w:rPr"))
+                rFonts = rPr.find(qn("w:rFonts")) if rPr is not None else None
+                assert rFonts is not None
+                assert rFonts.get(qn("w:ascii")) == "Tajawal"
+                assert rFonts.get(qn("w:eastAsia")) == "Tajawal"
+                assert rFonts.get(qn("w:cs")) == "Tajawal"
+
     def test_runs_without_existing_rpr_get_font(self):
         """Runs that have no <w:rPr> element must have one created with the font."""
         from utils.docx_manipulator import apply_font_family_to_document
@@ -426,3 +444,20 @@ class TestApplyFontFamilyToDocument:
         rFonts = rPr.find(qn("w:rFonts"))
         assert rFonts is not None, "rFonts not created for bare run"
         assert rFonts.get(qn("w:ascii")) == "Tajawal"
+        assert rFonts.get(qn("w:eastAsia")) == "Tajawal"
+
+    def test_document_styles_receive_default_font(self):
+        """Future Word-generated content should inherit Tajawal from styles."""
+        from utils.docx_manipulator import set_document_default_font
+        doc = Document()
+
+        set_document_default_font(doc, "Tajawal")
+
+        for style_el in doc.styles.element.findall(qn("w:style")):
+            rPr = style_el.find(qn("w:rPr"))
+            rFonts = rPr.find(qn("w:rFonts")) if rPr is not None else None
+            assert rFonts is not None
+            assert rFonts.get(qn("w:ascii")) == "Tajawal"
+            assert rFonts.get(qn("w:hAnsi")) == "Tajawal"
+            assert rFonts.get(qn("w:eastAsia")) == "Tajawal"
+            assert rFonts.get(qn("w:cs")) == "Tajawal"

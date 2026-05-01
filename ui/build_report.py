@@ -30,6 +30,8 @@ from PyQt5.QtWidgets import (
     QFrame,
 )
 
+from ui import theme
+
 
 # ─────────────────────────────────────────────────────────────────────────────
 # بطاقة إحصاء واحدة
@@ -228,7 +230,7 @@ class BuildReportDialog(QDialog):
         btn_row_1.setSpacing(8)
 
         open_btn = QPushButton("📄  فتح الملف في Word", self)
-        open_btn.setStyleSheet(self._btn_style("#152433", "#C9921B"))
+        open_btn.setStyleSheet(self._btn_style(theme.HEADER, theme.ACCENT))
         open_btn.clicked.connect(self._open_file)
         open_btn.setCursor(Qt.PointingHandCursor)
 
@@ -245,7 +247,7 @@ class BuildReportDialog(QDialog):
         btn_row_2.setSpacing(8)
 
         new_btn = QPushButton("🔄  بناء عرض جديد", self)
-        new_btn.setStyleSheet(self._btn_style("#E65100", "white"))
+        new_btn.setStyleSheet(self._btn_style(theme.WARNING, "white"))
         new_btn.clicked.connect(self._on_new_build)
         new_btn.setCursor(Qt.PointingHandCursor)
 

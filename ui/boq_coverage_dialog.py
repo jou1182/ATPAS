@@ -28,17 +28,18 @@ from PyQt5.QtWidgets import (
     QWidget,
 )
 
+from ui import theme
 from utils.boq_coverage import CoverageResult
 
 logger = logging.getLogger(__name__)
 
 # ── Colour palette (matches existing ATPAS style) ─────────────────────────────
-_NAVY   = "#152433"
-_GOLD   = "#C9921B"
-_GREEN  = "#1B5E20"
-_ORANGE = "#E65100"
-_RED    = "#B71C1C"
-_BLUE   = "#0D47A1"
+_NAVY   = theme.HEADER
+_GOLD   = theme.ACCENT
+_GREEN  = theme.SUCCESS
+_ORANGE = theme.WARNING
+_RED    = theme.ERROR
+_BLUE   = theme.INFO
 
 _HEADER_STYLE = (
     f"background: {_NAVY}; color: #FFFFFF;"

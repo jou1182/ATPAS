@@ -42,6 +42,9 @@ class SystemHealthReport:
     missing_documents_count: int
     checked_word_documents_count: int = 0
     word_content_issue_count: int = 0
+    output_font_family: str = "Tajawal"
+    output_contract_status_ar: str = "مفعل"
+    output_contract_ok: bool = True
     issues: list[HealthIssue] = field(default_factory=list)
 
     @property
@@ -64,6 +67,8 @@ class SystemHealthReport:
             penalty += min(18, self.missing_documents_count)
         if self.word_content_issue_count:
             penalty += min(12, self.word_content_issue_count * 2)
+        if not self.output_contract_ok:
+            penalty += 20
         return max(0, min(100, 100 - penalty))
 
     @property
@@ -102,6 +107,8 @@ def render_markdown_report(report: SystemHealthReport) -> str:
         f"| أكواد بلا ملف Word مطابق | {report.missing_documents_count} |",
         f"| ملفات Word المفحوصة | {report.checked_word_documents_count} |",
         f"| ملاحظات جودة محتوى Word | {report.word_content_issue_count} |",
+        f"| خط الإخراج الإجباري | {report.output_font_family} |",
+        f"| عقد الإخراج | {report.output_contract_status_ar} |",
         "",
         "## الملاحظات والإجراءات المقترحة",
         "",
@@ -224,6 +231,8 @@ def render_html_report(report: SystemHealthReport) -> str:
     <tr><td>أكواد بلا ملف Word مطابق</td><td>{report.missing_documents_count}</td></tr>
     <tr><td>ملفات Word المفحوصة</td><td>{report.checked_word_documents_count}</td></tr>
     <tr><td>ملاحظات جودة محتوى Word</td><td>{report.word_content_issue_count}</td></tr>
+    <tr><td>خط الإخراج الإجباري</td><td>{_html_escape(report.output_font_family)}</td></tr>
+    <tr><td>عقد الإخراج</td><td>{_html_escape(report.output_contract_status_ar)}</td></tr>
   </table>
   <h2>الملاحظات والإجراءات المقترحة</h2>
   <table>
@@ -264,6 +273,10 @@ def build_system_health_report(
     issues.extend(_registry_schema_issues(registry_data))
     issues.extend(_code_reference_issues(codes, projects, owners))
     issues.extend(_preset_reference_issues(presets, codes, projects, owners))
+    output_contract_ok, output_contract_status_ar, output_contract_issues = (
+        _output_contract_check()
+    )
+    issues.extend(output_contract_issues)
 
     (
         linked_documents,
@@ -311,6 +324,9 @@ def build_system_health_report(
         missing_documents_count=missing_documents,
         checked_word_documents_count=checked_word_documents,
         word_content_issue_count=word_content_issue_count,
+        output_font_family="Tajawal",
+        output_contract_status_ar=output_contract_status_ar,
+        output_contract_ok=output_contract_ok,
         issues=issues,
     )
 
@@ -519,6 +535,52 @@ def _content_issues(
         word_content_issue_count,
         issues,
     )
+
+
+def _output_contract_check() -> tuple[bool, str, list[HealthIssue]]:
+    """Verify the final Word output contract is wired into the build engine."""
+    issues: list[HealthIssue] = []
+    try:
+        from engine.builder import _OUTPUT_FONT_FAMILY
+        from utils.docx_manipulator import (
+            apply_font_family_to_document,
+            enforce_document_rtl,
+            set_document_default_font,
+        )
+    except Exception as exc:  # noqa: BLE001
+        issues.append(HealthIssue(
+            "error",
+            "engine.builder",
+            "تعذّر التحقق من عقد الإخراج النهائي لملفات Word.",
+            f"راجع استيراد محرك البناء ودوال تنسيق Word. التفاصيل: {exc}",
+        ))
+        return False, "غير مفعل", issues
+
+    if _OUTPUT_FONT_FAMILY != "Tajawal":
+        issues.append(HealthIssue(
+            "error",
+            "engine.builder",
+            f"خط الإخراج الإجباري مضبوط على {_OUTPUT_FONT_FAMILY!r} وليس Tajawal.",
+            "اضبط ثابت _OUTPUT_FONT_FAMILY في engine/builder.py على Tajawal.",
+        ))
+
+    required = (
+        ("apply_font_family_to_document", apply_font_family_to_document),
+        ("set_document_default_font", set_document_default_font),
+        ("enforce_document_rtl", enforce_document_rtl),
+    )
+    for name, func in required:
+        if not callable(func):
+            issues.append(HealthIssue(
+                "error",
+                "utils.docx_manipulator",
+                f"دالة عقد الإخراج {name} غير متاحة أو غير قابلة للتنفيذ.",
+                "راجع utils/docx_manipulator.py قبل بناء أي عرض.",
+            ))
+
+    if issues:
+        return False, "غير مطابق: راجع الأخطاء", issues
+    return True, "مفعل: Tajawal + RTL + محاذاة يمين", []
 
 
 def _iter_strings(value: Any) -> Iterable[str]:

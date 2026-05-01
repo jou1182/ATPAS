@@ -22,6 +22,8 @@ from PyQt5.QtWidgets import (
     QWidget,
 )
 
+from ui import theme
+
 
 class SettingsDialog(QDialog):
     """Expose common runtime settings without editing JSON files."""
@@ -126,7 +128,7 @@ class SettingsDialog(QDialog):
                 color: #121B28;
             }
             QPushButton#settingsSaveBtn {
-                background: #2B7549;
+                background: %s;
                 color: white;
                 border: none;
                 font-weight: 800;
@@ -135,6 +137,7 @@ class SettingsDialog(QDialog):
                 background: #236040;
             }
             """
+            % theme.SUCCESS
         )
 
     def _load(self) -> None:

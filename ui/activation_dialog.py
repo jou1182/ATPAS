@@ -28,6 +28,7 @@ from PyQt5.QtWidgets import (
     QWidget,
 )
 
+from ui import theme
 from utils.license_manager import activate, get_hardware_id
 
 
@@ -183,7 +184,7 @@ class ActivationDialog(QDialog):
         self._activate_btn.setCursor(Qt.PointingHandCursor)
         self._activate_btn.setStyleSheet("""
             QPushButton {
-                background:#2B7549; color:white; border:none;
+                background:%s; color:white; border:none;
                 border-radius:7px; padding:12px 28px;
                 font-size:14px; font-weight:800; min-width:180px;
             }
@@ -192,20 +193,20 @@ class ActivationDialog(QDialog):
             QPushButton:disabled{
                 background:#AFBFB8; color:#E2EDE9;
             }
-        """)
+        """ % theme.SUCCESS)
         self._activate_btn.clicked.connect(self._on_activate)
 
         exit_btn = QPushButton("✕  إغلاق")
         exit_btn.setCursor(Qt.PointingHandCursor)
         exit_btn.setStyleSheet("""
             QPushButton {
-                background:transparent; color:#B03030;
-                border:1px solid #B0303060; border-radius:7px;
+                background:transparent; color:%s;
+                border:1px solid %s60; border-radius:7px;
                 padding:12px 20px; font-size:13px; font-weight:700;
             }
-            QPushButton:hover  { background:#FEF0F0; border-color:#B03030; }
+            QPushButton:hover  { background:%s; border-color:%s; }
             QPushButton:pressed{ background:#FDDDDD; }
-        """)
+        """ % (theme.ERROR, theme.ERROR, theme.ERROR_PALE, theme.ERROR))
         exit_btn.clicked.connect(self.reject)
 
         btn_row.addStretch()
@@ -269,12 +270,12 @@ class ActivationDialog(QDialog):
             self._show_status(result.get("message", "كود غير صحيح"), success=False)
             self._key_input.setStyleSheet(
                 self._key_input.styleSheet()
-                + "border-color:#B03030; background:#FEF5F5;"
+                + f"border-color:{theme.ERROR}; background:{theme.ERROR_PALE};"
             )
 
     def _show_status(self, msg: str, *, success: bool) -> None:
-        color = "#2B7549" if success else "#B03030"
-        bg    = "#EAF5EF" if success else "#FEF0F0"
+        color = theme.SUCCESS if success else theme.ERROR
+        bg    = theme.SUCCESS_PALE if success else theme.ERROR_PALE
         self._status_lbl.setText(msg)
         self._status_lbl.setStyleSheet(
             f"font-size:12px; font-weight:600; color:{color};"

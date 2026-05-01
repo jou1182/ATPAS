@@ -75,6 +75,9 @@ def test_health_report_counts_clean_data(tmp_path: Path) -> None:
     assert report.missing_documents_count == 0
     assert report.checked_word_documents_count == 1
     assert report.word_content_issue_count == 0
+    assert report.output_font_family == "Tajawal"
+    assert report.output_contract_ok is True
+    assert "Tajawal" in report.output_contract_status_ar
     assert report.errors == []
 
 
@@ -126,6 +129,7 @@ def test_save_system_health_report_writes_markdown_file(tmp_path: Path) -> None:
     content = target.read_text(encoding="utf-8-sig")
     assert "تقرير صحة نظام ATPAS" in content
     assert "أكواد بلا ملف Word مطابق" in content
+    assert "خط الإخراج الإجباري" in content
 
 
 def test_html_report_can_be_saved(tmp_path: Path) -> None:
@@ -138,3 +142,16 @@ def test_html_report_can_be_saved(tmp_path: Path) -> None:
     assert saved == target
     assert "<html" in html
     assert "تقرير صحة نظام ATPAS" in target.read_text(encoding="utf-8")
+    assert "عقد الإخراج" in target.read_text(encoding="utf-8")
+
+
+def test_health_report_output_contract_visible_in_exports(tmp_path: Path) -> None:
+    report = build_system_health_report(_registry(), _config(), {"presets": {}}, tmp_path)
+
+    markdown = render_markdown_report(report)
+    html = render_html_report(report)
+
+    assert "Tajawal" in markdown
+    assert "عقد الإخراج" in markdown
+    assert "Tajawal" in html
+    assert "عقد الإخراج" in html

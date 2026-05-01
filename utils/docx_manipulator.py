@@ -270,12 +270,13 @@ def set_paragraph_font(
             rPr.insert(0, rFonts)
         rFonts.set(qn("w:ascii"), family)
         rFonts.set(qn("w:hAnsi"), family)
+        rFonts.set(qn("w:eastAsia"), family)
         rFonts.set(qn("w:cs"), family)
         run.font.name = family  # keep python-docx internal state in sync
 
 
 def apply_font_family_to_document(doc: Document, family: str) -> None:
-    """Apply *family* to every run in the document — body paragraphs and tables.
+    """Apply *family* to every run in the document story parts.
 
     Preserves bold / italic / color set by the source .docx files.
     Sets both ``w:ascii`` and ``w:cs`` (complex-script) so Arabic text
@@ -283,7 +284,7 @@ def apply_font_family_to_document(doc: Document, family: str) -> None:
     Word's default Arabic font.
 
     Call this **after** all content has been assembled and RTL applied so
-    that content-library paragraphs (deep-copied from source files) also
+    that content-library paragraphs, table cells, headers, and footers also
     receive the correct font.
 
     Implementation note: uses a single lxml ``iter()`` pass over the full
@@ -294,16 +295,27 @@ def apply_font_family_to_document(doc: Document, family: str) -> None:
     """
     _apply_font_bulk(doc.element.body, family)
 
+    for section in doc.sections:
+        for part in (
+            section.header,
+            section.footer,
+            section.first_page_header,
+            section.first_page_footer,
+            section.even_page_header,
+            section.even_page_footer,
+        ):
+            try:
+                _apply_font_bulk(part._element, family)
+            except AttributeError:
+                continue
+
 
 def _apply_font_bulk(root_el, family: str) -> None:
-    """Bulk-set w:ascii / w:hAnsi / w:cs on every <w:r> in root_el.
+    """Bulk-set font attributes on every <w:r> in root_el.
 
     One lxml iter() traversal replaces the nested
     paragraphs → runs → rPr loop, eliminating python-docx wrapper overhead.
     """
-    ascii_attr = qn("w:ascii")
-    hAnsi_attr = qn("w:hAnsi")
-    cs_attr    = qn("w:cs")
     rFonts_tag = qn("w:rFonts")
     rPr_tag    = qn("w:rPr")
     r_tag      = qn("w:r")
@@ -319,9 +331,10 @@ def _apply_font_bulk(root_el, family: str) -> None:
         if rFonts is None:
             rFonts = OxmlElement("w:rFonts")
             rPr.insert(0, rFonts)
-        rFonts.set(ascii_attr, family)
-        rFonts.set(hAnsi_attr, family)
-        rFonts.set(cs_attr,    family)
+        rFonts.set(qn("w:ascii"), family)
+        rFonts.set(qn("w:hAnsi"), family)
+        rFonts.set(qn("w:eastAsia"), family)
+        rFonts.set(qn("w:cs"), family)
 
 
 def _apply_font_to_runs(runs, family: str) -> None:
@@ -335,29 +348,27 @@ def _apply_font_to_runs(runs, family: str) -> None:
             rPr.insert(0, rFonts)
         rFonts.set(qn("w:ascii"), family)
         rFonts.set(qn("w:hAnsi"), family)
+        rFonts.set(qn("w:eastAsia"), family)
         rFonts.set(qn("w:cs"), family)
 
 
 def set_document_default_font(doc: Document, family: str) -> None:
     """Set *family* as the document-wide default font in styles.xml.
 
-    Covers two locations:
-    1. ``Normal`` style ``<w:rPr>`` — affects paragraphs that inherit Normal.
+    Covers:
+    1. Every style with ``<w:rPr>`` — affects headings, TOC, captions, etc.
     2. ``<w:docDefaults>/<w:rPrDefault>`` — lowest-priority fallback used
        when Word generates new content (e.g. auto-generated TOC entries).
     """
-    # 1. Normal style rPr
+    # 1. All styles rPr (Normal, headings, TOC styles, captions, etc.)
     try:
-        normal = doc.styles["Normal"]
-        rPr = normal.element.get_or_add_rPr()
-        rFonts = rPr.find(qn("w:rFonts"))
-        if rFonts is None:
-            rFonts = OxmlElement("w:rFonts")
-            rPr.insert(0, rFonts)
-        rFonts.set(qn("w:ascii"), family)
-        rFonts.set(qn("w:hAnsi"), family)
-        rFonts.set(qn("w:cs"), family)
-    except (KeyError, AttributeError):
+        for style_el in doc.styles.element.findall(qn("w:style")):
+            rPr = style_el.find(qn("w:rPr"))
+            if rPr is None:
+                rPr = OxmlElement("w:rPr")
+                style_el.append(rPr)
+            _set_rpr_font(rPr, family)
+    except (KeyError, AttributeError, TypeError):
         pass
 
     # 2. docDefaults rPrDefault
@@ -374,13 +385,7 @@ def set_document_default_font(doc: Document, family: str) -> None:
         if rPr is None:
             rPr = OxmlElement("w:rPr")
             rPr_default.append(rPr)
-        rFonts = rPr.find(qn("w:rFonts"))
-        if rFonts is None:
-            rFonts = OxmlElement("w:rFonts")
-            rPr.insert(0, rFonts)
-        rFonts.set(qn("w:ascii"), family)
-        rFonts.set(qn("w:hAnsi"), family)
-        rFonts.set(qn("w:cs"), family)
+        _set_rpr_font(rPr, family)
     except (AttributeError, TypeError):
         pass
 
@@ -393,6 +398,34 @@ def set_rtl(para: Paragraph) -> None:
         bidi = OxmlElement("w:bidi")
         pPr.append(bidi)
     bidi.set(qn("w:val"), "1")
+
+
+def enforce_document_rtl(doc: Document) -> None:
+    """Force Arabic proposal layout across body, tables, headers, and footers.
+
+    ``Document.paragraphs`` does not include table-cell paragraphs, headers, or
+    footers. Imported source ``.docx`` files can therefore keep their original
+    LTR paragraph properties unless we patch the underlying XML tree directly.
+
+    The cover page keeps centered text until the first page break. Everything
+    after that break is forced to RTL with right alignment.
+    """
+    _configure_rtl_document(doc)
+    _apply_rtl_to_xml_container(doc.element.body, preserve_center_until_first_page_break=True)
+
+    for section in doc.sections:
+        for part in (
+            section.header,
+            section.footer,
+            section.first_page_header,
+            section.first_page_footer,
+            section.even_page_header,
+            section.even_page_footer,
+        ):
+            try:
+                _apply_rtl_to_xml_container(part._element)
+            except AttributeError:
+                continue
 
 
 def clear_document(doc: Document) -> None:
@@ -409,8 +442,29 @@ def clear_document(doc: Document) -> None:
 # Helpers
 # ---------------------------------------------------------------------------
 
-def _ensure_rtl_right(pPr) -> None:
-    """Add/update <w:bidi val="1"> and <w:jc val="right"> on a pPr element."""
+def _apply_rtl_to_xml_container(
+    root_el,
+    *,
+    preserve_center_until_first_page_break: bool = False,
+) -> None:
+    """Patch every paragraph under *root_el* to RTL/right at OOXML level."""
+    before_first_page_break = preserve_center_until_first_page_break
+    for p_el in root_el.iter(qn("w:p")):
+        pPr = p_el.find(qn("w:pPr"))
+        if pPr is None:
+            pPr = OxmlElement("w:pPr")
+            p_el.insert(0, pPr)
+        _ensure_rtl_right(
+            pPr,
+            preserve_center=before_first_page_break and not _paragraph_has_visual(p_el),
+        )
+        _mirror_paragraph_indent_to_right(pPr)
+        if before_first_page_break and _paragraph_has_page_break(p_el):
+            before_first_page_break = False
+
+
+def _ensure_rtl_right(pPr, *, preserve_center: bool = False) -> None:
+    """Add/update ``w:bidi`` and right alignment on a pPr element."""
     b = pPr.find(qn("w:bidi"))
     if b is None:
         b = OxmlElement("w:bidi")
@@ -421,7 +475,61 @@ def _ensure_rtl_right(pPr) -> None:
     if jc is None:
         jc = OxmlElement("w:jc")
         pPr.append(jc)
+    if preserve_center and jc.get(qn("w:val")) == "center":
+        return
     jc.set(qn("w:val"), "right")
+
+
+def _paragraph_has_visual(p_el) -> bool:
+    """Return True when paragraph contains an inline/floating image or object."""
+    return (
+        p_el.find(".//" + qn("w:drawing")) is not None
+        or p_el.find(".//" + qn("w:pict")) is not None
+        or p_el.find(".//" + qn("w:object")) is not None
+    )
+
+
+def _paragraph_has_page_break(p_el) -> bool:
+    """Return True when a paragraph contains an explicit page break."""
+    for br in p_el.iter(qn("w:br")):
+        if br.get(qn("w:type")) == "page":
+            return True
+    return False
+
+
+def _mirror_paragraph_indent_to_right(pPr) -> None:
+    """Move LTR paragraph indentation to the right side for RTL layout."""
+    ind = pPr.find(qn("w:ind"))
+    if ind is None:
+        return
+
+    left_val = ind.get(qn("w:left"))
+    hanging_val = ind.get(qn("w:hanging"))
+    first_line_val = ind.get(qn("w:firstLine"))
+
+    if left_val is not None and ind.get(qn("w:right")) is None:
+        ind.set(qn("w:right"), left_val)
+        del ind.attrib[qn("w:left")]
+
+    # Lists copied from LTR documents often carry hanging indents. Keeping
+    # those values is important, but the base indent must be measured from the
+    # right margin after the left->right swap above.
+    if hanging_val is not None:
+        ind.set(qn("w:hanging"), hanging_val)
+    if first_line_val is not None:
+        ind.set(qn("w:firstLine"), first_line_val)
+
+
+def _set_rpr_font(rPr, family: str) -> None:
+    """Set ASCII, ANSI, East Asia, and complex-script font on rPr."""
+    rFonts = rPr.find(qn("w:rFonts"))
+    if rFonts is None:
+        rFonts = OxmlElement("w:rFonts")
+        rPr.insert(0, rFonts)
+    rFonts.set(qn("w:ascii"), family)
+    rFonts.set(qn("w:hAnsi"), family)
+    rFonts.set(qn("w:eastAsia"), family)
+    rFonts.set(qn("w:cs"), family)
 
 
 def _hex_to_rgb(hex_color: str) -> Tuple[int, int, int]:

@@ -25,6 +25,7 @@ from PyQt5.QtWidgets import (
     QVBoxLayout,
 )
 
+from ui import theme
 from utils.activity_log import ActivityLog
 from utils.content_approval import (
     STATUS_APPROVED,
@@ -38,10 +39,10 @@ from utils.word_content_audit import WordContentAudit, audit_code_content
 
 
 _STATE_COLORS = {
-    STATUS_APPROVED: ("#2B7549", "#EAF5EF"),
-    STATUS_NEEDS_REVIEW: ("#B56618", "#FFF4E7"),
-    STATUS_PRESENT: ("#1C5D85", "#EEF3FA"),
-    STATUS_NO_FILE: ("#5A6B7C", "#F5F1E8"),
+    STATUS_APPROVED: (theme.SUCCESS, theme.SUCCESS_PALE),
+    STATUS_NEEDS_REVIEW: (theme.WARNING, theme.WARNING_PALE),
+    STATUS_PRESENT: (theme.INFO, theme.INFO_PALE),
+    STATUS_NO_FILE: (theme.NEUTRAL, theme.NEUTRAL_PALE),
 }
 
 

@@ -74,24 +74,24 @@ _CATEGORY_NAMES: dict[str, str] = {
     "005": "الإنهاء والتسليم",
 }
 _CATEGORY_COLORS: dict[str, str] = {
-    "001": "#1F4F7D",  # preparatory: planning/info
-    "002": "#A45D1C",  # excavation: caution/earth
-    "003": "#2A6A4B",  # installation: active/constructive
-    "004": "#3B5C8C",  # tests: technical/verification
-    "005": "#6D5631",  # handover: closure/delivery
+    "001": theme.INFO,       # preparatory: planning/info
+    "002": theme.CTX_ROAD,   # excavation: caution/earth
+    "003": theme.CTX_BUILD,  # installation: active/constructive
+    "004": theme.CTX_INFRA,  # tests: technical/verification
+    "005": theme.CTX_MIXED,  # handover: closure/delivery
 }
 _CATEGORY_BG: dict[str, str] = {
-    "001": "#EEF3FA",
+    "001": theme.INFO_PALE,
     "002": "#FBF1E8",
-    "003": "#EEF6F1",
+    "003": theme.SUCCESS_PALE,
     "004": "#EEF1F8",
-    "005": "#F6F1E8",
+    "005": theme.NEUTRAL_PALE,
 }
 
 # Legacy QCheckBox-style CSS strings (preserved for API compatibility)
-_MANDATORY_STYLE = "QCheckBox { color: #1565C0; font-weight: bold; }"
-_EXCLUSIVE_STYLE = "QCheckBox { color: #E65100; }"
-_CUSTOM_STYLE    = "QCheckBox { color: #6A1B9A; font-style: italic; }"
+_MANDATORY_STYLE = f"QCheckBox {{ color: {theme.INFO}; font-weight: bold; }}"
+_EXCLUSIVE_STYLE = f"QCheckBox {{ color: {theme.WARNING}; }}"
+_CUSTOM_STYLE    = f"QCheckBox {{ color: {theme.CTX_MIXED}; font-style: italic; }}"
 
 # Regex helpers — parse legacy CSS into label style properties
 _COLOR_RE  = re.compile(r'color\s*:\s*(#[0-9A-Fa-f]{3,8})', re.IGNORECASE)
@@ -99,16 +99,16 @@ _BOLD_RE   = re.compile(r'font-weight\s*:\s*bold',           re.IGNORECASE)
 _ITALIC_RE = re.compile(r'font-style\s*:\s*italic',          re.IGNORECASE)
 
 # Visual tokens (synced with theme.py palette)
-_NAME_DEFAULT  = f"font-family: {theme.MAIN_FONT}; font-size: 12px; color: #1A2433; font-weight: normal; font-style: normal;"
+_NAME_DEFAULT  = f"font-family: {theme.MAIN_FONT}; font-size: 12px; color: {theme.TEXT}; font-weight: normal; font-style: normal;"
 _ID_STYLE      = (
     f"font-family: {theme.CODE_FONT}; "
-    "font-size: 10px; color: #9BA8B5; letter-spacing: 0.4px;"
+    f"font-size: 10px; color: {theme.TEXT2}; letter-spacing: 0.4px;"
 )
 _BADGE_STYLE   = (
-    "font-size: 10px; color: #6B7A8D; background: #EEE9E0; "
+    f"font-size: 10px; color: {theme.TEXT2}; background: {theme.NEUTRAL_PALE}; "
     "border-radius: 8px; padding: 1px 6px; margin: 0 2px;"
 )
-_CAT_HDR_STYLE = "font-size: 11px; font-weight: bold; color: #1B2D40;"
+_CAT_HDR_STYLE = f"font-size: 11px; font-weight: bold; color: {theme.HEADER};"
 
 
 # ---------------------------------------------------------------------------
@@ -240,7 +240,7 @@ class _CodeItem(QWidget):
             self._name_lbl.setStyleSheet(_NAME_DEFAULT)
             return
         color_m = _COLOR_RE.search(css)
-        color   = color_m.group(1) if color_m else "#1A2433"
+        color   = color_m.group(1) if color_m else theme.TEXT
         weight  = "bold"   if _BOLD_RE.search(css)   else "normal"
         fstyle  = "italic" if _ITALIC_RE.search(css) else "normal"
         self._name_lbl.setStyleSheet(
@@ -474,7 +474,7 @@ class CheckboxSelectorWidget(QGroupBox):
             none_btn.setFixedWidth(55)
             none_btn.setStyleSheet(
                 f"QPushButton {{"
-                f"  font-size:10px; color: #5A6775; background: #FFFFFFCC; "
+                f"  font-size:10px; color: {theme.NEUTRAL}; background: #FFFFFFCC; "
                 f"  border: 1px solid {cat_color}40; border-radius: 5px; padding: 1px 6px;"
                 f"}}"
                 f"QPushButton:hover {{ background: #F5EFE4; border-color: {cat_color}66; }}"
@@ -512,7 +512,7 @@ class CheckboxSelectorWidget(QGroupBox):
 
     def _category_palette(self, cat: str) -> tuple[str, str]:
         """Return accent and background colors for a category block."""
-        return _CATEGORY_COLORS.get(cat, "#4C5C6B"), _CATEGORY_BG.get(cat, "#F5F1E8")
+        return _CATEGORY_COLORS.get(cat, theme.NEUTRAL), _CATEGORY_BG.get(cat, theme.NEUTRAL_PALE)
 
     def _make_code_item(self, code_id: str, code_data: dict) -> _CodeItem:
         name_ar   = code_data.get("activity_name_ar", code_id)
@@ -544,8 +544,8 @@ class CheckboxSelectorWidget(QGroupBox):
             item._badge_lbl.setText(f"{pages} ص / بلا Word")
             item._badge_lbl.setFixedWidth(116)
             item._badge_lbl.setStyleSheet(
-                "font-size: 10px; color: #8A4C12; background: #FFF0D8; "
-                "border: 1px solid #E5BE82; border-radius: 8px; "
+                f"font-size: 10px; color: {theme.WARNING}; background: {theme.WARNING_PALE}; "
+                f"border: 1px solid {theme.WARNING}; border-radius: 8px; "
                 "padding: 1px 6px; margin: 0 2px;"
             )
         content_tip = "" if has_content else "\nتنبيه: لا يوجد ملف Word مطابق لهذا الكود."

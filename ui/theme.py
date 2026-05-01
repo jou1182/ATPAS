@@ -40,6 +40,17 @@ SUCCESS     = "#2B7549"      # richer engineering green
 SUCCESS_PALE= "#EAF5EF"
 WARNING     = "#B56618"
 WARNING_PALE= "#FFF4E6"
+INFO        = "#1C5D85"
+INFO_PALE   = "#EEF3FA"
+NEUTRAL     = "#5A6B7C"
+NEUTRAL_PALE= "#F5F1E8"
+
+# Semantic context colors. Keep these restrained and meaningful.
+CTX_INFRA   = "#1F5B8E"      # water/wastewater network works
+CTX_WATER   = "#2A6F6A"      # water supply and transmission
+CTX_ROAD    = "#A4641E"      # roads/asphalt/earthwork caution
+CTX_BUILD   = "#4C6E5A"      # buildings/general construction
+CTX_MIXED   = "#7A5A2E"      # multi-scope scenarios
 
 # ── Metrics ────────────────────────────────────────────────────────
 BASE_FONT_SIZE = 13
@@ -423,6 +434,22 @@ QListWidget::item:selected {{
 
 QListWidget::item:hover:!selected {{
     background: #F5F0E8;
+}}
+
+QTableWidget, QTableView {{
+    background: #FDFCF8;
+    alternate-background-color: {ACCENT_PALE};
+    gridline-color: {BORDER};
+    selection-background-color: {ACCENT_PALE};
+    selection-color: {TEXT};
+}}
+
+QHeaderView::section {{
+    background: {HEADER};
+    color: {ACCENT};
+    border: none;
+    padding: 6px 8px;
+    font-weight: 800;
 }}
 
 /* ════════════════════════════════════════════

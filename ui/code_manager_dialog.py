@@ -36,6 +36,7 @@ from PyQt5.QtWidgets import (
     QWidget,
 )
 
+from ui import theme
 from utils.json_manager import save_json
 from utils.registry_validator import validate_registry
 
@@ -325,7 +326,7 @@ class CodeManagerDialog(QDialog):
                 color: #A77218;
             }
             QPushButton#codeManagerSaveBtn {
-                background: #2B7549;
+                background: %s;
                 color: white;
                 border: none;
                 font-weight: 900;
@@ -350,6 +351,7 @@ class CodeManagerDialog(QDialog):
                 color: #888;
             }
             """
+            % theme.SUCCESS
         )
 
     def _refresh_list(self) -> None:

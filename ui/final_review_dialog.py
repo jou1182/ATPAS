@@ -19,6 +19,7 @@ from PyQt5.QtWidgets import (
     QWidget,
 )
 
+from ui import theme
 from utils.proposal_comparison import ProposalComparison
 from utils.proposal_readiness import ProposalReadiness
 from utils.word_content_audit import WordContentAudit, flatten_issues
@@ -67,9 +68,9 @@ class FinalReviewDialog(QDialog):
         cards = QHBoxLayout()
         cards.setSpacing(10)
         cards.addWidget(self._metric_card("قرار الجاهزية", self._readiness.decision_ar, self._decision_color()))
-        cards.addWidget(self._metric_card("الأكواد النهائية", str(len(self._readiness.resolved_codes)), "#152433"))
-        cards.addWidget(self._metric_card("التبعيات المضافة", str(len(self._readiness.dependency_codes)), "#1C5D85"))
-        cards.addWidget(self._metric_card("الصفحات التقديرية", str(self._readiness.total_pages), "#2B7549"))
+        cards.addWidget(self._metric_card("الأكواد النهائية", str(len(self._readiness.resolved_codes)), theme.HEADER))
+        cards.addWidget(self._metric_card("التبعيات المضافة", str(len(self._readiness.dependency_codes)), theme.INFO))
+        cards.addWidget(self._metric_card("الصفحات التقديرية", str(self._readiness.total_pages), theme.SUCCESS))
         root.addLayout(cards)
 
         self._browser = QTextBrowser(self)
@@ -117,7 +118,7 @@ class FinalReviewDialog(QDialog):
                 color: #A77218;
             }
             QPushButton:default {
-                background: #2B7549;
+                background: %s;
                 color: #FFFFFF;
                 border: none;
             }
@@ -126,6 +127,7 @@ class FinalReviewDialog(QDialog):
                 color: #9B9B9B;
             }
             """
+            % theme.SUCCESS
         )
 
     def _metric_card(self, label: str, value: str, color: str) -> QWidget:
@@ -137,7 +139,7 @@ class FinalReviewDialog(QDialog):
 
         label_w = QLabel(label)
         label_w.setAlignment(Qt.AlignCenter)
-        label_w.setStyleSheet("color: #5A6B7C; font-size: 11px; font-weight: 700;")
+        label_w.setStyleSheet(f"color: {theme.TEXT2}; font-size: 11px; font-weight: 700;")
 
         value_w = QLabel(value)
         value_w.setAlignment(Qt.AlignCenter)
@@ -149,20 +151,21 @@ class FinalReviewDialog(QDialog):
         card.setStyleSheet(
             """
             QWidget#finalReviewCard {
-                background: #FAF0DC;
+                background: #FEFCF7;
                 border: 1px solid #D5CFBF;
+                border-top: 3px solid %s;
                 border-radius: 10px;
             }
-            """
+            """ % color
         )
         return card
 
     def _decision_color(self) -> str:
         if self._readiness.decision == "blocked":
-            return "#B03030"
+            return theme.ERROR
         if self._readiness.decision == "caution":
-            return "#B56618"
-        return "#2B7549"
+            return theme.WARNING
+        return theme.SUCCESS
 
     def _render_html(self) -> str:
         return f"""
@@ -246,10 +249,10 @@ class FinalReviewDialog(QDialog):
 
     def _decision_bg(self) -> str:
         if self._readiness.decision == "blocked":
-            return "#FDEEEE"
+            return theme.ERROR_PALE
         if self._readiness.decision == "caution":
-            return "#FFF4E7"
-        return "#EAF5EF"
+            return theme.WARNING_PALE
+        return theme.SUCCESS_PALE
 
     def _render_blockers(self) -> str:
         if not self._readiness.blockers:

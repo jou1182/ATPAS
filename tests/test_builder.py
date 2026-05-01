@@ -14,6 +14,7 @@ from unittest.mock import MagicMock
 
 import pytest
 from docx import Document
+from docx.oxml.ns import qn
 
 from engine.builder import Builder
 from engine.dependency_resolver import DependencyResolver
@@ -37,6 +38,73 @@ def codes(registry):
 @pytest.fixture(scope="module")
 def builder(codes):
     return Builder(codes)
+
+
+def _iter_story_roots(doc: Document):
+    yield doc.element.body
+    for section in doc.sections:
+        yield section.header._element
+        yield section.footer._element
+        yield section.first_page_header._element
+        yield section.first_page_footer._element
+        yield section.even_page_header._element
+        yield section.even_page_footer._element
+
+
+def _assert_docx_is_tajawal_and_right_aligned(
+    path: Path,
+    *,
+    allow_cover_center: bool = False,
+) -> None:
+    doc = Document(str(path))
+    checked_paragraphs = 0
+    checked_runs = 0
+
+    for root_index, root in enumerate(_iter_story_roots(doc)):
+        before_first_page_break = allow_cover_center and root_index == 0
+        for p_el in root.iter(qn("w:p")):
+            has_page_break = _p_has_page_break(p_el)
+            has_text = any((t.text or "").strip() for t in p_el.iter(qn("w:t")))
+            has_visual = (
+                p_el.find(".//" + qn("w:drawing")) is not None
+                or p_el.find(".//" + qn("w:pict")) is not None
+                or p_el.find(".//" + qn("w:object")) is not None
+            )
+            if not has_text and not has_visual:
+                if before_first_page_break and has_page_break:
+                    before_first_page_break = False
+                continue
+            checked_paragraphs += 1
+            pPr = p_el.find(qn("w:pPr"))
+            bidi = pPr.find(qn("w:bidi")) if pPr is not None else None
+            jc = pPr.find(qn("w:jc")) if pPr is not None else None
+            assert bidi is not None and bidi.get(qn("w:val")) == "1"
+            expected_jc = "center" if before_first_page_break and not has_visual else "right"
+            assert jc is not None and jc.get(qn("w:val")) == expected_jc
+            if before_first_page_break and has_page_break:
+                before_first_page_break = False
+
+        for r_el in root.iter(qn("w:r")):
+            if not any((t.text or "").strip() for t in r_el.iter(qn("w:t"))):
+                continue
+            checked_runs += 1
+            rPr = r_el.find(qn("w:rPr"))
+            rFonts = rPr.find(qn("w:rFonts")) if rPr is not None else None
+            assert rFonts is not None
+            assert rFonts.get(qn("w:ascii")) == "Tajawal"
+            assert rFonts.get(qn("w:hAnsi")) == "Tajawal"
+            assert rFonts.get(qn("w:eastAsia")) == "Tajawal"
+            assert rFonts.get(qn("w:cs")) == "Tajawal"
+
+    assert checked_paragraphs > 0
+    assert checked_runs > 0
+
+
+def _p_has_page_break(p_el) -> bool:
+    for br in p_el.iter(qn("w:br")):
+        if br.get(qn("w:type")) == "page":
+            return True
+    return False
 
 
 # ---------------------------------------------------------------------------
@@ -221,6 +289,52 @@ class TestBuilderDependencyInjection:
         assert b._validator is mock_v
         assert isinstance(b._resolver, DependencyResolver)   # not mocked
         assert isinstance(b._content_lib, ContentLibrary)    # not mocked
+
+
+class TestBuilderArabicOutputContract:
+    """Final DOCX output contract for every current/future owner."""
+
+    def test_future_owner_style_cannot_override_tajawal_or_right_alignment(
+        self,
+        codes,
+        tmp_path,
+    ) -> None:
+        style_dir = tmp_path / "styles"
+        style_dir.mkdir()
+        (style_dir / "future_owner_style.json").write_text(
+            """
+            {
+              "fonts": {
+                "body": {"family": "Times New Roman", "size": 11, "bold": false},
+                "heading1": {"family": "Arial", "size": 15, "bold": true},
+                "heading2": {"family": "Calibri", "size": 13, "bold": true},
+                "heading3": {"family": "Tahoma", "size": 12, "bold": true}
+              },
+              "colors": {"text": "#000000", "heading": "#003D7A"},
+              "header": {"enabled": true, "text_ar": "جهة مستقبلية", "line_below": true},
+              "footer": {"enabled": true, "text_ar": "تذييل مستقبلي", "show_page_number": true},
+              "rtl_direction": true
+            }
+            """,
+            encoding="utf-8",
+        )
+
+        mock_lib = MagicMock(spec=ContentLibrary)
+        mock_lib.exists.return_value = False
+        mock_lib.insert_into.return_value = False
+
+        b = Builder(codes, style_dir=style_dir, content_lib=mock_lib)
+        out = tmp_path / "future_owner.docx"
+        success, err = b.build(
+            ["001-SUR-BASE"],
+            "wastewater",
+            "future_owner",
+            out,
+            skip_validation=True,
+        )
+
+        assert success, err
+        _assert_docx_is_tajawal_and_right_aligned(out, allow_cover_center=True)
 
 
 # ---------------------------------------------------------------------------
