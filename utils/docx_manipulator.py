@@ -409,9 +409,13 @@ def enforce_document_rtl(doc: Document) -> None:
 
     The cover page keeps centered text until the first page break. Everything
     after that break is forced to RTL with right alignment.
+
+    Tables imported from LTR source documents are also patched so every cell
+    paragraph inherits RTL direction and right alignment.
     """
     _configure_rtl_document(doc)
     _apply_rtl_to_xml_container(doc.element.body, preserve_center_until_first_page_break=True)
+    _apply_rtl_to_tables(doc.element.body)
 
     for section in doc.sections:
         for part in (
@@ -424,8 +428,10 @@ def enforce_document_rtl(doc: Document) -> None:
         ):
             try:
                 _apply_rtl_to_xml_container(part._element)
+                _apply_rtl_to_tables(part._element)
             except AttributeError:
                 continue
+
 
 
 def clear_document(doc: Document) -> None:
@@ -441,6 +447,23 @@ def clear_document(doc: Document) -> None:
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
+def _apply_rtl_to_tables(root_el) -> None:
+    """تطبيق RTL على جميع الجداول في المستند.
+
+    يضمن أن كل خلية في أي جدول داخل المستند تستخدم اتجاه RTL
+    ومحاذاة يمين، حتى لو كان الجدول مصدره مستند LTR.
+    """
+    for tbl in root_el.iter(qn("w:tbl")):
+        for cell in tbl.iter(qn("w:tc")):
+            for p in cell.iter(qn("w:p")):
+                pPr = p.find(qn("w:pPr"))
+                if pPr is None:
+                    pPr = OxmlElement("w:pPr")
+                    p.insert(0, pPr)
+                _ensure_rtl_right(pPr)
+                _mirror_paragraph_indent_to_right(pPr)
+
 
 def _apply_rtl_to_xml_container(
     root_el,
@@ -461,6 +484,7 @@ def _apply_rtl_to_xml_container(
         _mirror_paragraph_indent_to_right(pPr)
         if before_first_page_break and _paragraph_has_page_break(p_el):
             before_first_page_break = False
+
 
 
 def _ensure_rtl_right(pPr, *, preserve_center: bool = False) -> None:

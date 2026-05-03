@@ -332,3 +332,19 @@ class TestCodeIdSecurity:
     def test_wizard_helper_rejects_empty_string(self) -> None:
         from ui.import_wizard import _validate_code_id
         assert _validate_code_id("") is not None
+
+    def test_owner_id_helper_accepts_safe_id(self) -> None:
+        from ui.import_wizard import _validate_owner_id
+        assert _validate_owner_id("amana_makkah_2026") is None
+
+    def test_owner_id_helper_rejects_path_traversal(self) -> None:
+        from ui.import_wizard import _validate_owner_id
+        assert _validate_owner_id("../evil") is not None
+
+    def test_owner_id_helper_rejects_uppercase_and_symbols(self) -> None:
+        from ui.import_wizard import _validate_owner_id
+        assert _validate_owner_id("NWC!") is not None
+
+    def test_owner_id_helper_rejects_too_short(self) -> None:
+        from ui.import_wizard import _validate_owner_id
+        assert _validate_owner_id("a") is not None

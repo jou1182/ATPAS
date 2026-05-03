@@ -64,6 +64,7 @@ _MAX_IMPORT_SIZE_BYTES = _MAX_IMPORT_SIZE_MB * 1024 * 1024
 
 # نمط معرّف الكود المسموح به: NNN-AAA-BBB  (أرقام-حروف-حروف، حتى 8 محارف لكل مقطع)
 _CODE_ID_PATTERN = re.compile(r"^\d{3}-[A-Z]{2,8}-[A-Z]{2,8}$")
+_OWNER_ID_PATTERN = re.compile(r"^[a-z0-9_]{2,40}$")
 
 
 def _validate_code_id(cid: str) -> str | None:
@@ -81,6 +82,17 @@ def _validate_code_id(cid: str) -> str | None:
     # رفض المعرّفات التي لا تطابق النمط NNN-AAA-BBB
     if not _CODE_ID_PATTERN.match(cid):
         return f"[{cid}] لا يطابق النمط المطلوب (مثال: 003-PIP-SEW)"
+    return None
+
+
+def _validate_owner_id(owner_id: str) -> str | None:
+    """تحقق صارم من معرف الجهة قبل استخدامه في أسماء ملفات JSON."""
+    if not owner_id:
+        return "المعرّف (ID) مطلوب."
+    if not _OWNER_ID_PATTERN.match(owner_id):
+        return "معرّف الجهة يجب أن يكون 2-40 حرفاً: أحرف إنجليزية صغيرة أو أرقام أو شرطة سفلية فقط."
+    if any(ch in owner_id for ch in ("/", "\\", "..", "~", "\x00")):
+        return "معرّف الجهة يحتوي على محارف غير مسموحة في المسارات."
     return None
 
 _PROJECTS: list[tuple[str, str]] = [
@@ -834,6 +846,10 @@ class _OwnersTab(QWidget):
 
         if not oid:
             QMessageBox.warning(self, "تنبيه", "المعرّف (ID) مطلوب.")
+            return
+        owner_id_error = _validate_owner_id(oid)
+        if owner_id_error:
+            QMessageBox.warning(self, "تنبيه", owner_id_error)
             return
         if not ar:
             QMessageBox.warning(self, "تنبيه", "الاسم العربي مطلوب.")

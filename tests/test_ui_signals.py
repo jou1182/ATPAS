@@ -235,6 +235,42 @@ class TestHeaderWidgetSignals:
 
 
 # --------------------------------------------------------------------------
+# SessionHistoryDialog smoke tests
+# --------------------------------------------------------------------------
+
+class TestSessionHistoryDialog:
+    """Session history dialog should open safely with/without saved sessions."""
+
+    def test_empty_sessions_dialog_does_not_crash(self, qapp, monkeypatch) -> None:
+        monkeypatch.setattr("ui.session_history_dialog.get_sessions", lambda: [])
+
+        from ui.session_history_dialog import SessionHistoryDialog
+
+        dialog = SessionHistoryDialog()
+        assert dialog._list.count() == 1
+        assert not dialog._restore_btn.isEnabled()
+        assert not dialog._delete_btn.isEnabled()
+
+    def test_sessions_dialog_populates_saved_session(self, qapp, monkeypatch) -> None:
+        monkeypatch.setattr("ui.session_history_dialog.get_sessions", lambda: [{
+            "project_ids": ["wastewater"],
+            "owner_id": "nwc",
+            "selected_codes": ["001-SUR-BASE"],
+            "timestamp": 1_700_000_000,
+            "code_count": 1,
+            "page_count": 2,
+        }])
+
+        from ui.session_history_dialog import SessionHistoryDialog
+
+        dialog = SessionHistoryDialog()
+        assert dialog._list.count() == 1
+        dialog._list.setCurrentRow(0)
+        assert dialog._restore_btn.isEnabled()
+        assert dialog._delete_btn.isEnabled()
+
+
+# --------------------------------------------------------------------------
 # CheckboxSelectorWidget cache and interaction tests
 # --------------------------------------------------------------------------
 

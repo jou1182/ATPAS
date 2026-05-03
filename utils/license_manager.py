@@ -70,6 +70,72 @@ def _license_path() -> Path:
     return folder / "license.dat"
 
 
+def _trial_path() -> Path:
+    """مسار ملف التجربة — trial.dat في نفس مجلد ATPAS."""
+    if sys.platform == "win32":
+        base = Path(os.environ.get("APPDATA", Path.home()))
+    else:
+        base = Path.home() / ".config"
+    folder = base / "ATPAS"
+    folder.mkdir(parents=True, exist_ok=True)
+    return folder / "trial.dat"
+
+
+def _trial_marker_path() -> Path:
+    """علامة دائمة تمنع إعادة تجربة اليوم الواحد بعد حذف trial.dat."""
+    return _trial_path().with_name("trial.used")
+
+
+def _trial_signature(data: dict) -> str:
+    """توقيع داخلي بسيط لبيانات التجربة/علامة الاستخدام."""
+    payload = {
+        "hardware_id": data.get("hardware_id", ""),
+        "started_at": data.get("started_at", ""),
+        "trial_days": data.get("trial_days", _TRIAL_DAYS),
+    }
+    raw = json.dumps(payload, ensure_ascii=False, sort_keys=True).encode("utf-8")
+    return hmac.new(_HMAC_KEY, raw, hashlib.sha256).hexdigest().upper()
+
+
+def _signed_trial_payload(started_at: str | None = None) -> dict:
+    data = {
+        "hardware_id": get_hardware_id(),
+        "started_at": started_at or datetime.now().isoformat(),
+        "trial_days": _TRIAL_DAYS,
+    }
+    data["signature"] = _trial_signature(data)
+    return data
+
+
+def _is_signed_trial_payload(data: dict) -> bool:
+    expected = _trial_signature(data)
+    provided = str(data.get("signature", ""))
+    return hmac.compare_digest(expected, provided)
+
+
+def _write_json_file(path: Path, data: dict) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
+def _trial_marker_exists() -> bool:
+    marker = _trial_marker_path()
+    if not marker.exists():
+        return False
+    try:
+        data = json.loads(marker.read_text(encoding="utf-8"))
+    except Exception:
+        return True
+    return data.get("hardware_id") == get_hardware_id() and _is_signed_trial_payload(data)
+
+
+def _write_trial_marker(data: dict | None = None) -> None:
+    payload = data if isinstance(data, dict) else _signed_trial_payload()
+    if "signature" not in payload:
+        payload = {**payload, "signature": _trial_signature(payload)}
+    _write_json_file(_trial_marker_path(), payload)
+
+
 # ════════════════════════════════════════════════════════════════════════════
 # بصمة الجهاز
 # ════════════════════════════════════════════════════════════════════════════
@@ -336,4 +402,148 @@ def get_license_info() -> dict:
         "message":   result.get("message", ""),
         "days_left": result.get("days_left"),
         "hardware_id": hw_id,
+    }
+
+
+# ════════════════════════════════════════════════════════════════════════════
+# Trial Mode — تجربة البرنامج ليوم واحد
+# ════════════════════════════════════════════════════════════════════════════
+
+_TRIAL_DAYS = 1  # مدة التجربة بالأيام
+
+
+def start_trial() -> dict:
+    """
+    بدء تجربة البرنامج. تُحفظ في trial.dat مع تاريخ البدء.
+    يمكن استخدامها مرة واحدة فقط لكل جهاز.
+
+    Returns:
+        {"valid": bool, "message": str, "days_left": int | None}
+    """
+    trial_file = _trial_path()
+    if trial_file.exists() or _trial_marker_exists():
+        return {
+            "valid": False,
+            "message": "❌ تم استخدام فترة التجربة مسبقاً على هذا الجهاز",
+            "days_left": None,
+        }
+
+    # حفظ تاريخ بدء التجربة
+    data = _signed_trial_payload()
+    try:
+        _write_json_file(trial_file, data)
+        _write_trial_marker(data)
+    except OSError as exc:
+        return {
+            "valid": False,
+            "message": f"❌ تعذّر بدء التجربة: {exc}",
+            "days_left": None,
+        }
+
+    return {
+        "valid": True,
+        "message": f"✅ تم تفعيل التجربة — صالحة لمدة {_TRIAL_DAYS} يوم",
+        "days_left": _TRIAL_DAYS,
+    }
+
+
+def check_trial() -> dict:
+    """
+    التحقق من صلاحية فترة التجربة.
+
+    Returns:
+        {"valid": bool, "message": str, "days_left": int | None}
+    """
+    trial_file = _trial_path()
+    if not trial_file.exists():
+        return {
+            "valid": False,
+            "message": "لا توجد جلسة تجربة نشطة",
+            "days_left": None,
+        }
+
+    try:
+        data = json.loads(trial_file.read_text(encoding="utf-8"))
+    except Exception:
+        return {
+            "valid": False,
+            "message": "ملف التجربة تالف — يرجى شراء الترخيص",
+            "days_left": None,
+        }
+
+    if not isinstance(data, dict) or not _is_signed_trial_payload(data):
+        return {
+            "valid": False,
+            "message": "بيانات التجربة غير موثوقة — يرجى شراء الترخيص",
+            "days_left": None,
+        }
+
+    # تحقق من تطابق الجهاز
+    current_hw = get_hardware_id()
+    if data.get("hardware_id") != current_hw:
+        return {
+            "valid": False,
+            "message": "فترة التجربة لا تطابق هذا الجهاز",
+            "days_left": None,
+        }
+
+    # حساب الأيام المتبقية
+    try:
+        started_at = datetime.fromisoformat(data["started_at"])
+    except (KeyError, ValueError):
+        return {
+            "valid": False,
+            "message": "بيانات التجربة تالفة",
+            "days_left": None,
+        }
+
+    trial_days = data.get("trial_days", _TRIAL_DAYS)
+    now = datetime.now()
+    elapsed = (now - started_at).days
+    days_left = trial_days - elapsed
+
+    if days_left <= 0:
+        # لا نحذف ملف التجربة؛ نتركه كدليل انتهاء ونؤكد علامة الاستخدام.
+        try:
+            _write_trial_marker(data)
+        except OSError:
+            pass
+        return {
+            "valid": False,
+            "message": "⏰ انتهت فترة التجربة — يرجى شراء الترخيص",
+            "days_left": 0,
+        }
+
+    return {
+        "valid": True,
+        "message": f"🧪 وضع التجربة — متبقي {days_left} يوم",
+        "days_left": days_left,
+    }
+
+
+def has_active_trial_or_license() -> dict:
+    """
+    التحقق مما إذا كان هناك ترخيص صالح أو تجربة نشطة.
+    تُستدعى عند بدء التشغيل بدلاً من check_saved_license().
+
+    Returns:
+        {"valid": bool, "message": str, "days_left": int | None, "mode": str}
+        mode: "license" | "trial" | "none"
+    """
+    # 1. تحقق من الترخيص أولاً
+    lic = check_saved_license()
+    if lic["valid"]:
+        return {**lic, "mode": "license"}
+
+    # 2. تحقق من التجربة
+    trial = check_trial()
+    if trial["valid"]:
+        return {**trial, "mode": "trial"}
+
+    # 3. لا يوجد ترخيص ولا تجربة
+    return {
+        "valid": False,
+        "message": "البرنامج غير مفعّل — أدخل كود الترخيص أو ابدأ التجربة",
+        "days_left": None,
+        "mode": "none",
     }

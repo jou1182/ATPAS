@@ -28,8 +28,11 @@ from PyQt5.QtWidgets import (
     QWidget,
 )
 
-from ui import theme
-from utils.license_manager import activate, get_hardware_id
+from ui.theme import (
+    ACCENT, ACCENT_PALE, BORDER, BORDER2, ERROR, ERROR_PALE,
+    SUCCESS, SUCCESS_PALE, SURFACE, TEXT,
+)
+from utils.license_manager import activate, get_hardware_id, start_trial
 
 
 class ActivationDialog(QDialog):
@@ -182,35 +185,50 @@ class ActivationDialog(QDialog):
         self._activate_btn = QPushButton("🔓  تفعيل البرنامج")
         self._activate_btn.setEnabled(False)
         self._activate_btn.setCursor(Qt.PointingHandCursor)
-        self._activate_btn.setStyleSheet("""
-            QPushButton {
-                background:%s; color:white; border:none;
+        self._activate_btn.setStyleSheet(f"""
+            QPushButton {{
+                background:{SUCCESS}; color:white; border:none;
                 border-radius:7px; padding:12px 28px;
                 font-size:14px; font-weight:800; min-width:180px;
-            }
-            QPushButton:hover   { background:#236040; }
-            QPushButton:pressed { background:#1B4E33; }
-            QPushButton:disabled{
+            }}
+            QPushButton:hover   {{ background:#236040; }}
+            QPushButton:pressed {{ background:#1B4E33; }}
+            QPushButton:disabled{{
                 background:#AFBFB8; color:#E2EDE9;
-            }
-        """ % theme.SUCCESS)
+            }}
+        """)
         self._activate_btn.clicked.connect(self._on_activate)
 
         exit_btn = QPushButton("✕  إغلاق")
         exit_btn.setCursor(Qt.PointingHandCursor)
-        exit_btn.setStyleSheet("""
-            QPushButton {
-                background:transparent; color:%s;
-                border:1px solid %s60; border-radius:7px;
+        exit_btn.setStyleSheet(f"""
+            QPushButton {{
+                background:transparent; color:{ERROR};
+                border:1px solid {ERROR}60; border-radius:7px;
                 padding:12px 20px; font-size:13px; font-weight:700;
-            }
-            QPushButton:hover  { background:%s; border-color:%s; }
-            QPushButton:pressed{ background:#FDDDDD; }
-        """ % (theme.ERROR, theme.ERROR, theme.ERROR_PALE, theme.ERROR))
+            }}
+            QPushButton:hover  {{ background:{ERROR_PALE}; border-color:{ERROR}; }}
+            QPushButton:pressed{{ background:#FDDDDD; }}
+        """)
         exit_btn.clicked.connect(self.reject)
+
+        # ── زر التجربة 🧪 ───────────────────────────────────────────────
+        trial_btn = QPushButton("🧪  تجربة البرنامج ليوم واحد")
+        trial_btn.setCursor(Qt.PointingHandCursor)
+        trial_btn.setStyleSheet(f"""
+            QPushButton {{
+                background:transparent; color:#2A6F6A;
+                border:2px solid #2A6F6A; border-radius:7px;
+                padding:12px 20px; font-size:13px; font-weight:800;
+            }}
+            QPushButton:hover  {{ background:#E8F5E9; }}
+            QPushButton:pressed{{ background:#C8E6C9; }}
+        """)
+        trial_btn.clicked.connect(self._on_start_trial)
 
         btn_row.addStretch()
         btn_row.addWidget(exit_btn)
+        btn_row.addWidget(trial_btn)
         btn_row.addWidget(self._activate_btn)
         b_lay.addLayout(btn_row)
 
@@ -248,6 +266,16 @@ class ActivationDialog(QDialog):
         self._activate_btn.setEnabled(looks_complete)
         self._clear_status()
 
+    def _on_start_trial(self) -> None:
+        """بدء تجربة البرنامج ليوم واحد."""
+        result = start_trial()
+        if result.get("valid"):
+            self._show_status(result["message"], success=True)
+            self._result = True
+            QTimer.singleShot(1200, self.accept)
+        else:
+            self._show_status(result.get("message", "تعذّر بدء التجربة"), success=False)
+
     def _on_activate(self) -> None:
         """يتحقق من الكود ويُفعّل البرنامج."""
         key = self._key_input.text().strip()
@@ -270,12 +298,12 @@ class ActivationDialog(QDialog):
             self._show_status(result.get("message", "كود غير صحيح"), success=False)
             self._key_input.setStyleSheet(
                 self._key_input.styleSheet()
-                + f"border-color:{theme.ERROR}; background:{theme.ERROR_PALE};"
+                + f"border-color:{ERROR}; background:{ERROR_PALE};"
             )
 
     def _show_status(self, msg: str, *, success: bool) -> None:
-        color = theme.SUCCESS if success else theme.ERROR
-        bg    = theme.SUCCESS_PALE if success else theme.ERROR_PALE
+        color = SUCCESS if success else ERROR
+        bg    = SUCCESS_PALE if success else ERROR_PALE
         self._status_lbl.setText(msg)
         self._status_lbl.setStyleSheet(
             f"font-size:12px; font-weight:600; color:{color};"

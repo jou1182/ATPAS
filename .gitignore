@@ -38,9 +38,10 @@ _owner_extract.json
 *.xlsx
 *.xls
 
-# ── Source Word documents (content library)
-# Add real .docx files locally — never commit client content
-templates/source_documents/*.docx
+# ── Source documents (content library)
+# Add real content files locally — never commit client/client-like content
+templates/source_documents/*
+!templates/source_documents/.gitkeep
 
 # ── Spec-kit internal ────────────────────
 .specify/
@@ -49,6 +50,8 @@ templates/source_documents/*.docx
 .vscode/
 .idea/
 .atpas_welcomed
+.atpas_sessions.json
+build_history.json
 *.swp
 *.swo
 Thumbs.db

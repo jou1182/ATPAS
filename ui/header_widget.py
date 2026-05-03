@@ -180,6 +180,10 @@ class HeaderWidget(QWidget):
     about_requested = pyqtSignal()
     #: يُطلق عند الضغط على زر استيراد جدول الكميات — MainWindow يفتح BOQReviewPanel
     boq_import_requested = pyqtSignal()
+    #: يُطلق عند الضغط على زر الجلسات المحفوظة — MainWindow يفتح SessionHistoryDialog
+    session_history_requested = pyqtSignal()
+    #: يُطلق عند الضغط على زر Dark Mode — MainWindow يبدّل الوضع
+    dark_mode_toggle_requested = pyqtSignal()
 
     def __init__(self, active_codes: int = 0, parent: QWidget | None = None) -> None:
         super().__init__(parent)
@@ -391,6 +395,34 @@ class HeaderWidget(QWidget):
         ))
         last_btn.clicked.connect(self.last_proposal_requested.emit)
         layout.addWidget(last_btn)
+
+        # ── زر الجلسات المحفوظة 🕐 ────────────────────────────────────
+        session_btn = QPushButton("🕐  الجلسات", self)
+        session_btn.setToolTip("عرض واسترجاع الجلسات المحفوظة (Ctrl+J)")
+        session_btn.setCursor(Qt.PointingHandCursor)
+        session_btn.setStyleSheet(_hdr_btn_style.format(
+            fg="#7EC8E3",
+            border="#7EC8E370",
+            hover_bg="#7EC8E320",
+            hover_border="#7EC8E3",
+            pressed_bg="#7EC8E340",
+        ))
+        session_btn.clicked.connect(self.session_history_requested.emit)
+        layout.addWidget(session_btn)
+
+        # ── زر Dark Mode 🌙 ───────────────────────────────────────────
+        dark_btn = QPushButton("🌙  داكن", self)
+        dark_btn.setToolTip("تبديل الوضع الداكن/الفاتح (Ctrl+D)")
+        dark_btn.setCursor(Qt.PointingHandCursor)
+        dark_btn.setStyleSheet(_hdr_btn_style.format(
+            fg="#9B6BB7",
+            border="#9B6BB770",
+            hover_bg="#9B6BB720",
+            hover_border="#9B6BB7",
+            pressed_bg="#9B6BB740",
+        ))
+        dark_btn.clicked.connect(self.dark_mode_toggle_requested.emit)
+        layout.addWidget(dark_btn)
 
         # ── زر عن النظام ⓘ ────────────────────────────────────────────
         about_btn = QPushButton("ⓘ  عن النظام", self)

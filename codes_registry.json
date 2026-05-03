@@ -2694,6 +2694,23 @@
       "created_date": "2026-04-20",
       "last_modified": "2026-04-20",
       "version": "1.0"
+    },
+    "999-CUS-001": {
+      "code_id": "999-CUS-001",
+      "category": "CUS",
+      "phase": "GEN",
+      "variation": "064",
+      "activity_name_ar": "20",
+      "activity_name_en": "20",
+      "project_ids": [
+        "wastewater"
+      ],
+      "network_types": [],
+      "applicable_owners": [],
+      "sequence_order": 999,
+      "dependencies": [],
+      "status": "active",
+      "is_custom": true
     }
   },
   "variations": {

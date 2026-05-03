@@ -73,20 +73,21 @@ def test_missing_dependency_warning(validator):
 
 
 # ---------------------------------------------------------------------------
-# Scenario 3: Conflicting (mutually-exclusive) excavation types
+# Scenario 3: Multiple excavation methods are valid in infrastructure tenders
 # ---------------------------------------------------------------------------
 
-def test_conflicting_excavation_types(validator):
+def test_multiple_excavation_methods_allowed(validator):
     codes = [
         "001-SUR-BASE", "001-PRM-GOV", "001-APP-DES", "001-APP-HSE",
         "002-MAT-SITE",
-        "002-EXC-FINE",    # conflict
-        "002-EXC-OPEN",    # conflict
+        "002-EXC-FINE",
+        "002-EXC-OPEN",
+        "002-EXC-TUNNEL",
         "003-PIP-SEW",
     ]
     is_valid, errors, _ = validator.validate(codes, "nwc", "wastewater")
-    assert not is_valid
-    assert any("حفر" in e for e in errors)
+    assert is_valid, f"Excavation methods must be allowed together: {errors}"
+    assert not any("نوع حفر واحد" in e for e in errors)
 
 
 # ---------------------------------------------------------------------------

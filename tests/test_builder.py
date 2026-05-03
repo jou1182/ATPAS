@@ -209,22 +209,21 @@ def test_missing_deps_build_with_warnings(builder):
 
 
 # ---------------------------------------------------------------------------
-# Scenario 6: conflicting excavation types  →  build rejected
+# Scenario 6: multiple excavation methods  →  build allowed
 # ---------------------------------------------------------------------------
 
-def test_conflicting_excavation_rejected(builder):
+def test_multiple_excavation_methods_build_allowed(builder):
     selected = [
         "001-SUR-BASE", "001-PRM-GOV", "001-APP-DES", "001-APP-HSE",
         "002-MAT-SITE",
-        "002-EXC-FINE",   # conflict
-        "002-EXC-OPEN",   # conflict
+        "002-EXC-FINE",
+        "002-EXC-OPEN",
+        "002-EXC-TUNNEL",
         "003-PIP-SEW",
     ]
-    out = _OUTPUT_DIR / "conflict_exc.docx"
+    out = _OUTPUT_DIR / "multi_exc.docx"
     success, err = builder.build(selected, "wastewater", "nwc", out)
-    assert not success
-    assert err is not None
-    assert "حفر" in err
+    assert success, f"Expected build to allow multiple excavation methods, got: {err}"
 
 
 # ---------------------------------------------------------------------------

@@ -1,0 +1,31 @@
+{
+  "approvals": {
+    "001-SUR-BASE": {
+      "status": "approved",
+      "approved_at": "2026-05-04T00:48:05",
+      "updated_at": "2026-05-04T00:48:05",
+      "reviewer": "ATPAS",
+      "notes": "اعتماد من مركز مكتبة Word",
+      "file_path": "D:\\Jou_Pro\\ATPAS-20260426T202142Z-3-001\\ATPAS\\templates\\source_documents\\001-SUR-BASE.docx",
+      "file_sha256": "d456e9d4a4c377dcfff38b7372cd5233f2f1af69242d0fb98aeb355f9925baac"
+    },
+    "001-PRM-GOV": {
+      "status": "approved",
+      "approved_at": "2026-05-04T00:48:13",
+      "updated_at": "2026-05-04T00:48:13",
+      "reviewer": "ATPAS",
+      "notes": "اعتماد من مركز مكتبة Word",
+      "file_path": "D:\\Jou_Pro\\ATPAS-20260426T202142Z-3-001\\ATPAS\\templates\\source_documents\\001-PRM-GOV.docx",
+      "file_sha256": "0b5ab0e6af1c40e977cde6533cebc877dc39c5e6d367fc6639ff0a0ecf9d40cc"
+    },
+    "001-SUR-NET": {
+      "status": "approved",
+      "approved_at": "2026-05-04T00:48:50",
+      "updated_at": "2026-05-04T00:48:50",
+      "reviewer": "ATPAS",
+      "notes": "اعتماد من مركز مكتبة Word",
+      "file_path": "D:\\Jou_Pro\\ATPAS-20260426T202142Z-3-001\\ATPAS\\templates\\source_documents\\001-SUR-NET.docx",
+      "file_sha256": "a0e3961a56071c45dc154408ce136f05f9408c08b8530318aa545e64ba15e4f5"
+    }
+  }
+}

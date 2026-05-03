@@ -69,17 +69,17 @@ def main() -> int:
     apply_palette(app)
     app.setStyleSheet(get_stylesheet())
 
-    # ── التحقق من الترخيص ──────────────────────────────────────────────
-    from utils.license_manager import check_saved_license
+    # ── التحقق من الترخيص أو التجربة ──────────────────────────────────
+    from utils.license_manager import has_active_trial_or_license
     from ui.activation_dialog import ActivationDialog
 
-    license_status = check_saved_license()
+    license_status = has_active_trial_or_license()
     if not license_status["valid"]:
         dlg = ActivationDialog(message=license_status["message"])
         if dlg.exec_() != ActivationDialog.Accepted or not dlg.was_activated():
             return 0   # المستخدم أغلق شاشة التفعيل → لا يفتح البرنامج
-        # أعد قراءة الترخيص بعد التفعيل
-        license_status = check_saved_license()
+        # أعد قراءة الترخيص بعد التفعيل أو التجربة
+        license_status = has_active_trial_or_license()
 
     days_left = license_status.get("days_left")
 

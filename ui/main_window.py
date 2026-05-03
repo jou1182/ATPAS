@@ -31,7 +31,7 @@ import time
 from pathlib import Path
 from typing import Any
 
-from PyQt5.QtCore import QEasingCurve, QPropertyAnimation, Qt, QTimer
+from PyQt5.QtCore import QObject, QEasingCurve, QPropertyAnimation, QThread, Qt, QTimer, pyqtSignal, pyqtSlot
 from PyQt5.QtCore import QSettings
 from PyQt5.QtGui import QKeySequence
 from PyQt5.QtWidgets import (
@@ -69,8 +69,11 @@ from ui.presets_panel import PresetsPanelWidget
 from ui.project_selector import ProjectSelectorWidget
 from ui.settings_dialog import SettingsDialog, resolve_output_dir
 from ui.system_health_dialog import SystemHealthDialog
+from ui.dark_mode import DarkModeManager
+from ui.session_history_dialog import SessionHistoryDialog
 from ui.welcome_overlay import show_if_first_run
 from ui.motion import motion_ms, motion_single_shot, prefers_reduced_motion
+from utils.session_memory import save_session, count_sessions
 from utils.activity_log import ActivityLog
 from utils.content_approval import ContentApprovalManager
 from utils.content_library import ContentLibrary
@@ -81,6 +84,34 @@ from utils.proposal_versions import ProposalVersionManager
 from utils.proposal_readiness import analyze_proposal_readiness
 from utils.system_health import build_system_health_report
 from utils.word_content_audit import audit_selected_content
+
+
+class _SystemHealthWorker(QObject):
+    """Build the system health report away from the UI thread."""
+
+    finished = pyqtSignal(object)
+    failed = pyqtSignal(str)
+
+    def __init__(self, registry_data: dict, config_data: dict, presets_data: dict) -> None:
+        super().__init__()
+        self._registry_data = registry_data
+        self._config_data = config_data
+        self._presets_data = presets_data
+
+    @pyqtSlot()
+    def run(self) -> None:
+        try:
+            report = build_system_health_report(
+                registry_data=self._registry_data,
+                config_data=self._config_data,
+                presets_data=self._presets_data,
+                source_documents_dir=Path("templates/source_documents"),
+            )
+        except Exception as exc:  # noqa: BLE001
+            self.failed.emit(str(exc))
+        else:
+            self.finished.emit(report)
+
 
 def _get_output_dir(settings: QSettings | None = None) -> Path:
     """Return the output directory — next to EXE when frozen, else local."""
@@ -159,17 +190,23 @@ class MainWindow(QMainWindow):
         self._status_hold_until = 0.0
         self._focus_search_action: QAction | None = None
         self._settings_dialog: SettingsDialog | None = None
+        self._health_thread: QThread | None = None
+        self._health_worker: _SystemHealthWorker | None = None
         self._version_manager = ProposalVersionManager()
         self._boq_order: list[str] | None = None   # ترتيب BOQ عند الاستيراد
         self._activity_log = ActivityLog()
 
         self._settings = QSettings("Rawaf", "ATPAS")
 
+        # Dark Mode manager
+        self._dark_mode = DarkModeManager(self._settings, parent=self)
+
         self._load_startup_data()
         self._build_engine()
         self._configure_window()
         self._build_layout()
         self._restore_window_geometry()
+        self._dark_mode.apply_if_active()
         self._show_startup_issues_if_any()
 
     def showEvent(self, event) -> None:  # type: ignore[override]
@@ -193,6 +230,9 @@ class MainWindow(QMainWindow):
                 create_backup("auto")
             except Exception:  # noqa: BLE001
                 pass
+        if self._health_thread is not None and self._health_thread.isRunning():
+            self._health_thread.quit()
+            self._health_thread.wait(1500)
         super().closeEvent(event)
 
     # ------------------------------------------------------------------
@@ -334,6 +374,8 @@ class MainWindow(QMainWindow):
         self._header.last_proposal_requested.connect(self._on_open_last_proposal)
         self._header.about_requested.connect(self._on_about)
         self._header.boq_import_requested.connect(self._on_import_boq)
+        self._header.session_history_requested.connect(self._on_session_history)
+        self._header.dark_mode_toggle_requested.connect(self._on_toggle_dark_mode)
         self._history_manager = BuildHistoryManager()
         self._wire_shortcuts()
         self._build_menu_bar()
@@ -770,6 +812,20 @@ class MainWindow(QMainWindow):
         self._code_manager_action.triggered.connect(self._on_code_manager)
         self.addAction(self._code_manager_action)
 
+        # Ctrl+J → فتح نافذة الجلسات المحفوظة
+        self._session_action = QAction(self)
+        self._session_action.setShortcut(QKeySequence("Ctrl+J"))
+        self._session_action.setShortcutContext(Qt.WindowShortcut)
+        self._session_action.triggered.connect(self._on_session_history)
+        self.addAction(self._session_action)
+
+        # Ctrl+D → تبديل Dark Mode
+        self._dark_mode_action = QAction(self)
+        self._dark_mode_action.setShortcut(QKeySequence("Ctrl+D"))
+        self._dark_mode_action.setShortcutContext(Qt.WindowShortcut)
+        self._dark_mode_action.triggered.connect(self._on_toggle_dark_mode)
+        self.addAction(self._dark_mode_action)
+
         # Ctrl+E → تصدير CSV (يُفعَّل من PreviewPanel مباشرةً — هنا للتوثيق فقط)
 
     def _build_menu_bar(self) -> None:
@@ -834,14 +890,48 @@ class MainWindow(QMainWindow):
 
     def _on_system_health(self) -> None:
         """Open a read-only health report for data, presets, and content files."""
-        report = build_system_health_report(
-            registry_data=self.registry_data,
-            config_data=self.config_data,
-            presets_data=self.presets_data,
-            source_documents_dir=Path("templates/source_documents"),
-        )
+        if self._health_thread is not None:
+            self._show_status("جارٍ فحص صحة النظام بالفعل...", hold_ms=4_000)
+            return
+
+        self._show_status("جارٍ فحص صحة النظام وملفات Word...", hold_ms=12_000)
+        thread = QThread(self)
+        worker = _SystemHealthWorker(self.registry_data, self.config_data, self.presets_data)
+        worker.moveToThread(thread)
+
+        thread.started.connect(worker.run)
+        worker.finished.connect(self._on_system_health_ready)
+        worker.failed.connect(self._on_system_health_failed)
+        worker.finished.connect(thread.quit)
+        worker.failed.connect(thread.quit)
+        worker.finished.connect(worker.deleteLater)
+        worker.failed.connect(worker.deleteLater)
+        thread.finished.connect(thread.deleteLater)
+        thread.finished.connect(self._clear_system_health_worker)
+
+        self._health_thread = thread
+        self._health_worker = worker
+        thread.start()
+
+    @pyqtSlot(object)
+    def _on_system_health_ready(self, report) -> None:
+        self._show_status("اكتمل فحص صحة النظام", hold_ms=5_000)
         dialog = SystemHealthDialog(report, parent=self)
         dialog.exec_()
+
+    @pyqtSlot(str)
+    def _on_system_health_failed(self, message: str) -> None:
+        self._logger.error("Failed building system health report: %s", message)
+        self._show_error_box(
+            "تعذّر فحص صحة النظام",
+            "حدث خطأ أثناء إنشاء تقرير الصحة.",
+            message,
+        )
+
+    @pyqtSlot()
+    def _clear_system_health_worker(self) -> None:
+        self._health_thread = None
+        self._health_worker = None
 
     def _on_code_manager(self) -> None:
         """Open code manager and refresh the UI after safe edits."""
@@ -877,15 +967,24 @@ class MainWindow(QMainWindow):
     _DRAFT_KEY_EXISTS = "draft/exists"
 
     def _save_draft_session(self) -> None:
-        """Persist current selection to QSettings so it can be restored next launch."""
+        """Persist current selection to Smart Session Memory (last 10 sessions)."""
         if self._project_selector is None or self._checkbox_selector is None:
             return
         pids  = self._project_selector.current_project_ids()
         oid   = self._project_selector.current_owner_id()
         codes = self._checkbox_selector.get_selected_codes()
-        if not pids or not oid:
-            self._settings.setValue(self._DRAFT_KEY_EXISTS, False)
+        if not pids or not oid or not codes:
             return
+
+        # حفظ في نظام الجلسات الذكية (آخر 10 جلسات)
+        save_session(
+            project_ids=pids,
+            owner_id=oid,
+            selected_codes=codes,
+            registry_codes=self.registry_data.get("codes", {}),
+        )
+
+        # أيضاً احتفظ بالتوافق مع النظام القديم لجلسة واحدة
         self._settings.setValue(self._DRAFT_KEY_PIDS,   pids)
         self._settings.setValue(self._DRAFT_KEY_OID,    oid)
         self._settings.setValue(self._DRAFT_KEY_CODES,  codes)
@@ -926,6 +1025,46 @@ class MainWindow(QMainWindow):
             )
         # Clear draft either way — don't ask again
         self._settings.setValue(self._DRAFT_KEY_EXISTS, False)
+
+    def _on_toggle_dark_mode(self) -> None:
+        """Toggle between light and dark mode."""
+        is_dark = self._dark_mode.toggle()
+        icon = "🌙" if is_dark else "☀️"
+        label = "داكن" if is_dark else "فاتح"
+        self._show_status(
+            f"{icon} تم التبديل إلى الوضع {label}",
+            hold_ms=4_000,
+        )
+        self._activity_log.append(
+            "تبديل الوضع",
+            {"mode": "dark" if is_dark else "light"},
+        )
+
+    def _on_session_history(self) -> None:
+        """Open the Smart Session History dialog to view/restore past sessions."""
+        dialog = SessionHistoryDialog(parent=self)
+        dialog.session_restored.connect(self._on_session_restored)
+        dialog.exec_()
+
+    def _on_session_restored(
+        self, project_ids: list[str], owner_id: str, codes: list[str]
+    ) -> None:
+        """Apply a restored session's project/owner/codes selection."""
+        self._project_selector.apply_preset(project_ids, owner_id)
+        self._checkbox_selector.add_codes(codes)
+        self._show_status(
+            f"↩ تم استعادة الجلسة — {len(codes)} كود — "
+            f"{' + '.join(project_ids)} / {owner_id}",
+            hold_ms=6_000,
+        )
+        self._activity_log.append(
+            "استعادة جلسة محفوظة",
+            {
+                "project_ids": project_ids,
+                "owner_id": owner_id,
+                "codes_count": len(codes),
+            },
+        )
 
     def _on_import_wizard(self) -> None:
         """BKL-012: Open Import Wizard for adding codes and managing owners."""

@@ -204,11 +204,11 @@ def test_resolver_superset(registry_codes):
 
 
 # ---------------------------------------------------------------------------
-# Cross-cutting: exclusive group enforced by validator
+# Cross-cutting: multiple excavation methods are allowed by validator
 # ---------------------------------------------------------------------------
 
-def test_validator_exclusive_group_blocked(registry_codes):
-    """Selecting two excavation types must produce a validation error."""
+def test_validator_allows_multiple_excavation_methods(registry_codes):
+    """Infrastructure proposals may include more than one excavation method."""
     exc_codes = [
         cid for cid, cdata in registry_codes.items()
         if "excavation_type" in cdata and cdata.get("status") == "active"
@@ -218,8 +218,8 @@ def test_validator_exclusive_group_blocked(registry_codes):
 
     validator = Validator(registry_codes)
     is_valid, errors, _ = validator.validate(exc_codes[:2], "nwc", "wastewater")
-    assert not is_valid
-    assert any("حصرية" in e or "حفر" in e for e in errors)
+    assert is_valid, f"Excavation methods should not be mutually exclusive: {errors}"
+    assert not any("نوع حفر واحد" in e for e in errors)
 
 
 # ===========================================================================

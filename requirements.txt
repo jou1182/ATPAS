@@ -8,10 +8,13 @@ python-docx>=0.8.11
 docx2pdf>=0.1.8
 
 # Image processing and manipulation
-Pillow>=9.0.0
+Pillow>=12.2.0
 
 # GUI framework
 PyQt5>=5.15.0
+
+# XML backend used by python-docx
+lxml>=6.1.0
 
 # Excel support (for reports)
 openpyxl>=3.0.10

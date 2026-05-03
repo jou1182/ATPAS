@@ -8,7 +8,9 @@ from typing import Dict, List, Tuple
 from engine.types import CodeRegistry
 from utils.json_manager import load_json
 
-# Codes with this field belong to a mutually-exclusive excavation group
+# Codes with this field describe excavation methods. Multiple methods can be
+# valid in one proposal because a single infrastructure project may include
+# open-cut, fine, and trenchless segments.
 _EXC_FIELD = "excavation_type"
 
 # Owner spec files location
@@ -79,7 +81,7 @@ class Validator:
             self._check_owner(code_id, owner_id, errors)
 
         self._check_forbidden(selected_codes, owner_spec, errors)
-        self._check_exclusive_groups(selected_codes, errors)
+        self._check_excavation_methods(selected_codes, warnings)
         self._check_mandatory(selected_codes, owner_spec, warnings)
         self._check_dependencies(selected_codes, project_ids, warnings)
 
@@ -143,20 +145,20 @@ class Validator:
             if code_id in selected_codes:
                 errors.append(f"الكود {code_id} محظور للجهة '{owner_spec.get('owner_id', '?')}'")
 
-    def _check_exclusive_groups(self, selected_codes: List[str], errors: List[str]) -> None:
-        """Ensure at most one excavation type is selected."""
+    def _check_excavation_methods(self, selected_codes: List[str], warnings: List[str]) -> None:
+        """Allow multiple excavation methods in the same technical proposal.
+
+        This is intentional: NWC and similar infrastructure tenders can include
+        open-cut, fine excavation, and trenchless portions in separate segments.
+        The method list is still inspected here so future rule hooks have one
+        stable place, but it is not a blocking validation error.
+        """
         exc_codes = [
             c for c in selected_codes
             if c in self._codes and _EXC_FIELD in self._codes[c]
         ]
-        if len(exc_codes) > 1:
-            names = [
-                f"{c} ({self._codes[c].get(_EXC_FIELD, '')})"
-                for c in exc_codes
-            ]
-            errors.append(
-                f"لا يمكن اختيار أكثر من نوع حفر واحد في نفس الوقت: {', '.join(names)}"
-            )
+        if len(set(exc_codes)) > 1:
+            return
 
     def _check_mandatory(
         self, selected_codes: List[str], owner_spec: Dict, warnings: List[str]

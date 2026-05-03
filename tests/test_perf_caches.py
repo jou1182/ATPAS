@@ -186,6 +186,55 @@ class TestLicenseCheckCache:
         )
 
 
+class TestTrialHardening:
+    """Trial mode should not be reusable by deleting/expiring trial.dat."""
+
+    def test_start_trial_writes_signed_marker(self, tmp_path, monkeypatch):
+        import utils.license_manager as lm
+
+        trial_file = tmp_path / "trial.dat"
+        monkeypatch.setattr(lm, "_trial_path", lambda: trial_file)
+        monkeypatch.setattr(lm, "get_hardware_id", lambda: "ABCD-EFGH-IJKL-MNOP")
+
+        result = lm.start_trial()
+
+        assert result["valid"] is True
+        assert trial_file.exists()
+        assert (tmp_path / "trial.used").exists()
+
+    def test_marker_blocks_new_trial_after_trial_file_deleted(self, tmp_path, monkeypatch):
+        import utils.license_manager as lm
+
+        trial_file = tmp_path / "trial.dat"
+        monkeypatch.setattr(lm, "_trial_path", lambda: trial_file)
+        monkeypatch.setattr(lm, "get_hardware_id", lambda: "ABCD-EFGH-IJKL-MNOP")
+
+        assert lm.start_trial()["valid"] is True
+        trial_file.unlink()
+
+        retry = lm.start_trial()
+
+        assert retry["valid"] is False
+        assert "مسبق" in retry["message"]
+
+    def test_tampered_trial_file_is_rejected(self, tmp_path, monkeypatch):
+        import utils.license_manager as lm
+
+        trial_file = tmp_path / "trial.dat"
+        monkeypatch.setattr(lm, "_trial_path", lambda: trial_file)
+        monkeypatch.setattr(lm, "get_hardware_id", lambda: "ABCD-EFGH-IJKL-MNOP")
+
+        assert lm.start_trial()["valid"] is True
+        data = json.loads(trial_file.read_text(encoding="utf-8"))
+        data["trial_days"] = 9999
+        trial_file.write_text(json.dumps(data), encoding="utf-8")
+
+        result = lm.check_trial()
+
+        assert result["valid"] is False
+        assert "غير موثوقة" in result["message"]
+
+
 # ────────────────────────────────────────────────────────────────────────────
 # 3.  content_library — source Document cache
 # ────────────────────────────────────────────────────────────────────────────
