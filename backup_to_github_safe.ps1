@@ -136,47 +136,54 @@ if ($Blocked.Count -gt 0) {
     Write-Host ""
 }
 
-if ($SafeFiles.Count -eq 0) {
-    Write-Host ""
-    Write-Host "[OK] No safe changes to upload. GitHub is already up to date." -ForegroundColor Green
-    Write-Host ""
-    exit 0
-}
+$DidCommit = $false
 
-$StageArgs = @("add", "--all", "--") + $SafeFiles
-Invoke-Git @StageArgs
+if ($SafeFiles.Count -eq 0) {
+    Write-Host "[OK] No safe file changes to stage." -ForegroundColor Green
+} else {
+    $StageArgs = @("add", "--all", "--") + $SafeFiles
+    Invoke-Git @StageArgs
+}
 
 $Staged = @(& git diff --cached --name-only)
-if ($Staged.Count -eq 0) {
+if ($Staged.Count -gt 0) {
+    Write-Host "Files to upload:" -ForegroundColor Green
+    $Staged | ForEach-Object { Write-Host "  - $_" }
     Write-Host ""
-    Write-Host "[OK] No safe changes to upload. GitHub is already up to date." -ForegroundColor Green
-    Write-Host ""
-    exit 0
+
+    Write-Host "[3/6] Creating commit..." -ForegroundColor Yellow
+    Invoke-Git commit -m $Message
+    $DidCommit = $true
+} else {
+    Write-Host "[3/6] Creating commit..." -ForegroundColor Yellow
+    Write-Host "No new commit needed. Existing local commits will still be pushed." -ForegroundColor Green
 }
 
-Write-Host "Files to upload:" -ForegroundColor Green
-$Staged | ForEach-Object { Write-Host "  - $_" }
-Write-Host ""
-
-Write-Host "[3/6] Creating commit..." -ForegroundColor Yellow
-Invoke-Git commit -m $Message
-
 Write-Host "[4/6] Parking skipped local files..." -ForegroundColor Yellow
-$DirtyAfterCommit = @(& git status --porcelain)
-if ($DirtyAfterCommit.Count -gt 0) {
+$TrackedDirtyAfterCommit = @(& git ls-files --modified --deleted)
+$TrackedBlockedDirty = @()
+foreach ($File in $TrackedDirtyAfterCommit) {
+    $Normalized = $File.Replace("\", "/")
+    if (Test-BlockedPath $Normalized) {
+        $TrackedBlockedDirty += $File
+    }
+}
+
+if ($TrackedBlockedDirty.Count -gt 0) {
     $TempStashName = "ATPAS safe upload temp stash $Now"
-    $StashOutput = @(& git stash push --include-untracked -m $TempStashName)
+    $StashArgs = @("stash", "push", "-m", $TempStashName, "--") + $TrackedBlockedDirty
+    $StashOutput = @(& git @StashArgs)
     if ($LASTEXITCODE -ne 0) {
         Stop-WithMessage "Could not create a temporary stash for skipped local files."
     }
     if (($StashOutput -join "`n") -notmatch "No local changes") {
         $script:TempStashCreated = $true
-        Write-Host "Skipped local files were parked temporarily." -ForegroundColor Green
+        Write-Host "Tracked skipped files were parked temporarily." -ForegroundColor Green
     } else {
-        Write-Host "No skipped local files needed parking." -ForegroundColor Green
+        Write-Host "No tracked skipped files needed parking." -ForegroundColor Green
     }
 } else {
-    Write-Host "No skipped local files needed parking." -ForegroundColor Green
+    Write-Host "No tracked skipped files needed parking." -ForegroundColor Green
 }
 
 Write-Host "[5/6] Syncing with GitHub..." -ForegroundColor Yellow
