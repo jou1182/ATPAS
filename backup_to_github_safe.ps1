@@ -7,7 +7,30 @@ $ErrorActionPreference = "Stop"
 $Root = Split-Path -Parent $MyInvocation.MyCommand.Path
 Set-Location $Root
 
+$script:TempStashCreated = $false
+
+function Restore-TempStash {
+    if (-not $script:TempStashCreated) {
+        return
+    }
+
+    Write-Host ""
+    Write-Host "Restoring local skipped files..." -ForegroundColor Yellow
+    & git stash pop
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host ""
+        Write-Host "[WARNING] Could not restore the temporary stash automatically." -ForegroundColor Yellow
+        Write-Host "Run this command manually after checking the repository:" -ForegroundColor Yellow
+        Write-Host "  git stash list" -ForegroundColor Yellow
+        Write-Host "  git stash pop" -ForegroundColor Yellow
+        Write-Host ""
+    } else {
+        $script:TempStashCreated = $false
+    }
+}
+
 function Stop-WithMessage([string]$MessageText) {
+    Restore-TempStash
     Write-Host ""
     Write-Host "[ERROR] $MessageText" -ForegroundColor Red
     Write-Host ""
@@ -57,7 +80,7 @@ Write-Host "Remote:     $RemoteUrl"
 Write-Host "Message:    $Message"
 Write-Host ""
 
-Write-Host "[1/5] Current working tree summary:" -ForegroundColor Yellow
+Write-Host "[1/6] Current working tree summary:" -ForegroundColor Yellow
 & git status --short
 Write-Host ""
 
@@ -91,7 +114,7 @@ function Test-BlockedPath([string]$PathText) {
     return $false
 }
 
-Write-Host "[2/5] Staging safe project files..." -ForegroundColor Yellow
+Write-Host "[2/6] Staging safe project files..." -ForegroundColor Yellow
 & git restore --staged -- . *> $null
 
 $Candidates = @(& git ls-files --modified --deleted --others --exclude-standard)
@@ -135,14 +158,34 @@ Write-Host "Files to upload:" -ForegroundColor Green
 $Staged | ForEach-Object { Write-Host "  - $_" }
 Write-Host ""
 
-Write-Host "[3/5] Creating commit..." -ForegroundColor Yellow
+Write-Host "[3/6] Creating commit..." -ForegroundColor Yellow
 Invoke-Git commit -m $Message
 
-Write-Host "[4/5] Syncing with GitHub..." -ForegroundColor Yellow
+Write-Host "[4/6] Parking skipped local files..." -ForegroundColor Yellow
+$DirtyAfterCommit = @(& git status --porcelain)
+if ($DirtyAfterCommit.Count -gt 0) {
+    $TempStashName = "ATPAS safe upload temp stash $Now"
+    $StashOutput = @(& git stash push --include-untracked -m $TempStashName)
+    if ($LASTEXITCODE -ne 0) {
+        Stop-WithMessage "Could not create a temporary stash for skipped local files."
+    }
+    if (($StashOutput -join "`n") -notmatch "No local changes") {
+        $script:TempStashCreated = $true
+        Write-Host "Skipped local files were parked temporarily." -ForegroundColor Green
+    } else {
+        Write-Host "No skipped local files needed parking." -ForegroundColor Green
+    }
+} else {
+    Write-Host "No skipped local files needed parking." -ForegroundColor Green
+}
+
+Write-Host "[5/6] Syncing with GitHub..." -ForegroundColor Yellow
 Invoke-Git pull --rebase origin $Branch
 
-Write-Host "[5/5] Pushing to GitHub..." -ForegroundColor Yellow
+Write-Host "[6/6] Pushing to GitHub..." -ForegroundColor Yellow
 Invoke-Git push -u origin $Branch
+
+Restore-TempStash
 
 Write-Host ""
 Write-Host "============================================================" -ForegroundColor Green

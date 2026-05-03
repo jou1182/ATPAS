@@ -49,6 +49,7 @@ templates/source_documents/*
 # ── IDE / OS ─────────────────────────────
 .vscode/
 .idea/
+.claude/
 .atpas_welcomed
 .atpas_sessions.json
 build_history.json
