@@ -4,8 +4,15 @@
 
 from PyInstaller.utils.hooks import collect_submodules, collect_data_files
 import os
+from pathlib import Path
 
 block_cipher = None
+PYARMOR_RUNTIME = Path('pyarmor_runtime_000000')
+pyarmor_hiddenimports = ['pyarmor_runtime_000000'] if PYARMOR_RUNTIME.exists() else []
+pyarmor_datas = [
+    ('pyarmor_runtime_000000', 'pyarmor_runtime_000000')
+] if PYARMOR_RUNTIME.exists() else []
+pyarmor_pathex = ['pyarmor_runtime_000000'] if PYARMOR_RUNTIME.exists() else []
 
 # Collect all PyQt5 plugins needed for Arabic text + Windows look
 hiddenimports = (
@@ -26,9 +33,8 @@ hiddenimports = (
         'openpyxl',
         'docx2pdf',
         'difflib',
-        # PyArmor runtime — required by obfuscated modules (license_manager, activation_dialog, main)
-        'pyarmor_runtime_000000',
     ]
+    + pyarmor_hiddenimports
 )
 
 # Data files bundled into the EXE folder
@@ -46,13 +52,11 @@ datas = [
     ('output',               'output'),
     # Generic assets (icons, fonts)
     ('assets',               'assets'),
-    # PyArmor runtime — تشغيل الملفات المشفَّرة (license_manager, activation_dialog, main)
-    ('pyarmor_runtime_000000', 'pyarmor_runtime_000000'),
-]
+] + pyarmor_datas
 
 a = Analysis(
     ['main.py'],
-    pathex=['.', 'pyarmor_runtime_000000'],
+    pathex=['.'] + pyarmor_pathex,
     binaries=[],
     datas=datas,
     hiddenimports=hiddenimports,
