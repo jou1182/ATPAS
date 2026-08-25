@@ -30,6 +30,8 @@ from PyQt5.QtWidgets import (
     QWidget,
 )
 
+from ui import theme
+
 _HISTORY_FILE = Path("build_history.json")
 _MAX_HISTORY  = 50
 

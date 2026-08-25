@@ -62,13 +62,22 @@ def motion_single_shot(
 ) -> None:
     """Schedule callback with motion-aware delay.
     If context (parent) is provided, the timer is safely bound to its lifecycle.
+
+    ملاحظة PyQt5: الصيغة الثابتة QTimer.singleShot(ms, context, cb) هي واجهة
+    Qt6/PySide6 ولا توجد في PyQt5 — لذا نبني مؤقتاً حقيقياً أبُه السياق نفسه؛
+    يموت تلقائياً مع تدمير السياق دون أي نافذة انهيار.
     """
     ms = motion_ms(normal_ms, reduced_ms=reduced_ms)
     if prefers_reduced_motion() and reduced_ms <= 0:
         callback()
         return
 
-    if context:
-        QTimer.singleShot(ms, context, callback)
-    else:
+    if context is None:
         QTimer.singleShot(ms, callback)
+        return
+
+    timer = QTimer(context)          # الأب = السياق → تنظيف تلقائي مع تدميره
+    timer.setSingleShot(True)
+    timer.timeout.connect(callback)
+    timer.timeout.connect(timer.deleteLater)
+    timer.start(ms)

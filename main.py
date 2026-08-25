@@ -39,6 +39,29 @@ def _setup_logging() -> None:
         pass   # لا يوقف البرنامج إذا فشل الـ logging
 
 
+def _setup_crash_hooks() -> None:
+    """أي استثناء غير معالَج يُكتب في السجل بدل موت صامت (حاسم للتشخيص)."""
+    import traceback
+
+    def _hook(exc_type, exc_value, exc_tb):
+        logging.getLogger("atpas.crash").critical(
+            "UNHANDLED EXCEPTION:\n%s",
+            "".join(traceback.format_exception(exc_type, exc_value, exc_tb)),
+        )
+
+    sys.excepthook = _hook
+
+    # أعطال المستوى المنخفض (Qt/segfault) أيضاً
+    try:
+        import faulthandler
+        crash_dir = Path(os.environ.get("APPDATA", Path.home())) / "ATPAS" / "logs"
+        crash_dir.mkdir(parents=True, exist_ok=True)
+        fh = open(crash_dir / "crash.log", "a", encoding="utf-8", buffering=1)
+        faulthandler.enable(file=fh)
+    except Exception:
+        pass
+
+
 def main() -> int:
     global APP_VERSION
     _fix_working_dir()
@@ -51,6 +74,7 @@ def main() -> int:
         pass
 
     _setup_logging()
+    _setup_crash_hooks()
 
     # ── DPI: يجب إعداده قبل إنشاء QApplication ─────────────────────────
     # PassThrough يمنع تقريب عامل التكبير — يعطي صورة حادة على كل شاشة
