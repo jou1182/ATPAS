@@ -123,11 +123,11 @@ class ActivationDialog(QDialog):
         copy_btn.setCursor(Qt.PointingHandCursor)
         copy_btn.setStyleSheet(f"""
             QPushButton {{
-                background:{theme.ACCENT}; color:white; border:none;
+                background:{theme.ACCENT}; color:{theme.HEADER}; border:none;
                 border-radius:6px; padding:8px; font-size:12px; font-weight:700;
             }}
-            QPushButton:hover  {{ background:{theme.ACCENT_DARK}; }}
-            QPushButton:pressed{{ background:#8A5E14; }}
+            QPushButton:hover  {{ background:{theme.ACCENT_DARK}; color:white; }}
+            QPushButton:pressed{{ background:{theme.HEADER2}; color:white; }}
         """)
         copy_btn.clicked.connect(self._copy_hw_id)
 

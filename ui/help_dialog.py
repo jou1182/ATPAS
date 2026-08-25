@@ -76,7 +76,7 @@ _STYLE_BASE = f"""<!DOCTYPE html>
   tr:nth-child(even) td {{ background:#F5F5F5; }}
   kbd   {{ background:#E8E8E8; border:1px solid #999; border-radius:4px;
           padding:2px 7px; font-size:12px; font-family:Tajawal; }}
-  .badge{{ background:{theme.ACCENT}; color:white; border-radius:4px;
+  .badge{{ background:{theme.ACCENT}; color:{theme.HEADER}; border-radius:4px;
           padding:2px 8px; font-size:11px; font-weight:700; }}
 </style></head>
 """.replace("__WARNING__", theme.WARNING).replace("__SUCCESS__", theme.SUCCESS)

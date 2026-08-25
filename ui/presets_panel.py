@@ -39,6 +39,9 @@ _GROUP_COLORS: dict[str, str] = {
 }
 _DEFAULT_COLOR = theme.NEUTRAL
 
+# ارتفاع الشريط المفتوح — مصدر وحيد (يُستخدم في البناء والطي والأنيميشن)
+_EXPANDED_H = 125   # px
+
 
 class PresetsPanelWidget(QWidget):
     """Collapsible strip of grouped preset-apply buttons."""
@@ -136,7 +139,7 @@ class PresetsPanelWidget(QWidget):
         scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         scroll.setFrameShape(QFrame.NoFrame)
-        scroll.setFixedHeight(125)    # compact strip height (extra room for explicit title label)
+        scroll.setFixedHeight(_EXPANDED_H)    # compact strip height (extra room for explicit title label)
         scroll.setStyleSheet(f"""
             QScrollArea {{
                 background: {theme.NAVY_DEEP};
@@ -289,8 +292,7 @@ class PresetsPanelWidget(QWidget):
         self._expanded = not self._expanded
         self._toggle_btn.setText("▲ إخفاء" if self._expanded else "▼ عرض")
 
-        _EXPANDED_H = 125   # px — must match scroll.setFixedHeight() above
-        _ANIM_MS    = 230
+        _ANIM_MS = 230
 
         if prefers_reduced_motion():
             self._scroll_wrapper.setVisible(self._expanded)

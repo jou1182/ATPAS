@@ -17,7 +17,6 @@ from PyQt5.QtWidgets import (
     QLabel, QLineEdit, QPushButton, QVBoxLayout, QWidget,
 )
 
-from ui import theme
 
 
 class ExpiryWarningDialog(QDialog):

@@ -23,7 +23,7 @@ from __future__ import annotations
 import re
 from typing import Any
 
-from PyQt5.QtCore import Qt, QTimer, pyqtSignal
+from PyQt5.QtCore import QEvent, Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import QColor, QPalette
 from PyQt5.QtWidgets import (
     QCheckBox,
@@ -288,6 +288,8 @@ class CheckboxSelectorWidget(QGroupBox):
         self._search_timer.setInterval(150)
         self._search_timer.timeout.connect(self._do_search)
         self._search_box.textChanged.connect(self._on_search_text_changed)
+        # Escape يمسح البحث ويعرض كل الأكواد (موثق في المساعدة — سلوك حقيقي الآن)
+        self._search_box.installEventFilter(self)
 
         # Scroll area
         self._scroll = QScrollArea()
@@ -318,6 +320,14 @@ class CheckboxSelectorWidget(QGroupBox):
 
         # Track which container is currently shown
         self._current_container: QWidget | None = None
+
+    def eventFilter(self, obj, event):  # noqa: N802 — Qt naming
+        """Escape في خانة البحث يمسحها ويعرض كل الأكواد فوراً."""
+        if obj is self._search_box and event.type() == QEvent.KeyPress:
+            if event.key() == Qt.Key_Escape and self._search_box.text():
+                self._search_box.clear()   # textChanged → debounce → _do_search
+                return True
+        return super().eventFilter(obj, event)
 
     # ------------------------------------------------------------------
     # Public API

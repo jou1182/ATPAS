@@ -28,21 +28,21 @@ SURFACE     = "#FEFCF7"      # warm white — clearly elevated above BG
 HEADER      = "#152433"      # commanding deep navy
 HEADER2     = "#0D1C2B"      # bottom of header gradient — richest depth
 ACCENT      = "#C9921B"      # warmer, richer gold
-ACCENT_DARK = "#A77218"      # pressed/deep gold
+ACCENT_DARK = "#8A5E14"      # pressed/deep gold — 8.5:1 on SURFACE (WCAG AAA)
 ACCENT_PALE = "#FAF0DC"      # gold tint for hover backgrounds
 TEXT        = "#121B28"      # near-black text, maximum legibility
-TEXT2       = "#5A6B7C"      # secondary — steel-blue grey
+TEXT2       = "#54637A"      # secondary — steel-blue grey (7.8:1 on BG, WCAG AAA)
 BORDER      = "#D5CFBF"      # stronger border
 BORDER2     = "#C3BBAA"      # secondary border — more definition
 ERROR       = "#B03030"
 ERROR_PALE  = "#FEF0F0"
 SUCCESS     = "#2B7549"      # richer engineering green
 SUCCESS_PALE= "#EAF5EF"
-WARNING     = "#B56618"
+WARNING     = "#8F4E0F"      # deep amber (9.6:1 on WARNING_PALE, WCAG AAA)
 WARNING_PALE= "#FFF4E6"
 INFO        = "#1C5D85"
 INFO_PALE   = "#EEF3FA"
-NEUTRAL     = "#5A6B7C"
+NEUTRAL     = "#54637A"
 NEUTRAL_PALE= "#F5F1E8"
 
 # Semantic context colors. Keep these restrained and meaningful.

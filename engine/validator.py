@@ -121,7 +121,8 @@ class Validator:
         if not any(pid in code_projects for pid in project_ids):
             errors.append(
                 f"الكود {code_id} غير مخصص لأي من المشاريع المختارة — "
-                f"المشاريع المتاحة: {', '.join(code_projects)}"
+                f"المشاريع المتاحة له: {', '.join(code_projects)}. "
+                f"الحل: فعّل أحد هذه المشاريع من الأعلى، أو ألغِ تحديد الكود."
             )
 
     def _check_owner(self, code_id: str, owner_id: str, errors: List[str]) -> None:
@@ -130,7 +131,8 @@ class Validator:
         if applicable and owner_id not in applicable:
             errors.append(
                 f"الكود {code_id} غير مخصص للجهة '{owner_id}' — "
-                f"الجهات المتاحة: {', '.join(applicable)}"
+                f"الجهات المقبولة له: {', '.join(applicable)}. "
+                f"الحل: بدّل الجهة المالكة، أو ألغِ تحديد الكود."
             )
 
     def _check_forbidden(
@@ -147,7 +149,8 @@ class Validator:
         for code_id in owner_spec.get("mandatory_codes", []):
             if code_id not in selected_set:
                 warnings.append(
-                    f"الكود الإلزامي للجهة '{owner_spec.get('owner_id', '?')}' غير مُضمَّن: {code_id}"
+                    f"الكود الإلزامي للجهة '{owner_spec.get('owner_id', '?')}' غير مُضمَّن: {code_id} — "
+                    f"أضفه من القائمة، أو تجاهل التحذير إن كان استثناءً مقصوداً."
                 )
 
     def _check_dependencies(
@@ -169,13 +172,15 @@ class Validator:
             if self._is_alternative_dependency_set(code, deps):
                 if not any(dep in selected_set for dep in deps):
                     warnings.append(
-                        f"الكود {code_id} يحتاج إلى أحد الأكواد التالية: {', '.join(deps)}"
+                        f"الكود {code_id} يحتاج إلى أحد الأكواد التالية: {', '.join(deps)} — "
+                        f"اضغط «إصلاح تلقائي» لإضافة المناسب."
                     )
                 continue
             for dep in deps:
                 if dep not in selected_set:
                     warnings.append(
-                        f"الكود {code_id} يحتاج إلى {dep} الذي غير موجود في القائمة"
+                        f"الكود {code_id} يحتاج إلى {dep} الذي غير موجود في القائمة — "
+                        f"اضغط «إصلاح تلقائي» في لوحة المعاينة لإضافته."
                     )
 
     def _dependency_applies_to_projects(self, dep_code_id: str, project_ids: List[str]) -> bool:

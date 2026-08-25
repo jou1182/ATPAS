@@ -427,3 +427,35 @@ class TestHeaderWidgetButtons:
         help_btn.clicked.emit(True)
         settings_btn.clicked.emit(False)
         assert received == ["help", "settings"], f"got {received}"
+
+
+class TestSearchEscape:
+    """Escape in the code search box clears it and restores the full list."""
+
+    def _make(self, qapp, registry):
+        from ui.checkbox_selector import CheckboxSelectorWidget
+        w = CheckboxSelectorWidget(registry)
+        w.update_for_project(["wastewater"], "nwc", [])
+        return w
+
+    def test_escape_clears_search_text(self, qapp, registry) -> None:
+        from PyQt5.QtCore import QEvent, Qt
+        from PyQt5.QtGui import QKeyEvent
+
+        w = self._make(qapp, registry)
+        w._search_box.setText("حفر")
+        assert w._search_box.text() == "حفر"
+
+        ev = QKeyEvent(QEvent.KeyPress, Qt.Key_Escape, Qt.NoModifier)
+        w.eventFilter(w._search_box, ev)
+        assert w._search_box.text() == "", "Escape must clear the search box"
+
+    def test_escape_ignored_when_empty(self, qapp, registry) -> None:
+        from PyQt5.QtCore import QEvent, Qt
+        from PyQt5.QtGui import QKeyEvent
+
+        w = self._make(qapp, registry)
+        ev = QKeyEvent(QEvent.KeyPress, Qt.Key_Escape, Qt.NoModifier)
+        handled_consumed = w.eventFilter(w._search_box, ev)
+        # فارغ: لا يبتلع الحدث — يترك Escape لوظيفته الافتراضية
+        assert handled_consumed is False

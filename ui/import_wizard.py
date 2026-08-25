@@ -991,7 +991,7 @@ class ImportWizardDialog(QDialog):
         hl.setContentsMargins(16, 10, 16, 10)
         title_lbl = QLabel("📥  معالج الاستيراد وإدارة البيانات")
         title_lbl.setStyleSheet(
-            f"color: {theme.ACCENT}; font-size: 15px; font-weight: 800; background: transparent;"
+            f"color: {theme.HEADER}; font-size: 15px; font-weight: 800; background: transparent;"
         )
         title_lbl.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
         hl.addStretch()
