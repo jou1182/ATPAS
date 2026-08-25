@@ -27,8 +27,9 @@ from PyQt5.QtWidgets import (
     QWidget,
 )
 
-from ui.motion import motion_ms, prefers_reduced_motion
+from ui.motion import motion_ms, prefers_reduced_motion, motion_single_shot
 from ui import theme
+from utils.company_profile import get_company_profile
 
 
 def _get_marker_path() -> Path:
@@ -181,12 +182,13 @@ class WelcomeDialog(QDialog):
         title_col = QVBoxLayout()
         title_col.setSpacing(2)
 
-        welcome_lbl = QLabel("مرحباً بك في نظام الرواف", self)
+        profile = get_company_profile()
+        welcome_lbl = QLabel(f"مرحباً بك في نظام {profile['company_name_ar']}", self)
         welcome_lbl.setStyleSheet(
             f"font-size: 18px; font-weight: 900; color: {theme.HEADER};"
         )
 
-        sub_lbl = QLabel("نظام بناء العروض الفنية الهندسية الذكي", self)
+        sub_lbl = QLabel(f"{profile['product_name_ar']} — أول عرض Word خلال دقائق", self)
         sub_lbl.setStyleSheet("font-size: 12px; color: #666;")
 
         title_col.addWidget(welcome_lbl)
@@ -203,7 +205,7 @@ class WelcomeDialog(QDialog):
         layout.addWidget(sep)
 
         # ── عنوان البداية ──────────────────────────────────────────────
-        guide_lbl = QLabel("⚡ البدء في 3 خطوات بسيطة:", self)
+        guide_lbl = QLabel("⚡ البدء في 3 خطوات بسيطة  ⏱ دقيقة واحدة:", self)
         guide_lbl.setStyleSheet(
             f"font-size: 13px; font-weight: 700; color: {theme.NAVY_MID};"
         )
@@ -245,7 +247,7 @@ class WelcomeDialog(QDialog):
         """)
         dont_show_btn.clicked.connect(self._dismiss_permanently)
 
-        start_btn = QPushButton("🚀  فهمت، لنبدأ!", self)
+        start_btn = QPushButton("🚀  لنبنِ أول عرض!", self)
         start_btn.setStyleSheet(f"""
             QPushButton {{
                 background: {theme.HEADER}; color: {theme.ACCENT};
@@ -284,7 +286,8 @@ class WelcomeDialog(QDialog):
                 w.setGraphicsEffect(None)
 
             anim.finished.connect(_cleanup)
-            QTimer.singleShot(120 * (i + 1), lambda a=anim: a.start())
+            # مؤقت مرتبط بعمر النافذة — لا انهيار إذا أُغلقت أثناء التتابع
+            motion_single_shot(120 * (i + 1), lambda a=anim: a.start(), context=self)
 
     def _dismiss_permanently(self) -> None:
         _mark_welcomed()
@@ -299,10 +302,16 @@ class WelcomeDialog(QDialog):
 # نقطة الدخول العامة
 # ─────────────────────────────────────────────────────────────────────────────
 
-def show_if_first_run(parent=None) -> None:
-    """أظهر شاشة الترحيب إذا كان هذا أول تشغيل. آمن للاستدعاء دائماً."""
+def show_if_first_run(parent=None) -> bool:
+    """أظهر شاشة الترحيب إذا كان هذا أول تشغيل.
+
+    Returns:
+        True إذا عُرضت الشاشة فعلاً (ل يستخدمه المستدعي لإطلاق إرشاد ما بعدها).
+    """
     if _is_first_run():
         WelcomeDialog(parent).exec_()
+        return True
+    return False
 
 
 # ─────────────────────────────────────────────────────────────────────────────

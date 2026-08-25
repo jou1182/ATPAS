@@ -291,6 +291,16 @@ class CheckboxSelectorWidget(QGroupBox):
         # Escape يمسح البحث ويعرض كل الأكواد (موثق في المساعدة — سلوك حقيقي الآن)
         self._search_box.installEventFilter(self)
 
+        # حالة «لا نتائج» — بدل الصمت عند تصفية لا تطابق شيئاً
+        self._no_results_lbl = QLabel("", self)
+        self._no_results_lbl.setWordWrap(True)
+        self._no_results_lbl.setAlignment(Qt.AlignCenter)
+        self._no_results_lbl.setStyleSheet(
+            f"font-size: 12px; color: {theme.TEXT2}; background: {theme.INFO_PALE};"
+            f"border: 1px dashed {theme.BORDER2}; border-radius: 6px; padding: 10px;"
+        )
+        self._no_results_lbl.hide()
+
         # Scroll area
         self._scroll = QScrollArea()
         self._scroll.setWidgetResizable(True)
@@ -315,6 +325,7 @@ class CheckboxSelectorWidget(QGroupBox):
         outer.addWidget(title_lbl)
         outer.addWidget(self._counter_label)
         outer.addWidget(self._search_box)
+        outer.addWidget(self._no_results_lbl)
         outer.addWidget(self._scroll, stretch=1)
         outer.addWidget(add_btn)
 
@@ -607,11 +618,14 @@ class CheckboxSelectorWidget(QGroupBox):
     def _do_search(self) -> None:
         """Execute search after debounce interval."""
         query = self._pending_search.strip().lower()
+        visible_count = 0
         for cid, item in self._checkboxes.items():
             cdata = self._all_codes.get(cid, {})
             name  = str(cdata.get("activity_name_ar", "")).lower()
             match = not query or query in cid.lower() or query in name
             item.setVisible(match)
+            if match:
+                visible_count += 1
 
         # Hide category boxes that have no visible items
         if self._current_container:
@@ -621,6 +635,17 @@ class CheckboxSelectorWidget(QGroupBox):
                     for c in box.findChildren(_CodeItem)
                 )
                 box.setVisible(has_visible)
+
+        # حالة لا نتائج — إرشاد واضح بدل قائمة صامتة فارغة
+        if query and visible_count == 0:
+            self._no_results_lbl.setText(
+                f"لا توجد أكواد تطابق «{self._pending_search.strip()}».\n"
+                "جرّب جزءاً من الاسم (مثال: حفر) أو رقم الفئة (مثال: 003)، "
+                "أو اضغط Escape لمسح البحث."
+            )
+            self._no_results_lbl.show()
+        else:
+            self._no_results_lbl.hide()
 
     # ------------------------------------------------------------------
     # Add custom code

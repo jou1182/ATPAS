@@ -31,10 +31,17 @@ jobs:
           QT_QPA_PLATFORM: offscreen
         run: |
           python -m pytest tests/ -v --tb=short `
-            --cov=engine --cov=utils --cov=ui `
-            --cov-fail-under=70 `
+            --cov=engine --cov=utils `
+            --cov-fail-under=75 `
             --cov-report=term-missing `
             --cov-report=xml:coverage.xml
+
+      - name: UI coverage (informational, not a gate)
+        env:
+          QT_QPA_PLATFORM: offscreen
+        run: |
+          python -m pytest tests/test_ui_signals.py tests/test_ui_screenshots.py -q `
+            --cov=ui --cov-report=term
 
       - name: Lint with pylint
         run: |

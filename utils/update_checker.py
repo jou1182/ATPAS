@@ -41,11 +41,16 @@ class UpdateInfo:
 
 
 def _version_tuple(version: str) -> tuple:
-    """حوّل '3.2.1' إلى (3, 2, 1) للمقارنة الرقمية الآمنة."""
+    """حوّل '3.2.1' إلى (3, 2, 1) للمقارنة الرقمية الآمنة.
+
+    تهمل الأصفار اللاحقة حتى تتكافأ 3.1 مع 3.1.0.
+    """
     parts = []
     for chunk in version.strip().split("."):
         digits = "".join(c for c in chunk if c.isdigit())
         parts.append(int(digits) if digits else 0)
+    while len(parts) > 1 and parts[-1] == 0:
+        parts.pop()
     return tuple(parts) or (0,)
 
 

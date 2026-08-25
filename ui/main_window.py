@@ -1135,8 +1135,17 @@ class MainWindow(QMainWindow):
         self._show_status("✅ تم تحديث البيانات بنجاح", hold_ms=8_000)
 
     def _show_startup_issues_if_any(self) -> None:
-        # أظهر شاشة الترحيب للمستخدم الجديد (مرة واحدة فقط)
-        QTimer.singleShot(400, lambda: show_if_first_run(parent=self))
+        # أظهر شاشة الترحيب للمستخدم الجديد (مرة واحدة فقط)،
+        # وبعد إغلاقها وجّهه مباشرة لأول نجاح: نمط جاهز ← بناء.
+        def _welcome_then_nudge() -> None:
+            if show_if_first_run(parent=self):
+                self._show_status(
+                    "🎯 ابدأ باختيار نمط جاهز من الشريط الأزرق، "
+                    "ثم اضغط «بناء العرض الفني» — أول ملف Word خلال دقائق.",
+                    hold_ms=12_000,
+                )
+
+        QTimer.singleShot(400, _welcome_then_nudge)
 
         if not self._startup_errors:
             return

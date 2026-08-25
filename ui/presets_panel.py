@@ -156,6 +156,22 @@ class PresetsPanelWidget(QWidget):
         self._toggle_anim: QPropertyAnimation | None = None
         self._active_button_anims: list[QPropertyAnimation] = []
 
+        # الارتفاع يُحسب من محتوى الشريط الفعلي (يتكيف مع DPI وتكبير خطوط
+        # Windows) بدل رقم مثبت كان يقصّ عناوين المجموعات على الشاشات المكبرة.
+        self._expanded_h = self._measure_expanded_height(scroll)
+        scroll.setFixedHeight(self._expanded_h)
+
+    @staticmethod
+    def _measure_expanded_height(scroll: QScrollArea, fallback: int = _EXPANDED_H) -> int:
+        """ارتفاع الشريط المفتوح = sizeHint للمحتوى + هوامش، بحدود آمنة."""
+        content = scroll.widget()
+        if content is None:
+            return fallback
+        hint = content.sizeHint().height()
+        hint += content.layout().contentsMargins().top() if content.layout() else 0
+        hint += content.layout().contentsMargins().bottom() if content.layout() else 0
+        return max(96, min(int(hint) + 8, 260))
+
     # ------------------------------------------------------------------
     # Build group boxes
     # ------------------------------------------------------------------
@@ -287,6 +303,9 @@ class PresetsPanelWidget(QWidget):
             if w:
                 w.deleteLater()
         self._build_group_boxes(old_layout)
+        # أعد قياس الارتفاع — قد يختلف عدد المجموعات بعد الحفظ
+        self._expanded_h = self._measure_expanded_height(self._scroll_wrapper)
+        self._scroll_wrapper.setFixedHeight(self._expanded_h)
 
     def _toggle_panel(self) -> None:
         self._expanded = not self._expanded
@@ -296,7 +315,7 @@ class PresetsPanelWidget(QWidget):
 
         if prefers_reduced_motion():
             self._scroll_wrapper.setVisible(self._expanded)
-            self._scroll_wrapper.setMaximumHeight(_EXPANDED_H if self._expanded else 0)
+            self._scroll_wrapper.setMaximumHeight(self._expanded_h if self._expanded else 0)
             return
 
         if self._expanded:
@@ -307,7 +326,7 @@ class PresetsPanelWidget(QWidget):
         anim = QPropertyAnimation(self._scroll_wrapper, b"maximumHeight", self)
         anim.setDuration(motion_ms(_ANIM_MS))
         anim.setStartValue(self._scroll_wrapper.maximumHeight())
-        anim.setEndValue(_EXPANDED_H if self._expanded else 0)
+        anim.setEndValue(self._expanded_h if self._expanded else 0)
         anim.setEasingCurve(
             QEasingCurve.OutCubic if self._expanded else QEasingCurve.InCubic
         )
