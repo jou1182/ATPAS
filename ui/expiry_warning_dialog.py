@@ -10,8 +10,6 @@ from __future__ import annotations
 
 import urllib.parse
 import webbrowser
-from datetime import datetime
-from typing import Optional
 
 from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtWidgets import (

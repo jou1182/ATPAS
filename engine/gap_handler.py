@@ -36,7 +36,7 @@ class GapHandler:
             project_type: نوع المشروع (مثلاً "wastewater")
 
         Returns:
-            str — الـ code_id الجديد (مثلاً "CUSTOM-001")
+            str — الـ code_id الجديد بصيغة 999-CUS-NNN (مثلاً "999-CUS-002")
         """
         registry = load_json(self._registry_path)
         codes = registry.setdefault("codes", {})

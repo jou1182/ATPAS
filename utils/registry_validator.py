@@ -122,9 +122,15 @@ def _validate_entry(key: str, entry: Any) -> List[Issue]:
                 f"'{field}' must be {expected_type.__name__}, got {type(val).__name__}"
             ))
 
-    # code_id must match the canonical pattern
+    # code_id must match the canonical pattern.
+    # Custom codes (is_custom: True, format 999-CUS-NNN) are exempt —
+    # mirrors engine.validator._check_format so both validators agree.
     code_id = entry.get("code_id", "")
-    if isinstance(code_id, str) and code_id and not _CODE_ID_RE.match(code_id):
+    if (
+        isinstance(code_id, str) and code_id
+        and not entry.get("is_custom")
+        and not _CODE_ID_RE.match(code_id)
+    ):
         issues.append((key, "code_id",
                         f"code_id '{code_id}' does not match NNN-AAA-BBB pattern"))
 

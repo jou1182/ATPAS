@@ -1003,5 +1003,8 @@
       "Pillow>=9.0.0",
       "openpyxl>=3.7.0"
     ]
+  },
+  "admin_settings": {
+    "password_hash": "2014f5ec8e26365f2ad4c8e3c0b2a121f1518626963544487e4912a26e88db84"
   }
 }

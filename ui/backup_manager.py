@@ -13,6 +13,7 @@
 from __future__ import annotations
 
 import logging
+import os
 import zipfile
 from datetime import datetime
 from pathlib import Path
@@ -51,6 +52,26 @@ _DATA_DIRS: list[str] = [
 
 
 # ── Standalone helper ─────────────────────────────────────────────────────────
+
+def _safe_extract(zf: zipfile.ZipFile, dest: Path) -> None:
+    """Extract a ZIP safely — reject path traversal (Zip-Slip) members.
+
+    Every member's resolved target must stay inside ``dest``; otherwise
+    a ValueError is raised before anything is written.
+    """
+    dest_resolved = dest.resolve()
+    for info in zf.infolist():
+        target = (dest / info.filename).resolve()
+        if not str(target).startswith(str(dest_resolved) + os.sep) and target != dest_resolved:
+            raise ValueError(
+                f"مدخل غير آمن في النسخة الاحتياطية: {info.filename}"
+            )
+        if info.filename.endswith("/"):
+            continue
+        target.parent.mkdir(parents=True, exist_ok=True)
+        with zf.open(info) as src, open(target, "wb") as out:
+            out.write(src.read())
+
 
 def create_backup(label: str = "") -> Path:
     """Create a timestamped ZIP backup and return its path.
@@ -358,7 +379,7 @@ class BackupDialog(QDialog):
         logger.info("Restoring backup: %s", path.name)
         try:
             with zipfile.ZipFile(path, "r") as zf:
-                zf.extractall(".")
+                _safe_extract(zf, Path("."))
             logger.info("Backup restored successfully: %s", path.name)
             QMessageBox.information(
                 self,

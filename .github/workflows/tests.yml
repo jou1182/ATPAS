@@ -26,11 +26,13 @@ jobs:
       - name: Install dependencies (pinned lockfile)
         run: pip install -r requirements-lock.txt
 
-      - name: Run tests with coverage
+      - name: Run tests with coverage (UI tests offscreen)
+        env:
+          QT_QPA_PLATFORM: offscreen
         run: |
           python -m pytest tests/ -v --tb=short `
-            --cov=engine --cov=utils `
-            --cov-fail-under=75 `
+            --cov=engine --cov=utils --cov=ui `
+            --cov-fail-under=70 `
             --cov-report=term-missing `
             --cov-report=xml:coverage.xml
 

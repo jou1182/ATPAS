@@ -17,7 +17,6 @@ import sys
 from pathlib import Path
 
 from PyQt5.QtCore import Qt, QPropertyAnimation, QEasingCurve, QTimer
-from PyQt5.QtGui import QColor, QFont
 from PyQt5.QtWidgets import (
     QDialog,
     QGraphicsOpacityEffect,

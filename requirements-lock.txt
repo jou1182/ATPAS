@@ -22,6 +22,7 @@ PyQt5==5.15.11
 PyQt5-Qt5==5.15.2
 PyQt5_sip==12.18.0
 openpyxl==3.1.5
+docx2pdf==0.1.8
 
 # ── Transitive: python-docx needs lxml ─────────────────────────────────
 lxml==6.1.0

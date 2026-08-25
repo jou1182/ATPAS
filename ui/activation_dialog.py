@@ -14,7 +14,6 @@
 from __future__ import annotations
 
 from PyQt5.QtCore import Qt, QTimer
-from PyQt5.QtGui import QColor, QFont
 from PyQt5.QtWidgets import (
     QApplication,
     QDialog,
@@ -28,10 +27,7 @@ from PyQt5.QtWidgets import (
     QWidget,
 )
 
-from ui.theme import (
-    ACCENT, ACCENT_PALE, BORDER, BORDER2, ERROR, ERROR_PALE,
-    SUCCESS, SUCCESS_PALE, SURFACE, TEXT,
-)
+from ui.theme import BORDER, ERROR, ERROR_PALE, SUCCESS, SUCCESS_PALE, TEXT
 from utils.license_manager import activate, get_hardware_id, start_trial
 
 

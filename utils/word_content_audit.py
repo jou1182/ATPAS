@@ -24,6 +24,17 @@ from docx.oxml.ns import qn
 
 from utils.content_library import ContentLibrary
 
+# Audit results are immutable dataclasses — safe to cache per file version.
+# Key: (resolved path, mtime_ns, size, code_id, activity_name_ar).
+# Parsing a docx costs ~50-80 ms; system health audits ~65 files per run,
+# so caching turns repeat checks from seconds into milliseconds.
+_AUDIT_CACHE: dict[tuple, WordContentAudit] = {}
+
+
+def clear_audit_cache() -> None:
+    """Drop cached audit results (e.g. after bulk content changes)."""
+    _AUDIT_CACHE.clear()
+
 
 @dataclass(frozen=True)
 class WordContentIssue:
@@ -122,9 +133,23 @@ def audit_docx_file(
         )
 
     try:
+        _st = source_path.stat()
+        cache_key: tuple | None = (
+            str(source_path.resolve()),
+            _st.st_mtime_ns,
+            _st.st_size,
+            code_id,
+            str(code_data.get("activity_name_ar", "")),
+        )
+    except OSError:
+        cache_key = None
+    if cache_key is not None and cache_key in _AUDIT_CACHE:
+        return _AUDIT_CACHE[cache_key]
+
+    try:
         doc = Document(str(source_path))
     except Exception as exc:  # noqa: BLE001
-        return WordContentAudit(
+        audit = WordContentAudit(
             code_id=code_id,
             path=str(source_path),
             exists=True,
@@ -137,6 +162,9 @@ def audit_docx_file(
                 )
             ],
         )
+        if cache_key is not None:
+            _AUDIT_CACHE[cache_key] = audit
+        return audit
 
     non_empty_paragraphs = [p for p in doc.paragraphs if p.text.strip()]
     paragraph_count = len(non_empty_paragraphs)
@@ -198,7 +226,7 @@ def audit_docx_file(
             )
         )
 
-    return WordContentAudit(
+    audit = WordContentAudit(
         code_id=code_id,
         path=str(source_path),
         exists=True,
@@ -210,6 +238,9 @@ def audit_docx_file(
         has_rtl_marker=has_rtl_marker,
         issues=issues,
     )
+    if cache_key is not None:
+        _AUDIT_CACHE[cache_key] = audit
+    return audit
 
 
 def audit_selected_content(

@@ -52,6 +52,60 @@ CTX_ROAD    = "#A4641E"      # roads/asphalt/earthwork caution
 CTX_BUILD   = "#4C6E5A"      # buildings/general construction
 CTX_MIXED   = "#7A5A2E"      # multi-scope scenarios
 
+# ── Dark palette tokens (single SSOT — consumed by ui/dark_mode.py) ─
+DARK_BG          = "#1A1A2E"   # deep navy-black
+DARK_SURFACE     = "#16213E"   # card / dialog surface
+DARK_HEADER      = "#0F0F23"   # header — darkest
+DARK_ACCENT      = "#E8B84B"   # gold — same warmth, pops on dark
+DARK_ACCENT_PALE = "#2A2538"   # gold tint on dark bg
+DARK_TEXT        = "#E0E0E0"   # primary text — light grey
+DARK_TEXT2       = "#8899AA"   # secondary text
+DARK_BORDER      = "#2A2A4A"   # borders
+DARK_BORDER2     = "#3A3A5A"   # secondary borders
+DARK_ERROR       = "#E05050"
+DARK_SUCCESS     = "#4CAF50"
+DARK_WARNING     = "#E8A040"
+DARK_INPUT       = "#1E2A45"   # input fields
+DARK_HOVER       = "#2A3555"   # hover backgrounds
+
+# ── Derived navy steps (were hardcoded across many dialogs) ────────
+NAVY_MID     = "#1C3045"       # hover step of the header navy
+NAVY_SOFT    = "#253C52"       # elevated navy surfaces
+
+# ── Shared button recipes ──────────────────────────────────────────
+def primary_button_css(
+    bg: str = None,
+    fg: str = None,
+    hover_bg: str = None,
+    pressed_bg: str = None,
+    radius: str = "6px",
+    padding: str = "7px 22px",
+    font_size: int = 13,
+) -> str:
+    """الوصفة الموحدة للزر الأساسي الكحلي/الذهبي المستخدمة في كل الحوارات."""
+    bg = bg or HEADER
+    fg = fg or ACCENT
+    hover_bg = hover_bg or NAVY_MID
+    pressed_bg = pressed_bg or HEADER2
+    return (
+        f"QPushButton {{ background: {bg}; color: {fg};"
+        f" border: none; border-radius: {radius};"
+        f" padding: {padding}; font-size: {font_size}px; font-weight: 700; }}"
+        f" QPushButton:hover {{ background: {hover_bg}; }}"
+        f" QPushButton:pressed {{ background: {pressed_bg}; }}"
+    )
+
+
+def danger_button_css(radius: str = "6px", padding: str = "7px 22px") -> str:
+    """الوصفة الموحدة لزر التحذير/الحذف."""
+    return (
+        f"QPushButton {{ background: {ERROR}; color: #FFFFFF;"
+        f" border: none; border-radius: {radius};"
+        f" padding: {padding}; font-size: 13px; font-weight: 700; }}"
+        f" QPushButton:hover {{ background: #8F2626; }}"
+        f" QPushButton:pressed {{ background: #6E1D1D; }}"
+    )
+
 # ── Metrics ────────────────────────────────────────────────────────
 BASE_FONT_SIZE = 13
 HEADER_FONT_SIZE = 15

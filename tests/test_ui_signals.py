@@ -402,3 +402,28 @@ class TestBackupManager:
         import ui.backup_manager as bm
         monkeypatch.setattr(bm, "_BACKUP_DIR", tmp_path / "does_not_exist")
         assert bm.list_backups() == []
+
+
+class TestHeaderWidgetButtons:
+    """Header factory buttons: every table row wires its signal correctly."""
+
+    def test_all_header_signals_defined(self, qapp) -> None:
+        from ui.header_widget import HeaderWidget, _HEADER_BUTTONS
+        w = HeaderWidget(active_codes=5)
+        for signal_name, _label, _tip, _accent in _HEADER_BUTTONS:
+            assert hasattr(w, signal_name), f"missing signal {signal_name}"
+
+    def test_button_click_emits_signal(self, qapp) -> None:
+        from PyQt5.QtWidgets import QPushButton
+
+        from ui.header_widget import HeaderWidget
+        w = HeaderWidget(active_codes=0)
+        received: list[str] = []
+        w.help_requested.connect(lambda: received.append("help"))
+        w.settings_requested.connect(lambda: received.append("settings"))
+        buttons = {b.text(): b for b in w.findChildren(QPushButton)}
+        help_btn = next(b for text, b in buttons.items() if "مساعدة" in text)
+        settings_btn = next(b for text, b in buttons.items() if "إعدادات" in text)
+        help_btn.clicked.emit(True)
+        settings_btn.clicked.emit(False)
+        assert received == ["help", "settings"], f"got {received}"

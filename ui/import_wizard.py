@@ -25,6 +25,8 @@ from datetime import date
 from pathlib import Path
 from typing import Any
 
+from utils.json_manager import save_json
+
 logger = logging.getLogger(__name__)
 
 from PyQt5.QtCore import Qt, pyqtSignal
@@ -594,7 +596,6 @@ class _ImportCodesTab(QWidget):
         # حفظ codes_registry.json — كتابة ذرية لحماية السجل من التلف
         self._registry_data["metadata"]["total_codes"] = len(codes_dict)
         try:
-            from utils.json_manager import save_json  # noqa: PLC0415
             save_json(self._registry_data, _REGISTRY_PATH)
         except Exception as exc:
             QMessageBox.critical(self, "خطأ في الحفظ", f"تعذّر حفظ السجل:\n{exc}")
@@ -890,8 +891,7 @@ class _OwnersTab(QWidget):
             "version": "1.0",
         }
         _OWNER_META_DIR.mkdir(parents=True, exist_ok=True)
-        with open(_OWNER_META_DIR / f"{oid}.json", "w", encoding="utf-8") as f:
-            json.dump(meta, f, ensure_ascii=False, indent=2)
+        save_json(meta, _OWNER_META_DIR / f"{oid}.json")
 
         # ── حفظ في master_config.json → owner_specifications ─────────────
         owner_specs = self._config_data.setdefault("owner_specifications", {})
@@ -901,8 +901,7 @@ class _OwnersTab(QWidget):
             "forbidden_codes":  [],
             "specific_requirements": meta["specific_requirements"],
         }
-        with open(_CONFIG_PATH, "w", encoding="utf-8") as f:
-            json.dump(self._config_data, f, ensure_ascii=False, indent=2)
+        save_json(self._config_data, _CONFIG_PATH)
 
         # ── إنشاء ملف نمط أساسي إذا لم يكن موجوداً ──────────────────────
         style_path = _STYLE_TMPL_DIR / f"{oid}_style.json"
@@ -923,8 +922,7 @@ class _OwnersTab(QWidget):
                 },
                 "margins_cm": {"top": 2.5, "bottom": 2.5, "left": 3.0, "right": 2.5},
             }
-            with open(style_path, "w", encoding="utf-8") as f:
-                json.dump(default_style, f, ensure_ascii=False, indent=2)
+            save_json(default_style, style_path)
 
         verb = "إضافة" if is_new else "تحديث"
         QMessageBox.information(self, "تم", f"✅ تم {verb} الجهة [{ar}] بنجاح.")
@@ -949,8 +947,7 @@ class _OwnersTab(QWidget):
 
         owner_specs = self._config_data.get("owner_specifications", {})
         owner_specs.pop(oid, None)
-        with open(_CONFIG_PATH, "w", encoding="utf-8") as f:
-            json.dump(self._config_data, f, ensure_ascii=False, indent=2)
+        save_json(self._config_data, _CONFIG_PATH)
 
         self._new_owner()
         self._refresh_owner_list()

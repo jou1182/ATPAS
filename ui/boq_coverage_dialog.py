@@ -65,7 +65,7 @@ _CLOSE_BTN_STYLE = (
 def _code_display_name(code_id: str, codes: dict) -> str:
     """Return 'CODE-ID — Arabic name' or just the code_id if not in registry."""
     entry = codes.get(code_id, {})
-    name_ar = entry.get("name_ar") or entry.get("name", "")
+    name_ar = entry.get("activity_name_ar") or entry.get("name_ar") or entry.get("name", "")
     if name_ar:
         return f"{code_id}  —  {name_ar}"
     return code_id

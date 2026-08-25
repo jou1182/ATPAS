@@ -5,13 +5,9 @@ import re
 from pathlib import Path
 from typing import Dict, List, Tuple
 
+from engine.rules import is_alternative_dependency_set as _rules_alt_deps
 from engine.types import CodeRegistry
 from utils.json_manager import load_json
-
-# Codes with this field describe excavation methods. Multiple methods can be
-# valid in one proposal because a single infrastructure project may include
-# open-cut, fine, and trenchless segments.
-_EXC_FIELD = "excavation_type"
 
 # Owner spec files location
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -81,7 +77,6 @@ class Validator:
             self._check_owner(code_id, owner_id, errors)
 
         self._check_forbidden(selected_codes, owner_spec, errors)
-        self._check_excavation_methods(selected_codes, warnings)
         self._check_mandatory(selected_codes, owner_spec, warnings)
         self._check_dependencies(selected_codes, project_ids, warnings)
 
@@ -145,21 +140,6 @@ class Validator:
             if code_id in selected_codes:
                 errors.append(f"الكود {code_id} محظور للجهة '{owner_spec.get('owner_id', '?')}'")
 
-    def _check_excavation_methods(self, selected_codes: List[str], warnings: List[str]) -> None:
-        """Allow multiple excavation methods in the same technical proposal.
-
-        This is intentional: NWC and similar infrastructure tenders can include
-        open-cut, fine excavation, and trenchless portions in separate segments.
-        The method list is still inspected here so future rule hooks have one
-        stable place, but it is not a blocking validation error.
-        """
-        exc_codes = [
-            c for c in selected_codes
-            if c in self._codes and _EXC_FIELD in self._codes[c]
-        ]
-        if len(set(exc_codes)) > 1:
-            return
-
     def _check_mandatory(
         self, selected_codes: List[str], owner_spec: Dict, warnings: List[str]
     ) -> None:
@@ -206,30 +186,8 @@ class Validator:
         return not dep_projects or any(pid in dep_projects for pid in project_ids)
 
     def _is_alternative_dependency_set(self, code: Dict, deps: List[str]) -> bool:
-        if len(deps) < 2:
-            return False
-
-        note = str(code.get("dependencies_note", ""))
-        if "أي" in note or "any" in note.lower():
-            return True
-
-        dep_records = [self._codes.get(dep, {}) for dep in deps]
-        if dep_records and all("excavation_type" in dep for dep in dep_records):
-            return True
-
-        project_sets = [
-            set(dep.get("project_ids") or [])
-            for dep in dep_records
-            if dep.get("project_ids")
-        ]
-        if len(project_sets) == len(deps):
-            for idx, current in enumerate(project_sets):
-                others = set().union(*(s for j, s in enumerate(project_sets) if j != idx))
-                if current & others:
-                    return False
-            return True
-
-        return False
+        """Delegate to the shared rule — single source of truth (engine/rules.py)."""
+        return _rules_alt_deps(self._codes, code, deps)
 
     # ------------------------------------------------------------------
     # Loader

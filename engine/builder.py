@@ -137,6 +137,11 @@ class Builder:
         output_path = Path(output_path)
         start = time.monotonic()
 
+        # Defensive normalization: accept str or single-item list (Validator
+        # accepts both); a filename must never be derived from a list.
+        if not isinstance(project_id, str):
+            project_id = str(project_id[0]) if project_id else ""
+
         # --- Validate ---
         if not skip_validation:
             is_valid, errors, warnings = self._validator.validate(
@@ -430,6 +435,8 @@ class Builder:
 
     def _load_project_metadata(self, project_id: str) -> Dict:
         """Load ``<project_id>_project_metadata.json``; returns empty template on miss."""
+        if isinstance(project_id, (list, tuple)):
+            project_id = str(project_id[0]) if project_id else ""
         if project_id in self._project_metadata:
             return self._project_metadata[project_id]
         path = self._metadata_dir / f"{project_id}_project_metadata.json"

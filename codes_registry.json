@@ -2,9 +2,9 @@
   "metadata": {
     "registry_name": "Al-Rawaf Codes Registry",
     "version": "1.0.0",
-    "total_codes": 64,
+    "total_codes": 65,
     "status": "development",
-    "last_updated": "2026-04-20T18:00:00Z",
+    "last_updated": "2026-08-25T00:00:00Z",
     "last_updated_by": "Claude AI",
     "format_version": "2.0",
     "description": "سجل موحد لكل الأكواس في النظام - SSOT (Single Source of Truth)"
@@ -2808,24 +2808,28 @@
     }
   },
   "statistics": {
-    "total_active_codes": 64,
+    "total_active_codes": 65,
     "total_deprecated_codes": 0,
-    "total_projects": 3,
+    "total_projects": 6,
     "codes_by_category": {
-      "001": 8,
-      "002": 8,
-      "003": 5,
-      "004": 5,
-      "005": 8
+      "001": 11,
+      "002": 13,
+      "003": 17,
+      "004": 10,
+      "005": 13,
+      "CUS": 1
     },
     "codes_by_project": {
-      "wastewater": 32,
-      "water_supply": 28,
-      "asphalt": 18
+      "asphalt": 33,
+      "water_supply": 31,
+      "wastewater": 30,
+      "road_maintenance": 14,
+      "general_construction": 12,
+      "water_transmission": 4
     },
-    "average_pages_per_code": 3.8,
-    "total_estimated_pages": 130,
-    "last_updated": "2026-04-20",
-    "last_expanded": "2026-04-20"
+    "average_pages_per_code": 4.3,
+    "total_estimated_pages": 273,
+    "last_updated": "2026-08-25",
+    "last_expanded": "2026-08-25"
   }
 }

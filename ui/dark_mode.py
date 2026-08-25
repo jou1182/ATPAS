@@ -12,26 +12,27 @@
 
 from __future__ import annotations
 
-from PyQt5.QtCore import QObject, QSettings, Qt, pyqtSignal
+from PyQt5.QtCore import QObject, QSettings, pyqtSignal
 from PyQt5.QtGui import QColor, QPalette
 from PyQt5.QtWidgets import QApplication
 
-
-# ── Dark palette tokens ───────────────────────────────────────────────
-DARK_BG      = "#1A1A2E"      # deep navy-black
-DARK_SURFACE = "#16213E"      # card / dialog surface
-DARK_HEADER  = "#0F0F23"      # header — darkest
-DARK_ACCENT  = "#E8B84B"      # gold — same warmth, pops on dark
-DARK_ACCENT_PALE = "#2A2538"  # gold tint on dark bg
-DARK_TEXT    = "#E0E0E0"      # primary text — light grey
-DARK_TEXT2   = "#8899AA"      # secondary text
-DARK_BORDER  = "#2A2A4A"      # borders
-DARK_BORDER2 = "#3A3A5A"      # secondary borders
-DARK_ERROR   = "#E05050"
-DARK_SUCCESS = "#4CAF50"
-DARK_WARNING = "#E8A040"
-DARK_INPUT   = "#1E2A45"      # input fields
-DARK_HOVER   = "#2A3555"      # hover backgrounds
+# Dark palette lives in theme.py now (single SSOT). Re-exported here so
+# existing imports keep working.
+from ui.theme import (  # noqa: F401
+    DARK_ACCENT,
+    DARK_BG,
+    DARK_BORDER,
+    DARK_BORDER2,
+    DARK_ERROR,
+    DARK_HEADER,
+    DARK_HOVER,
+    DARK_INPUT,
+    DARK_SUCCESS,
+    DARK_SURFACE,
+    DARK_TEXT,
+    DARK_TEXT2,
+    DARK_WARNING,
+)
 
 
 class DarkModeManager(QObject):

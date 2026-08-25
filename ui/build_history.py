@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-"""BKL-011: Build History — manager and dialog.
+"""BKL-011: Build History — persistence manager.
 
-BuildHistoryManager  — reads/writes build_history.json (last MAX_HISTORY entries).
-BuildHistoryDialog   — scrollable list of past builds with "Re-apply" button.
+BuildHistoryManager — reads/writes build_history.json (last MAX_HISTORY entries).
+
+(The former BuildHistoryDialog UI was superseded by
+ ui.proposal_archive_dialog.ProposalArchiveDialog and has been removed.)
 
 Each history entry:
     timestamp_display, project_id, owner_id, codes[],
@@ -20,12 +22,10 @@ from typing import Any
 
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtWidgets import (
-    QDialog,
     QFrame,
     QHBoxLayout,
     QLabel,
     QPushButton,
-    QScrollArea,
     QVBoxLayout,
     QWidget,
 )
@@ -271,80 +271,3 @@ class _HistoryCard(QFrame):
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Dialog
-# ─────────────────────────────────────────────────────────────────────────────
-
-class BuildHistoryDialog(QDialog):
-    """Scrollable dialog showing the last N builds.
-
-    Emits restore_requested(project_id, owner_id, codes) when the user
-    clicks "Re-apply" on any card.  The dialog auto-closes after emit.
-    """
-
-    restore_requested = pyqtSignal(str, str, list)
-
-    def __init__(self, manager: BuildHistoryManager, parent=None) -> None:
-        super().__init__(parent)
-        self.setWindowTitle("\u0633\u062c\u0644 \u0627\u0644\u0628\u0646\u0627\u062a")
-        self.setLayoutDirection(Qt.RightToLeft)
-        self.setMinimumWidth(560)
-        self.setMinimumHeight(440)
-
-        history = manager.load()
-
-        layout = QVBoxLayout(self)
-        layout.setContentsMargins(16, 14, 16, 14)
-        layout.setSpacing(10)
-
-        # ── Title ───────────────────────────────────────────────────────
-        count_text = str(len(history)) if history else "لا يوجد"
-        title = QLabel(f"\U0001f4cb  \u0622\u062e\u0631 {count_text} \u0628\u0646\u0627\u0621")
-        title.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
-        title.setStyleSheet(
-            "font-size: 15px; font-weight: 800; color: #152433; "
-            "padding-bottom: 6px; border-bottom: 2px solid #C9921B;"
-        )
-        layout.addWidget(title)
-
-        if not history:
-            empty = QLabel(
-                "\u0644\u0627 \u062a\u0648\u062c\u062f \u0628\u0646\u0627\u062a \u0633\u0627\u0628\u0642\u0629 \u2014 "
-                "\u0627\u0628\u0646\u0650 \u0639\u0631\u0636\u0627\u064b \u0641\u0646\u064a\u0627\u064b \u0644\u062a\u0628\u062f\u0623 \u0627\u0644\u0633\u062c\u0644."
-            )
-            empty.setAlignment(Qt.AlignCenter)
-            empty.setStyleSheet("color: #8090A0; font-size: 13px; padding: 40px;")
-            layout.addWidget(empty, 1)
-        else:
-            # ── Scrollable card list ─────────────────────────────────────
-            scroll_widget = QWidget()
-            scroll_widget.setLayoutDirection(Qt.RightToLeft)
-            scroll_layout = QVBoxLayout(scroll_widget)
-            scroll_layout.setContentsMargins(4, 4, 4, 4)
-            scroll_layout.setSpacing(6)
-            scroll_layout.setAlignment(Qt.AlignTop)
-
-            for i, entry in enumerate(history):
-                card = _HistoryCard(entry, i, parent=scroll_widget)
-                card.restore_requested.connect(self._on_restore)
-                scroll_layout.addWidget(card)
-
-            scroll = QScrollArea()
-            scroll.setWidget(scroll_widget)
-            scroll.setWidgetResizable(True)
-            scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-            scroll.setFrameShape(QFrame.NoFrame)
-            scroll.setStyleSheet("background: #F8F5EE;")
-            layout.addWidget(scroll, 1)
-
-        # ── Close button ────────────────────────────────────────────────
-        close_btn = QPushButton("\u0625\u063a\u0644\u0627\u0642")
-        close_btn.setFixedWidth(90)
-        close_btn.clicked.connect(self.accept)
-        row = QHBoxLayout()
-        row.addStretch()
-        row.addWidget(close_btn)
-        layout.addLayout(row)
-
-    def _on_restore(self, project_id: str, owner_id: str, codes: list) -> None:
-        self.restore_requested.emit(project_id, owner_id, codes)
-        self.accept()

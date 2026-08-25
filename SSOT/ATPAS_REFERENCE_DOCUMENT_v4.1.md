@@ -21,11 +21,12 @@ ATPAS هو تطبيق سطح مكتب Windows مبني بـ Python و PyQt5، ي
 
 | البند | القيمة الحالية |
 |---|---:|
-| الأكواد في `codes_registry.json` | 64 |
-| الأكواد النشطة | 64 |
+| الأكواد في `codes_registry.json` | 65 |
+| الأكواد النشطة | 65 |
 | أنواع المشاريع | 6 |
 | الجهات المالكة في `master_config.json` -> `owner_specifications` | 20 |
 | الأنماط الجاهزة في `presets.json` | 11 |
+| الاختبارات المجمعة (`pytest --collect-only`) | 430 |
 | الواجهة | PyQt5 عربية RTL |
 | ملف التشغيل | `dist/ATPAS/ATPAS.exe` |
 | البناء | `pyinstaller atpas.spec --noconfirm --clean` أو `build_exe.bat` |
@@ -99,8 +100,14 @@ ATPAS هو تطبيق سطح مكتب Windows مبني بـ Python و PyQt5، ي
 | `utils/content_library.py` | ربط ملفات Word بالأكواد | عالية |
 | `utils/system_health.py` | فحص صحة الأكواد والجهات والمحتوى | عالية |
 | `utils/proposal_versions.py` | سجل إصدارات العروض الفنية | عالية مؤسسيًا |
-| `ui/theme.py` | المرجع الموحد للألوان والخطوط والمقاييس (SSOT Design) | عالية جدًا |
+| `ui/theme.py` | المرجع الموحد للألوان والخطوط والمقاييس + لوحة الداكن (SSOT Design) | عالية جدًا |
 | `ui/motion.py` | محرك الحركة والمؤقتات الآمنة (Context-Aware) | عالية |
+| `utils/app_version.py` | المصدر الوحيد لرقم الإصدار (من version.json) | عالية |
+| `utils/company_profile.py` | هوية الشركة White-label (من company_profile.json) | عالية |
+| `engine/rules.py` | قواعد التبعيات البديلة المشتركة (validator+resolver) | عالية |
+| `ui/components.py` | مكونات مشتركة (MetricCard، عنوان قسم) | متوسطة |
+| `utils/update_checker.py` | بنية فاحص التحديثات | متوسطة |
+| `utils/i18n.py` | بنية الترجمة العالمية | متوسطة |
 | `build_exe.bat` | بناء نسخة التشغيل | متوسطة |
 | `backup_to_github.bat` | رفع نسخة GitHub | متوسطة |
 

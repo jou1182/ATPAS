@@ -12,7 +12,6 @@
 from __future__ import annotations
 
 import hashlib
-import json
 from pathlib import Path
 from typing import Any
 
@@ -36,10 +35,11 @@ from PyQt5.QtWidgets import (
     QWidget,
 )
 from ui import theme
+from utils.json_manager import save_json
 
-# Admin password SHA-256 hash — default: "rawaf2024"
-# Change by running: hashlib.sha256(b"your_password").hexdigest()
-_DEFAULT_ADMIN_HASH = hashlib.sha256(b"rawaf2024").hexdigest()
+# كلمة سر المشرف تُقرأ حصراً من master_config.json -> admin_settings.password_hash
+# (SHA-256). لا يوجد أي كلمة افتراضية في الكود.
+# لتعيينها: hashlib.sha256("كلمة_السر".encode()).hexdigest()
 _CONFIG_PATH = Path("master_config.json")
 _PROJECT_COLORS: dict[str, str] = {
     "wastewater": "#1F5B8E",
@@ -89,9 +89,9 @@ class ProjectSelectorWidget(QGroupBox):
         self._config_data = config_data
         self._projects: dict[str, dict] = config_data.get("projects", {})
         self._owners: dict[str, dict] = config_data.get("owner_specifications", {})
-        self._admin_hash: str = config_data.get(
-            "admin_settings", {}
-        ).get("password_hash", _DEFAULT_ADMIN_HASH)
+        self._admin_hash: str = str(
+            config_data.get("admin_settings", {}).get("password_hash", "")
+        ).strip()
 
         self._project_checks: dict[str, QCheckBox] = {}
         self._owner_combo = QComboBox()
@@ -327,6 +327,18 @@ class ProjectSelectorWidget(QGroupBox):
     # ------------------------------------------------------------------
 
     def _on_add_owner(self) -> None:
+        # Step 0: gate must be configured — no built-in fallback exists
+        if not self._admin_hash:
+            QMessageBox.warning(
+                self,
+                "بوابة المشرف غير مُهيّأة",
+                "لم يتم تعيين كلمة سر للمشرف في الإعدادات.\n\n"
+                "لتعيينها أضف إلى master_config.json:\n"
+                '  "admin_settings": { "password_hash": "<sha256>" }\n'
+                "حيث sha256 = SHA-256 لكلمة السر.",
+            )
+            return
+
         # Step 1: password
         pwd, ok = QInputDialog.getText(
             self, "كلمة السر", "أدخل كلمة سر المشرف:",
@@ -372,12 +384,9 @@ class ProjectSelectorWidget(QGroupBox):
             if owner_id not in ao:
                 ao.append(owner_id)
 
-        # Persist to master_config.json
+        # Persist to master_config.json (atomic write)
         try:
-            _CONFIG_PATH.write_text(
-                json.dumps(self._config_data, ensure_ascii=False, indent=2),
-                encoding="utf-8"
-            )
+            save_json(self._config_data, _CONFIG_PATH)
         except Exception as exc:
             QMessageBox.warning(self, "تحذير", f"تعذّر حفظ التغييرات: {exc}")
             return

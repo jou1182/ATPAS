@@ -11,7 +11,8 @@
 
 #define MyAppName        "ATPAS"
 #define MyAppNameAr      "نظام بناء العروض الفنية"
-#define MyAppVersion     "1.0.0"
+; ⚠ حافظ على مزامنة هذا الرقم مع version.json (المصدر الوحيد للإصدار)
+#define MyAppVersion     "3.1"
 #define MyAppPublisher   "الرواف للهندسة والتقنية"
 #define MyAppPublisherEn "Al-Rawaf Engineering"
 #define MyAppURL         "https://github.com/jou1182/ATPAS"

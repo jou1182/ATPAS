@@ -101,9 +101,9 @@ def send_windows_notification(title: str, message: str) -> None:
     if sys.platform != "win32":
         return
     try:
-        # Escape single quotes to avoid breaking the PowerShell string literals
-        safe_title   = title.replace("'", "\\'")
-        safe_message = message.replace("'", "\\'")
+        # Escape single quotes for PowerShell single-quoted strings: ' → ''
+        safe_title   = title.replace("'", "''")
+        safe_message = message.replace("'", "''")
         script = (
             "Add-Type -AssemblyName System.Windows.Forms; "
             "Add-Type -AssemblyName System.Drawing; "

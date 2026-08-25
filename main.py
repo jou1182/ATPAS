@@ -8,8 +8,8 @@ import os
 import sys
 from pathlib import Path
 
-# ── رقم الإصدار — عدّله عند كل إصدار جديد ────────────────────────────────
-APP_VERSION = "1.0.0"
+# ── رقم الإصدار — يُقرأ من version.json (المصدر الوحيد) ─────────────────
+APP_VERSION = "1.0.0"   # احتياطي فقط؛ تُحدَّث داخل main() بعد ضبط مجلد العمل
 # ─────────────────────────────────────────────────────────────────────────────
 
 _EXPIRY_WARNING_DAYS = 7   # عدد الأيام التي يُظهَر فيها التحذير قبل الانتهاء
@@ -40,7 +40,16 @@ def _setup_logging() -> None:
 
 
 def main() -> int:
+    global APP_VERSION
     _fix_working_dir()
+
+    # الإصدار الحقيقي من version.json بعد ضبط مجلد العمل
+    try:
+        from utils.app_version import get_app_version
+        APP_VERSION = get_app_version()
+    except Exception:
+        pass
+
     _setup_logging()
 
     # ── DPI: يجب إعداده قبل إنشاء QApplication ─────────────────────────
@@ -57,9 +66,11 @@ def main() -> int:
 
     app = QApplication(sys.argv)
     app.setApplicationName("ATPAS")
-    app.setApplicationDisplayName("نظام بناء العروض الفنية - الرواف")
+    # عنوان النافذة من company_profile.json — قابل لإعادة التوزيع بعلامة أخرى
+    from utils.company_profile import get_company_profile
+    app.setApplicationDisplayName(get_company_profile()["window_title_ar"])
     app.setApplicationVersion(APP_VERSION)
-    app.setOrganizationName("Al-Rawaf Contracting")
+    app.setOrganizationName(get_company_profile().get("publisher_en", "ATPAS"))
 
     # ── Apply theme ────────────────────────────────────────────────────
     from ui.theme import apply_palette, get_stylesheet, load_fonts

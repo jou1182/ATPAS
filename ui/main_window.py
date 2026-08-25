@@ -54,7 +54,7 @@ from ui.backup_manager import BackupDialog, create_backup
 from ui.batch_build_dialog import BatchBuildDialog
 from ui.build_progress import BuildProgressDialog
 from ui.build_vars_dialog import BuildVarsDialog
-from ui.build_history import BuildHistoryManager, BuildHistoryDialog
+from ui.build_history import BuildHistoryManager
 from ui.proposal_archive_dialog import ProposalArchiveDialog
 from ui.import_wizard import ImportWizardDialog
 from ui.checkbox_selector import CheckboxSelectorWidget
@@ -140,7 +140,14 @@ def _get_version() -> str:
         return ""
 
 
-_DEFAULT_WINDOW_TITLE_AR = "نظام بناء العروض الفنية — الرواف"
+def _default_window_title() -> str:
+    """العنوان الافتراضي من company_profile.json (White-label SSOT)."""
+    try:
+        from utils.company_profile import get_company_profile
+        profile = get_company_profile()
+        return f"{profile['product_name_ar']} — {profile['company_name_ar']}"
+    except Exception:
+        return "نظام بناء العروض الفنية"
 
 # Rotating status bar tips — shown every ~10 s during idle
 _STATUS_TIPS: list[str] = [
@@ -282,7 +289,7 @@ class MainWindow(QMainWindow):
 
     def _configure_window(self) -> None:
         ui_cfg = self.config_data.get("ui_config", {})
-        title = ui_cfg.get("window_title") or (_DEFAULT_WINDOW_TITLE_AR + _get_version())
+        title = ui_cfg.get("window_title") or (_default_window_title() + _get_version())
         width = max(_safe_int(ui_cfg.get("window_width"), 1400), 1280)
         height = max(_safe_int(ui_cfg.get("window_height"), 860), 700)
 

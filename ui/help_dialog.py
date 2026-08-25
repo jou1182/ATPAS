@@ -203,14 +203,6 @@ _SHORTCUTS_HTML = _STYLE_BASE + """
     <td>تحديد كل نص في خانة البحث (لمسحه سريعاً)</td>
   </tr>
   <tr>
-    <td><kbd>Escape</kbd></td>
-    <td>مسح خانة البحث وإظهار كل الأكواد</td>
-  </tr>
-  <tr>
-    <td><kbd>Space</kbd></td>
-    <td>تحديد / إلغاء تحديد الكود المُظلَّل</td>
-  </tr>
-  <tr>
     <td><kbd>Alt</kbd> + <kbd>F4</kbd></td>
     <td>إغلاق التطبيق</td>
   </tr>
@@ -300,7 +292,7 @@ _TROUBLESHOOT_HTML = _STYLE_BASE + """
 <h2>للمساعدة الإضافية</h2>
 <div class="ok">
   <p class="line">راجع ملف الدليل الكامل: <strong><span dir="ltr">docs/USER_GUIDE_AR.md</span></strong></p>
-  <p class="line">أو راجع وثائق SSOT في: <strong><span dir="ltr">SSOT/ATPAS_REFERENCE_DOCUMENT_v3.0.md</span></strong></p>
+  <p class="line">أو راجع وثائق SSOT في: <strong><span dir="ltr">SSOT/ATPAS_REFERENCE_DOCUMENT_v4.1.md</span></strong></p>
 </div>
 </body></html>
 """

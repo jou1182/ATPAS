@@ -3,6 +3,7 @@
 
 from typing import Dict, List, Set
 
+from engine.rules import is_alternative_dependency_set
 from engine.types import CodeRegistry
 from utils.json_manager import load_json
 
@@ -148,30 +149,8 @@ class DependencyResolver:
         return [deps[0]]
 
     def _is_alternative_dependency_set(self, code: Dict, deps: List[str]) -> bool:
-        if len(deps) < 2:
-            return False
-
-        note = str(code.get("dependencies_note", ""))
-        if "أي" in note or "any" in note.lower():
-            return True
-
-        dep_records = [self._codes.get(dep, {}) for dep in deps]
-        if dep_records and all("excavation_type" in dep for dep in dep_records):
-            return True
-
-        project_sets = [
-            set(dep.get("project_ids") or [])
-            for dep in dep_records
-            if dep.get("project_ids")
-        ]
-        if len(project_sets) == len(deps):
-            for idx, current in enumerate(project_sets):
-                others = set().union(*(s for j, s in enumerate(project_sets) if j != idx))
-                if current & others:
-                    return False
-            return True
-
-        return False
+        """Delegate to the shared rule — single source of truth (engine/rules.py)."""
+        return is_alternative_dependency_set(self._codes, code, deps)
 
     def _sorted(self, code_ids: Set[str] | List[str]) -> List[str]:
         """Sort codes by their sequence_order, unknown codes go last."""

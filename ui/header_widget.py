@@ -3,10 +3,12 @@
 
 """Branded application header for ATPAS.
 
-Shows: logomark • Arabic product name • version badge (with build date tooltip)
-       • animated codes counter • help button (❓).
+Shows: logomark • Arabic product name • company brand • version badge
+(with build date tooltip) • animated codes counter • action buttons.
 
 Fixed height (~72 px). Dark navy background with gold accent.
+All colours come from ui.theme (SSOT); all branding comes from
+utils.company_profile (white-label SSOT).
 """
 
 from __future__ import annotations
@@ -15,16 +17,15 @@ import json
 from pathlib import Path
 
 from PyQt5.QtCore import Qt, QTimer, pyqtSignal
-from PyQt5.QtGui import QColor, QFont, QPainter, QPainterPath, QPen
+from PyQt5.QtGui import QColor, QPainter, QPainterPath, QPen
 from PyQt5.QtWidgets import QHBoxLayout, QLabel, QPushButton, QWidget
 from ui.motion import prefers_reduced_motion
 from ui import theme
+from utils.company_profile import get_company_profile
 
 # Pre-computed hex constants (sin/cos 30°, 60°) — avoids importing math
 _S30 = 0.5       # sin(30°)
 _C30 = 0.866     # cos(30°) = √3/2
-
-_VERSION = "3.1"
 
 
 def _load_build_info() -> dict:
@@ -36,6 +37,9 @@ def _load_build_info() -> dict:
         except (OSError, json.JSONDecodeError):
             pass
     return {}
+
+
+_VERSION = str(_load_build_info().get("version", "dev"))
 
 
 class _AnimatedCounter(QLabel):
@@ -107,9 +111,9 @@ class LogoMark(QWidget):
         p = QPainter(self)
         p.setRenderHint(QPainter.Antialiasing)
 
-        gold   = QColor("#C9921B")
+        gold   = QColor(theme.ACCENT)
         gold2  = QColor("#E8C050")
-        navy   = QColor("#152433")
+        navy   = QColor(theme.HEADER)
 
         w, h   = self.width(), self.height()
         cx, cy = w / 2.0, h / 2.0
@@ -157,8 +161,46 @@ class LogoMark(QWidget):
         p.end()
 
 
+# ── تعريف أزرار الشريط العلوي في جدول واحد ──────────────────────────────────
+# (اسم الإشارة، النص، التلميح، لون التمييز)
+_HEADER_BUTTONS: list[tuple[str, str, str, str]] = [
+    ("backup_requested",           "🗄️  نسخ احتياطي", "إدارة النسخ الاحتياطية للبيانات (Ctrl+B)",              "#8BC34A"),
+    ("import_requested",           "📥  استيراد",     "استيراد أكواد جديدة أو إدارة الجهات المالكة (Ctrl+I)",  "#5CB8E8"),
+    ("boq_import_requested",       "📋  جدول كميات",  "استورد جدول كميات BOQ وحدد الأكواد المناسبة تلقائياً",   "#FF8A65"),
+    ("health_requested",           "🩺  الصحة",       "فحص الأكواد والجهات وملفات Word",                       "#6EC6A4"),
+    ("code_manager_requested",     "🧩  الأكواد",     "إضافة أو تعديل أو تعطيل الأكواد بدون فتح JSON",         "#E8C050"),
+    ("content_library_requested",  "📚  المكتبة",     "إدارة ملفات Word وحالات اعتماد المحتوى",                "#CFA7FF"),
+    ("last_proposal_requested",    "📄  آخر عرض",     "فتح آخر ملف Word تم إنشاؤه",                            "#F1D68A"),
+    ("session_history_requested",  "🕐  الجلسات",     "عرض واسترجاع الجلسات المحفوظة (Ctrl+J)",                "#7EC8E3"),
+    ("dark_mode_toggle_requested", "🌙  داكن",        "تبديل الوضع الداكن/الفاتح (Ctrl+D)",                    "#9B6BB7"),
+    ("about_requested",            "ⓘ  عن النظام",    "معلومات الإصدار والصحة وآخر نشاط",                      "#D7DDE8"),
+    ("help_requested",             "❓  مساعدة",      "فتح دليل المساعدة (F1)",                                "#C9921B"),
+    ("settings_requested",         "⚙  إعدادات",      "إعدادات التشغيل والحفظ",                                "#D7B56D"),
+]
+
+_HDR_BTN_TEMPLATE = """
+    QPushButton {{
+        color: {fg};
+        background: transparent;
+        border: 1px solid {border};
+        border-radius: 5px;
+        padding: 4px 10px;
+        font-size: 11px;
+        font-weight: 700;
+        min-width: 70px;
+    }}
+    QPushButton:hover {{
+        background: {hover_bg};
+        border-color: {hover_border};
+    }}
+    QPushButton:pressed {{
+        background: {pressed_bg};
+    }}
+"""
+
+
 class HeaderWidget(QWidget):
-    """Dark branded header bar with help button and build-date badge."""
+    """Dark branded header bar with action buttons and build-date badge."""
 
     #: يُطلق عند الضغط على زر المساعدة — MainWindow يستمع ويفتح HelpDialog
     help_requested = pyqtSignal()
@@ -195,46 +237,55 @@ class HeaderWidget(QWidget):
         self._build_info = _load_build_info()
         self._setup(active_codes)
 
+    # ------------------------------------------------------------------
+    # Setup — split into small factories
+    # ------------------------------------------------------------------
+
     def _setup(self, active_codes: int) -> None:
-        self.setStyleSheet("""
-            QWidget#appHeader {
+        self.setStyleSheet(f"""
+            QWidget#appHeader {{
                 background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                    stop:0 #1C3045,
-                    stop:0.5 #152433,
-                    stop:1   #0D1C2B);
-                border-bottom: 4px solid #C9921B;
-            }
+                    stop:0 {theme.NAVY_MID},
+                    stop:0.5 {theme.HEADER},
+                    stop:1   {theme.HEADER2});
+                border-bottom: 4px solid {theme.ACCENT};
+            }}
         """)
 
         layout = QHBoxLayout(self)
         layout.setContentsMargins(12, 4, 12, 4)
         layout.setSpacing(6)
 
-        # ── شعار هندسي ─────────────────────────────────────────────────
-        logo = LogoMark(self)
+        self._add_brand_widgets(layout)
+        layout.addStretch()
+        self._add_counter_and_badge(layout, active_codes)
+        self._add_action_buttons(layout)
 
-        # ── اسم المنتج ─────────────────────────────────────────────────
-        name_lbl = QLabel("نظام بناء العروض الفنية", self)
+    def _add_brand_widgets(self, layout: QHBoxLayout) -> None:
+        """الشعار + اسم المنتج + اسم الشركة (من company_profile)."""
+        profile = get_company_profile()
+
+        logo = LogoMark(self)
+        layout.addWidget(logo)
+
+        name_lbl = QLabel(profile["product_name_ar"], self)
         name_lbl.setStyleSheet(f"""
             color: #FFFFFF; font-size: {theme.TITLE_FONT_SIZE}px; font-weight: 800;
             font-family: {theme.MAIN_FONT};
             background: transparent; letter-spacing: 0.3px;
         """)
+        layout.addWidget(name_lbl)
 
-        # ── اسم الشركة ─────────────────────────────────────────────────
-        brand_lbl = QLabel("الرواف", self)
+        brand_lbl = QLabel(profile["company_name_ar"], self)
         brand_lbl.setStyleSheet(f"""
             color: {theme.ACCENT}; font-size: 15px; font-weight: 700;
             background: transparent; padding-right: 6px;
             border-right: 2px solid {theme.ACCENT}50;
         """)
-
-        layout.addWidget(logo)
-        layout.addWidget(name_lbl)
         layout.addWidget(brand_lbl)
-        layout.addStretch()
 
-        # ── عداد الأكواد المتحرك ────────────────────────────────────────
+    def _add_counter_and_badge(self, layout: QHBoxLayout, active_codes: int) -> None:
+        """عداد الأكواد المتحرك + شارة الإصدار مع تلميح تاريخ البناء."""
         self._counter_lbl = _AnimatedCounter(self)
         self._counter_lbl.setStyleSheet(f"""
             color: #C8A860; font-size: {theme.BASE_FONT_SIZE}px; font-weight: 600;
@@ -243,13 +294,14 @@ class HeaderWidget(QWidget):
         self._set_counter(active_codes)
         layout.addWidget(self._counter_lbl)
 
-        # ── شارة الإصدار مع تلميح تاريخ البناء ────────────────────────
+        layout.addWidget(self._build_version_badge())
+
+    def _build_version_badge(self) -> QLabel:
         build_date = self._build_info.get("build_date", "dev")
         build_time = self._build_info.get("build_time", "")
         build_label = self._build_info.get("build_label", "")
 
         if build_date == "dev":
-            # وضع تطوير — خلفية حمراء تحذيرية لا يمكن تجاهلها
             ver_lbl = QLabel(f"⚠ DEV v{_VERSION}", self)
             ver_lbl.setToolTip(
                 "⚠ وضع التطوير — هذا الكود يعمل مباشرة من Python\n"
@@ -270,201 +322,39 @@ class HeaderWidget(QWidget):
                 f"وقت البناء: {build_time}\n"
                 f"{build_label}"
             )
-            ver_lbl.setStyleSheet("""
-                color: #152433; background: #C9921B;
+            ver_lbl.setStyleSheet(f"""
+                color: {theme.HEADER}; background: {theme.ACCENT};
                 font-size: 11px; font-weight: 800;
                 padding: 4px 12px; border-radius: 5px; letter-spacing: 0.5px;
             """)
         ver_lbl.setAlignment(Qt.AlignCenter)
-        layout.addWidget(ver_lbl)
+        return ver_lbl
 
-        # ── قالب CSS مشترك لأزرار الشريط العلوي ────────────────────────────
-        _hdr_btn_style = """
-            QPushButton {{
-                color: {fg};
-                background: transparent;
-                border: 1px solid {border};
-                border-radius: 5px;
-                padding: 4px 10px;
-                font-size: 11px;
-                font-weight: 700;
-                min-width: 70px;
-            }}
-            QPushButton:hover {{
-                background: {hover_bg};
-                border-color: {hover_border};
-            }}
-            QPushButton:pressed {{
-                background: {pressed_bg};
-            }}
-        """
-        # ── زر النسخ الاحتياطي 🗄️ ──────────────────────────────────────────
-        backup_btn = QPushButton("🗄️  نسخ احتياطي", self)
-        backup_btn.setToolTip("إدارة النسخ الاحتياطية للبيانات (Ctrl+B)")
-        backup_btn.setCursor(Qt.PointingHandCursor)
-        backup_btn.setStyleSheet(_hdr_btn_style.format(
-            fg="#8BC34A",
-            border="#8BC34A70",
-            hover_bg="#8BC34A20",
-            hover_border="#8BC34A",
-            pressed_bg="#8BC34A40",
+    def _make_header_button(self, label: str, tooltip: str, accent: str) -> QPushButton:
+        """مصنع زر الشريط العلوي — نمط موحد بلون تمييز لكل زر."""
+        btn = QPushButton(label, self)
+        btn.setToolTip(tooltip)
+        btn.setCursor(Qt.PointingHandCursor)
+        btn.setStyleSheet(_HDR_BTN_TEMPLATE.format(
+            fg=accent,
+            border=f"{accent}70",
+            hover_bg=f"{accent}20",
+            hover_border=accent,
+            pressed_bg=f"{accent}40",
         ))
-        backup_btn.clicked.connect(self.backup_requested.emit)
-        layout.addWidget(backup_btn)
+        return btn
 
-        # ── زر الاستيراد 📥 ─────────────────────────────────────────────
-        import_btn = QPushButton("📥  استيراد", self)
-        import_btn.setToolTip("استيراد أكواد جديدة أو إدارة الجهات المالكة (Ctrl+I)")
-        import_btn.setCursor(Qt.PointingHandCursor)
-        import_btn.setStyleSheet(_hdr_btn_style.format(
-            fg="#5CB8E8",
-            border="#5CB8E870",
-            hover_bg="#5CB8E820",
-            hover_border="#5CB8E8",
-            pressed_bg="#5CB8E840",
-        ))
-        import_btn.clicked.connect(self.import_requested.emit)
-        layout.addWidget(import_btn)
+    def _add_action_buttons(self, layout: QHBoxLayout) -> None:
+        """يبني كل أزرار الشريط من الجدول المركزي ويصل الإشارات."""
+        for signal_name, label, tooltip, accent in _HEADER_BUTTONS:
+            btn = self._make_header_button(label, tooltip, accent)
+            # اتصال إشارة-بإشارة: وسيطة checked الزائدة تُهمَل تلقائياً
+            btn.clicked.connect(getattr(self, signal_name))
+            layout.addWidget(btn)
 
-        # ── زر استيراد جدول الكميات 📋 ─────────────────────────────────
-        boq_btn = QPushButton("📋  جدول كميات", self)
-        boq_btn.setToolTip("استورد جدول كميات BOQ وحدد الأكواد المناسبة تلقائياً")
-        boq_btn.setCursor(Qt.PointingHandCursor)
-        boq_btn.setStyleSheet(_hdr_btn_style.format(
-            fg="#FF8A65",
-            border="#FF8A6570",
-            hover_bg="#FF8A6520",
-            hover_border="#FF8A65",
-            pressed_bg="#FF8A6540",
-        ))
-        boq_btn.clicked.connect(self.boq_import_requested.emit)
-        layout.addWidget(boq_btn)
-
-        # ── زر صحة النظام 🩺 ───────────────────────────────────────────
-        health_btn = QPushButton("🩺  الصحة", self)
-        health_btn.setToolTip("فحص الأكواد والجهات وملفات Word")
-        health_btn.setCursor(Qt.PointingHandCursor)
-        health_btn.setStyleSheet(_hdr_btn_style.format(
-            fg="#6EC6A4",
-            border="#6EC6A470",
-            hover_bg="#6EC6A420",
-            hover_border="#6EC6A4",
-            pressed_bg="#6EC6A440",
-        ))
-        health_btn.clicked.connect(self.health_requested.emit)
-        layout.addWidget(health_btn)
-
-        # ── زر إدارة الأكواد 🧩 ────────────────────────────────────────
-        codes_btn = QPushButton("🧩  الأكواد", self)
-        codes_btn.setToolTip("إضافة أو تعديل أو تعطيل الأكواد بدون فتح JSON")
-        codes_btn.setCursor(Qt.PointingHandCursor)
-        codes_btn.setStyleSheet(_hdr_btn_style.format(
-            fg="#E8C050",
-            border="#E8C05070",
-            hover_bg="#E8C05020",
-            hover_border="#E8C050",
-            pressed_bg="#E8C05040",
-        ))
-        codes_btn.clicked.connect(self.code_manager_requested.emit)
-        layout.addWidget(codes_btn)
-
-        # ── زر مكتبة Word 📚 ──────────────────────────────────────────
-        library_btn = QPushButton("📚  المكتبة", self)
-        library_btn.setToolTip("إدارة ملفات Word وحالات اعتماد المحتوى")
-        library_btn.setCursor(Qt.PointingHandCursor)
-        library_btn.setStyleSheet(_hdr_btn_style.format(
-            fg="#CFA7FF",
-            border="#CFA7FF70",
-            hover_bg="#CFA7FF20",
-            hover_border="#CFA7FF",
-            pressed_bg="#CFA7FF40",
-        ))
-        library_btn.clicked.connect(self.content_library_requested.emit)
-        layout.addWidget(library_btn)
-
-        # ── زر آخر عرض 📄 ─────────────────────────────────────────────
-        last_btn = QPushButton("📄  آخر عرض", self)
-        last_btn.setToolTip("فتح آخر ملف Word تم إنشاؤه")
-        last_btn.setCursor(Qt.PointingHandCursor)
-        last_btn.setStyleSheet(_hdr_btn_style.format(
-            fg="#F1D68A",
-            border="#F1D68A70",
-            hover_bg="#F1D68A20",
-            hover_border="#F1D68A",
-            pressed_bg="#F1D68A40",
-        ))
-        last_btn.clicked.connect(self.last_proposal_requested.emit)
-        layout.addWidget(last_btn)
-
-        # ── زر الجلسات المحفوظة 🕐 ────────────────────────────────────
-        session_btn = QPushButton("🕐  الجلسات", self)
-        session_btn.setToolTip("عرض واسترجاع الجلسات المحفوظة (Ctrl+J)")
-        session_btn.setCursor(Qt.PointingHandCursor)
-        session_btn.setStyleSheet(_hdr_btn_style.format(
-            fg="#7EC8E3",
-            border="#7EC8E370",
-            hover_bg="#7EC8E320",
-            hover_border="#7EC8E3",
-            pressed_bg="#7EC8E340",
-        ))
-        session_btn.clicked.connect(self.session_history_requested.emit)
-        layout.addWidget(session_btn)
-
-        # ── زر Dark Mode 🌙 ───────────────────────────────────────────
-        dark_btn = QPushButton("🌙  داكن", self)
-        dark_btn.setToolTip("تبديل الوضع الداكن/الفاتح (Ctrl+D)")
-        dark_btn.setCursor(Qt.PointingHandCursor)
-        dark_btn.setStyleSheet(_hdr_btn_style.format(
-            fg="#9B6BB7",
-            border="#9B6BB770",
-            hover_bg="#9B6BB720",
-            hover_border="#9B6BB7",
-            pressed_bg="#9B6BB740",
-        ))
-        dark_btn.clicked.connect(self.dark_mode_toggle_requested.emit)
-        layout.addWidget(dark_btn)
-
-        # ── زر عن النظام ⓘ ────────────────────────────────────────────
-        about_btn = QPushButton("ⓘ  عن النظام", self)
-        about_btn.setToolTip("معلومات الإصدار والصحة وآخر نشاط")
-        about_btn.setCursor(Qt.PointingHandCursor)
-        about_btn.setStyleSheet(_hdr_btn_style.format(
-            fg="#D7DDE8",
-            border="#D7DDE870",
-            hover_bg="#D7DDE820",
-            hover_border="#D7DDE8",
-            pressed_bg="#D7DDE840",
-        ))
-        about_btn.clicked.connect(self.about_requested.emit)
-        layout.addWidget(about_btn)
-
-        # ── زر المساعدة ❓ ──────────────────────────────────────────────
-        help_btn = QPushButton("❓  مساعدة", self)
-        help_btn.setToolTip("فتح دليل المساعدة (F1)")
-        help_btn.setCursor(Qt.PointingHandCursor)
-        help_btn.setStyleSheet(_hdr_btn_style.format(
-            fg="#C9921B",
-            border="#C9921B70",
-            hover_bg="#C9921B20",
-            hover_border="#C9921B",
-            pressed_bg="#C9921B40",
-        ))
-        help_btn.clicked.connect(self.help_requested.emit)
-        layout.addWidget(help_btn)
-
-        # ── زر الإعدادات ⚙ ─────────────────────────────────────────────
-        settings_btn = QPushButton("⚙  إعدادات", self)
-        settings_btn.setToolTip("إعدادات التشغيل والحفظ")
-        settings_btn.setCursor(Qt.PointingHandCursor)
-        settings_btn.setStyleSheet(_hdr_btn_style.format(
-            fg="#D7B56D",
-            border="#D7B56D70",
-            hover_bg="#D7B56D20",
-            hover_border="#D7B56D",
-            pressed_bg="#D7B56D40",
-        ))
-        settings_btn.clicked.connect(self.settings_requested.emit)
-        layout.addWidget(settings_btn)
+    # ------------------------------------------------------------------
+    # Public API
+    # ------------------------------------------------------------------
 
     def _set_counter(self, n: int) -> None:
         self._counter_lbl.set_count(n)
