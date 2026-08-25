@@ -19,6 +19,11 @@ from datetime import datetime, timedelta
 from typing import List, Optional
 from pathlib import Path
 
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+
 os.environ.setdefault("QT_SCALE_FACTOR_ROUNDING_POLICY", "PassThrough")
 os.environ.setdefault("QT_AUTO_SCREEN_SCALE_FACTOR", "1")
 
@@ -244,7 +249,7 @@ class PasswordDialog(QDialog):
             self._ok = True
             self.accept()
         else:
-            self._err.setText("❌  كلمة المرور غير صحيحة")
+            self._err.setText("كلمة المرور غير صحيحة")
             self._pw.clear()
             self._pw.setFocus()
 
@@ -343,7 +348,7 @@ class KeyGenWindow(QMainWindow):
         lay.addStretch()
 
         # Export CSV button
-        exp_btn = self._make_btn("📥 تصدير CSV", "#2B4A63", width=130)
+        exp_btn = self._make_btn("تصدير CSV", "#2B4A63", width=130)
         exp_btn.clicked.connect(self._export_csv)
         lay.addWidget(exp_btn)
 
@@ -463,14 +468,14 @@ class KeyGenWindow(QMainWindow):
         lay.addWidget(self._key_display)
 
         btn_row = QHBoxLayout()
-        copy_btn = self._make_btn("📋 نسخ الكود", "#C9921B", width=100, height=36, font_size=12)
+        copy_btn = self._make_btn("نسخ الكود", "#C9921B", width=100, height=36, font_size=12)
         copy_btn.clicked.connect(self._copy_key)
 
-        copy_msg_btn = self._make_btn("📩 نسخ الرسالة", "#2B4A63", width=120, height=36, font_size=12)
+        copy_msg_btn = self._make_btn("نسخ الرسالة", "#2B4A63", width=120, height=36, font_size=12)
         copy_msg_btn.clicked.connect(self._copy_whatsapp_msg)
         self._copy_msg_btn = copy_msg_btn
 
-        wa_btn = self._make_btn("💬 واتساب", "#25D366", width=100, height=36, font_size=12)
+        wa_btn = self._make_btn("واتساب", "#25D366", width=100, height=36, font_size=12)
         wa_btn.clicked.connect(self._send_whatsapp)
 
         btn_row.addWidget(copy_btn)
@@ -497,12 +502,12 @@ class KeyGenWindow(QMainWindow):
         lay.setSpacing(10)
 
         hdr_row = QHBoxLayout()
-        title = QLabel("📋 سجل الأكواد المُولَّدة")
+        title = QLabel("سجل الأكواد المُولَّدة")
         title.setStyleSheet(f"font-family:'{self._font}'; font-size:14px; font-weight:800; color:#152433;")
         hdr_row.addWidget(title)
         hdr_row.addStretch()
 
-        clear_btn = self._make_btn("🗑 مسح السجل", "#8A3030", height=30, font_size=11, width=110)
+        clear_btn = self._make_btn("مسح السجل", "#8A3030", height=30, font_size=11, width=110)
         clear_btn.clicked.connect(self._clear_log)
         hdr_row.addWidget(clear_btn)
         lay.addLayout(hdr_row)
@@ -620,24 +625,24 @@ class KeyGenWindow(QMainWindow):
                 customer = prev.get("customer", "—")
                 expiry   = prev.get("expiry", "—")
                 self._hw_status.setText(
-                    f"🔄  جهاز مُسجَّل مسبقاً — العميل: {customer}  |  انتهاء سابق: {expiry}"
+                    f"جهاز مُسجَّل مسبقاً — العميل: {customer}  |  انتهاء سابق: {expiry}"
                 )
                 self._hw_status.setStyleSheet(
                     f"font-family:'{self._font}'; font-size:11px; color:#C9921B; font-weight:700;"
                 )
             else:
-                self._hw_status.setText("✅  Hardware ID صحيح — جهاز جديد")
+                self._hw_status.setText("Hardware ID صحيح — جهاز جديد")
                 self._hw_status.setStyleSheet(
                     f"font-family:'{self._font}'; font-size:11px; color:#2B7549; font-weight:700;"
                 )
         else:
-            self._hw_status.setText("⚠  يجب أن يكون 16 حرف hex (0-9 A-F) بصيغة XXXX-XXXX-XXXX-XXXX")
+            self._hw_status.setText("يجب أن يكون 16 حرف hex (0-9 A-F) بصيغة XXXX-XXXX-XXXX-XXXX")
             self._hw_status.setStyleSheet(f"font-family:'{self._font}'; font-size:11px; color:#B03030;")
 
     def _update_expiry(self) -> None:
         _, days = DURATIONS[self._dur_combo.currentIndex()]
         expiry = datetime.now() + timedelta(days=days)
-        self._expiry_label.setText(expiry.strftime("📅 %Y-%m-%d"))
+        self._expiry_label.setText(expiry.strftime("%Y-%m-%d"))
 
     def _generate(self) -> None:
         hw = self._hw_input.text().strip().upper()
@@ -656,7 +661,7 @@ class KeyGenWindow(QMainWindow):
             prev_days     = prev.get("days", "—")
             answer = QMessageBox.question(
                 self,
-                "⚠  تجديد ترخيص — جهاز مسجَّل مسبقاً",
+                "تجديد ترخيص — جهاز مسجَّل مسبقاً",
                 f"هذا الجهاز لديه ترخيص مُسجَّل في السجل:\n\n"
                 f"  العميل السابق : {prev_customer}\n"
                 f"  مدة الترخيص  : {prev_days} يوم\n"
@@ -702,7 +707,7 @@ class KeyGenWindow(QMainWindow):
         btn = self.sender()
         if btn:
             orig = btn.text()
-            btn.setText("✅ تم النسخ")
+            btn.setText("تم النسخ")
             QTimer.singleShot(1500, lambda: btn.setText(orig))
 
     def _build_whatsapp_msg(self) -> str:
@@ -736,7 +741,7 @@ class KeyGenWindow(QMainWindow):
         QApplication.clipboard().setText(msg)
         btn = self._copy_msg_btn
         orig = btn.text()
-        btn.setText("✅ تم نسخ الرسالة")
+        btn.setText("تم نسخ الرسالة")
         QTimer.singleShot(2000, lambda: btn.setText(orig))
 
     def _send_whatsapp(self) -> None:

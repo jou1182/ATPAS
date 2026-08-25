@@ -6,15 +6,21 @@ import os
 from pathlib import Path
 from PyInstaller.utils.hooks import collect_submodules
 
-ROOT = Path(SPECPATH).parent.resolve()   # tools/../ = project root
+TOOLS_DIR = Path(SPECPATH).resolve()
+ROOT = TOOLS_DIR.parent
 
 block_cipher = None
+PYARMOR_RUNTIME = TOOLS_DIR / "pyarmor_runtime_000000"
+pyarmor_hiddenimports = ["pyarmor_runtime_000000"] if PYARMOR_RUNTIME.exists() else []
+pyarmor_datas = [
+    (str(PYARMOR_RUNTIME), "pyarmor_runtime_000000")
+] if PYARMOR_RUNTIME.exists() else []
 
 # All imports explicit — PyArmor hides them from PyInstaller static analysis
 hiddenimports = (
     collect_submodules("PyQt5")
+    + pyarmor_hiddenimports
     + [
-        "pyarmor_runtime_000000",
         "csv", "hashlib", "hmac", "json", "os", "sys", "uuid",
         "webbrowser", "datetime", "typing", "urllib", "urllib.parse",
         "pathlib", "platform", "winreg",
@@ -29,7 +35,7 @@ a = Analysis(
         (str(ROOT / "assets" / "fonts" / "Tajawal-Regular.ttf"), "."),
         (str(ROOT / "assets" / "fonts" / "Tajawal Bold.ttf"),    "."),
         (str(ROOT / "assets" / "atpas.ico"),                     "."),
-    ],
+    ] + pyarmor_datas,
     hiddenimports=hiddenimports,
     hookspath=[],
     hooksconfig={},
