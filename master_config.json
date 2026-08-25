@@ -938,7 +938,6 @@
     }
   },
   "ui_config": {
-    "window_title": "Al-Rawaf Proposal Builder v1.0",
     "window_width": 1200,
     "window_height": 800,
     "theme": "light",

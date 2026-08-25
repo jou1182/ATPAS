@@ -225,6 +225,63 @@ class MainWindow(QMainWindow):
         motion_single_shot(50, self._play_startup_choreography)
         # Offer to restore draft session (after UI is visible)
         motion_single_shot(800, self._maybe_restore_draft)
+        # تشخيص ذاتي: مقاييس التخطيط بعد استقرار الواجهة (2.5 ثانية)
+        motion_single_shot(2500, self._log_ui_metrics)
+
+    def _log_ui_metrics(self) -> None:
+        """سجل تشخيصي بمقاييس التخطيط الفعلية — يحسم أي بلاغ «انضغاط» بالأرقام.
+
+        يُستدعى تلقائياً بعد الإقلاع وعند الطلب بـ Ctrl+Alt+D.
+        """
+        try:
+            from PyQt5.QtGui import QGuiApplication, QFontDatabase
+
+            sel = self._checkbox_selector
+
+            # طيّ تلقائي لمرة واحدة: إذا كانت الميزانية العمودية مخنوقة
+            # (شاشات 125%+ صغيرة) حرّر مساحة لقائمة الأكواد أولاً.
+            panel = getattr(self, "_presets_panel", None)
+            if panel is not None and sel.height() < 340 and panel._expanded:
+                panel._toggle_panel()
+                self._logger.info(
+                    "UI_METRICS | auto-collapsed presets (selector=%dpx)", sel.height()
+                )
+
+            scr = sel._scroll
+            cont = sel._current_container
+            items = list(sel._checkboxes.values())
+            sample = items[0] if items else None
+            has_tajawal = "Tajawal" in QFontDatabase().families()
+            screen = QGuiApplication.primaryScreen()
+            dpr = screen.devicePixelRatio() if screen else -1
+            self._logger.info(
+                "UI_METRICS | win=%dx%d dpr=%s | selector=%dx%d | scroll=%dx%d | "
+                "container_h=%s hint=%s | items=%d sample=%sx%s | "
+                "presets_h=%s | no_results_hidden=%s | tajawal=%s",
+                self.width(), self.height(), dpr,
+                sel.width(), sel.height(),
+                scr.width(), scr.height(),
+                cont.height() if cont else -1,
+                cont.sizeHint().height() if cont else -1,
+                len(items),
+                sample.width() if sample else -1,
+                sample.height() if sample else -1,
+                self._presets_panel._expanded_h if getattr(self, "_presets_panel", None) else -1,
+                sel._no_results_lbl.isHidden(),
+                has_tajawal,
+            )
+        except Exception:  # noqa: BLE001
+            self._logger.exception("UI_METRICS dump failed")
+
+        # لقطة ذاتية بجوار السجل — تحكيم بصري مباشر حتى على جلسة مقفلة
+        try:
+            from pathlib import Path as _P
+            import os as _os
+            logs = _P(_os.environ.get("APPDATA", _P.home())) / "ATPAS" / "logs"
+            logs.mkdir(parents=True, exist_ok=True)
+            self.grab().save(str(logs / "ui_snapshot.png"), "PNG")
+        except Exception:  # noqa: BLE001
+            pass
 
     def closeEvent(self, event) -> None:  # type: ignore[override]
         """Save window geometry and draft session before closing."""
@@ -295,7 +352,9 @@ class MainWindow(QMainWindow):
 
         self.setWindowTitle(title)
         self.resize(width, height)
-        self.setMinimumSize(1280, 700)   # يضمن ظهور كل أزرار الهيدر
+        # الحد الأدنى يمنع «القصّ والتقاطع» على شاشات التكبير 125%+: تحت هذا
+        # المنطق لا تكفي الميزانية العمودية للهيدر+الأنماط+المشروع+اللوحتين.
+        self.setMinimumSize(1200, 780)   # يضمن ظهور كل أزرار الهيدر دون تصادم
         self.setLayoutDirection(Qt.RightToLeft)
 
         self.setStatusBar(QStatusBar(self))
@@ -832,6 +891,13 @@ class MainWindow(QMainWindow):
         self._dark_mode_action.setShortcutContext(Qt.WindowShortcut)
         self._dark_mode_action.triggered.connect(self._on_toggle_dark_mode)
         self.addAction(self._dark_mode_action)
+
+        # Ctrl+Alt+D → تشخيص تخطيط الواجهة (يطبع المقاييس في السجل)
+        self._metrics_action = QAction(self)
+        self._metrics_action.setShortcut(QKeySequence("Ctrl+Alt+D"))
+        self._metrics_action.setShortcutContext(Qt.WindowShortcut)
+        self._metrics_action.triggered.connect(self._log_ui_metrics)
+        self.addAction(self._metrics_action)
 
         # Ctrl+E → تصدير CSV (يُفعَّل من PreviewPanel مباشرةً — هنا للتوثيق فقط)
 

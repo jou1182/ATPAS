@@ -108,6 +108,7 @@ class PreviewPanelWidget(QWidget):
         self._codes_list = QListWidget()
         self._codes_list.setLayoutDirection(Qt.RightToLeft)
         self._codes_list.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self._codes_list.setMinimumHeight(72)   # لا تنهار إلى شريحة على الشاشات المكثفة
         codes_layout.addWidget(self._codes_list)
 
         # Validation messages
@@ -119,6 +120,7 @@ class PreviewPanelWidget(QWidget):
         val_layout.addWidget(_section_title("التحقق والتحذيرات"))
         self._validation_list = QListWidget()
         self._validation_list.setLayoutDirection(Qt.RightToLeft)
+        self._validation_list.setMinimumHeight(64)   # نفس الحماية من الانهيار
         self._validation_list.setMaximumHeight(140)
         val_layout.addWidget(self._validation_list)
 
