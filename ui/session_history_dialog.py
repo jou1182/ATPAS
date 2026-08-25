@@ -29,6 +29,7 @@ from PyQt5.QtWidgets import (
     QWidget,
 )
 
+from ui import theme
 from ui.theme import (
     ACCENT, ACCENT_PALE, BORDER, BORDER2, ERROR, ERROR_PALE,
     SUCCESS, SURFACE, TEXT, TEXT2, WARNING, WARNING_PALE,
@@ -71,12 +72,12 @@ class SessionHistoryDialog(QDialog):
 
         title_lbl = QLabel("📋  الجلسات المحفوظة")
         title_lbl.setStyleSheet(
-            "font-size: 16px; font-weight: 800; color: #152433;"
+            f"font-size: 16px; font-weight: 800; color: {theme.HEADER};"
         )
 
         count_lbl = QLabel(f"({len(self._sessions)} جلسة)")
         count_lbl.setStyleSheet(
-            "font-size: 12px; color: #5A6B7C; padding-top: 4px;"
+            f"font-size: 12px; color: {theme.TEXT2}; padding-top: 4px;"
         )
 
         title_row.addWidget(title_lbl)
@@ -87,7 +88,7 @@ class SessionHistoryDialog(QDialog):
         # ── فاصل ───────────────────────────────────────────────────────
         sep = QWidget()
         sep.setFixedHeight(2)
-        sep.setStyleSheet("background: #C9921B; border-radius: 1px;")
+        sep.setStyleSheet(f"background: {theme.ACCENT}; border-radius: 1px;")
         layout.addWidget(sep)
 
         # ── قائمة الجلسات ──────────────────────────────────────────────
@@ -95,7 +96,7 @@ class SessionHistoryDialog(QDialog):
         self._list.setLayoutDirection(Qt.RightToLeft)
         self._list.setStyleSheet(f"""
             QListWidget {{
-                background: #FDFCF8;
+                background: {theme.SURFACE_LIST};
                 border: 1px solid {BORDER};
                 border-radius: 8px;
                 padding: 4px;
@@ -115,7 +116,7 @@ class SessionHistoryDialog(QDialog):
                 font-weight: 500;
             }}
             QListWidget::item:hover:!selected {{
-                background: #F5F0E8;
+                background: {theme.PARCHMENT_2};
             }}
         """)
         self._list.itemDoubleClicked.connect(lambda _item: self._on_restore())

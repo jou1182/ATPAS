@@ -172,13 +172,13 @@ class _HistoryCard(QFrame):
         super().__init__(parent)
         self.setLayoutDirection(Qt.RightToLeft)
         self.setFrameShape(QFrame.StyledPanel)
-        self.setStyleSheet("""
-            QFrame {
+        self.setStyleSheet(f"""
+            QFrame {{
                 background: white;
                 border: 1px solid #DDD8CC;
-                border-left: 4px solid #C9921B;
+                border-left: 4px solid {theme.ACCENT};
                 border-radius: 8px;
-            }
+            }}
         """)
 
         project_id  = entry.get("project_id", "")
@@ -209,7 +209,7 @@ class _HistoryCard(QFrame):
         )
 
         proj_lbl = QLabel(f"\U0001f3d7\ufe0f  {proj_ar}  \u2014  {owner_ar}")
-        proj_lbl.setStyleSheet("font-size: 12px; font-weight: bold; color: #152433;"
+        proj_lbl.setStyleSheet(f"font-size: 12px; font-weight: bold; color: {theme.HEADER};"
                                " background: transparent; border: none;")
         proj_lbl.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
 
@@ -242,15 +242,15 @@ class _HistoryCard(QFrame):
         restore_btn.setToolTip(
             f"\u0625\u0639\u0627\u062f\u0629 \u062a\u062d\u062f\u064a\u062f \u0646\u0641\u0633 \u0627\u0644\u0623\u0643\u0648\u0627\u062f \u2014 {proj_ar} / {owner_ar}"
         )
-        restore_btn.setStyleSheet("""
-            QPushButton {
-                background: #152433; color: #C9921B;
+        restore_btn.setStyleSheet(f"""
+            QPushButton {{
+                background: {theme.HEADER}; color: {theme.ACCENT};
                 border: none; border-radius: 5px;
                 font-size: 11px; font-weight: 700;
                 padding: 4px 10px;
-            }
-            QPushButton:hover  { background: #1C3045; }
-            QPushButton:pressed{ background: #0D1C2B; }
+            }}
+            QPushButton:hover  {{ background: {theme.NAVY_MID}; }}
+            QPushButton:pressed{{ background: {theme.HEADER2}; }}
         """)
         restore_btn.clicked.connect(
             lambda: self.restore_requested.emit(project_id, owner_id, list(codes))

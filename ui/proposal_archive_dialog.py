@@ -37,6 +37,7 @@ from PyQt5.QtWidgets import (
     QWidget,
 )
 
+from ui import theme
 from ui.build_history import BuildHistoryManager, _OWNER_NAMES, _PROJECT_NAMES
 
 
@@ -53,13 +54,13 @@ class _ArchiveCard(QFrame):
         super().__init__(parent)
         self.setLayoutDirection(Qt.RightToLeft)
         self.setFrameShape(QFrame.StyledPanel)
-        self.setStyleSheet("""
-            QFrame {
+        self.setStyleSheet(f"""
+            QFrame {{
                 background: white;
                 border: 1px solid #DDD8CC;
-                border-right: 4px solid #C9921B;
+                border-right: 4px solid {theme.ACCENT};
                 border-radius: 8px;
-            }
+            }}
         """)
 
         project_id  = entry.get("project_id", "")
@@ -95,7 +96,7 @@ class _ArchiveCard(QFrame):
 
         proj_lbl = QLabel(f"\U0001f3d7️  {proj_ar}  —  {owner_ar}")
         proj_lbl.setStyleSheet(
-            "font-size: 13px; font-weight: bold; color: #152433;"
+            f"font-size: 13px; font-weight: bold; color: {theme.HEADER};"
             " background: transparent; border: none;"
         )
         proj_lbl.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
@@ -191,15 +192,15 @@ class _ArchiveCard(QFrame):
         restore_btn.setToolTip(
             f"إعادة تحديد نفس الأكواد — {proj_ar} / {owner_ar}"
         )
-        restore_btn.setStyleSheet("""
-            QPushButton {
-                background: #152433; color: #C9921B;
+        restore_btn.setStyleSheet(f"""
+            QPushButton {{
+                background: {theme.HEADER}; color: {theme.ACCENT};
                 border: none; border-radius: 5px;
                 font-size: 11px; font-weight: 700;
                 padding: 4px 10px;
-            }
-            QPushButton:hover  { background: #1C3045; }
-            QPushButton:pressed{ background: #0D1C2B; }
+            }}
+            QPushButton:hover  {{ background: {theme.NAVY_MID}; }}
+            QPushButton:pressed{{ background: {theme.HEADER2}; }}
         """)
         restore_btn.clicked.connect(
             lambda: self.restore_requested.emit(project_id, owner_id, list(codes))
@@ -245,7 +246,7 @@ class ProposalArchiveDialog(QDialog):
         self.setLayoutDirection(Qt.RightToLeft)
         self.setMinimumWidth(640)
         self.setMinimumHeight(560)
-        self.setStyleSheet("background: #F8F5EE;")
+        self.setStyleSheet(f"background: {theme.SURFACE_ALT};")
 
         outer = QVBoxLayout(self)
         outer.setContentsMargins(16, 14, 16, 14)
@@ -258,8 +259,8 @@ class ProposalArchiveDialog(QDialog):
         )
         title_lbl.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
         title_lbl.setStyleSheet(
-            "font-size: 16px; font-weight: 800; color: #152433; "
-            "padding-bottom: 4px; border-bottom: 2px solid #C9921B; "
+            f"font-size: 16px; font-weight: 800; color: {theme.HEADER}; "
+            f"padding-bottom: 4px; border-bottom: 2px solid {theme.ACCENT}; "
             "background: transparent;"
         )
 
@@ -291,9 +292,9 @@ class ProposalArchiveDialog(QDialog):
         self._search_edit.setLayoutDirection(Qt.RightToLeft)
         self._search_edit.setMinimumWidth(180)
         self._search_edit.setStyleSheet(
-            "QLineEdit { border: 1px solid #CCC; border-radius: 5px; "
-            "padding: 4px 8px; font-size: 12px; background: #FAFAF8; }"
-            "QLineEdit:focus { border-color: #C9921B; }"
+            f"QLineEdit {{ border: 1px solid #CCC; border-radius: 5px; "
+            f"padding: 4px 8px; font-size: 12px; background: #FAFAF8; }}"
+            f"QLineEdit:focus {{ border-color: {theme.ACCENT}; }}"
         )
 
         self._owner_combo = QComboBox()
@@ -326,9 +327,9 @@ class ProposalArchiveDialog(QDialog):
         clear_btn.setFixedWidth(60)
         clear_btn.setCursor(Qt.PointingHandCursor)
         clear_btn.setStyleSheet(
-            "QPushButton { background: #EDE7D9; color: #4A5A6A; "
-            "border: none; border-radius: 5px; font-size: 12px; padding: 4px 8px; }"
-            "QPushButton:hover { background: #D5CFBF; }"
+            f"QPushButton {{ background: {theme.BG}; color: #4A5A6A; "
+            f"border: none; border-radius: 5px; font-size: 12px; padding: 4px 8px; }}"
+            f"QPushButton:hover {{ background: {theme.BORDER}; }}"
         )
         clear_btn.clicked.connect(self._clear_filters)
 
@@ -351,7 +352,7 @@ class ProposalArchiveDialog(QDialog):
         self._scroll.setWidgetResizable(True)
         self._scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self._scroll.setFrameShape(QFrame.NoFrame)
-        self._scroll.setStyleSheet("background: #F8F5EE;")
+        self._scroll.setStyleSheet(f"background: {theme.SURFACE_ALT};")
         outer.addWidget(self._scroll, 1)
 
         # ── Status bar ───────────────────────────────────────────────────
@@ -370,10 +371,10 @@ class ProposalArchiveDialog(QDialog):
         close_btn.setFixedWidth(90)
         close_btn.setCursor(Qt.PointingHandCursor)
         close_btn.setStyleSheet(
-            "QPushButton { background: #152433; color: #C9921B; "
-            "border: none; border-radius: 6px; font-size: 12px; font-weight: 700; "
-            "padding: 6px 16px; }"
-            "QPushButton:hover { background: #1C3045; }"
+            f"QPushButton {{ background: {theme.HEADER}; color: {theme.ACCENT}; "
+            f"border: none; border-radius: 6px; font-size: 12px; font-weight: 700; "
+            f"padding: 6px 16px; }}"
+            f"QPushButton:hover {{ background: {theme.NAVY_MID}; }}"
         )
         close_btn.clicked.connect(self.accept)
         bottom_row.addWidget(close_btn)

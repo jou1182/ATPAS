@@ -27,6 +27,7 @@ from PyQt5.QtWidgets import (
     QWidget,
 )
 
+from ui import theme
 from ui.theme import BORDER, ERROR, ERROR_PALE, SUCCESS, SUCCESS_PALE, TEXT
 from utils.license_manager import activate, get_hardware_id, start_trial
 
@@ -59,10 +60,10 @@ class ActivationDialog(QDialog):
 
         # ── شريط العنوان الداكن ──────────────────────────────────────────
         header = QWidget()
-        header.setStyleSheet("""
+        header.setStyleSheet(f"""
             background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
-                stop:0 #1C3045, stop:1 #0D1C2B);
-            border-bottom: 3px solid #C9921B;
+                stop:0 {theme.NAVY_MID}, stop:1 {theme.HEADER2});
+            border-bottom: 3px solid {theme.ACCENT};
         """)
         h_lay = QVBoxLayout(header)
         h_lay.setContentsMargins(24, 18, 24, 18)
@@ -76,7 +77,7 @@ class ActivationDialog(QDialog):
 
         sub = QLabel("نظام بناء العروض الفنية — الرواف للمقاولات")
         sub.setStyleSheet(
-            "color:#C9921B; font-size:12px; font-weight:600; background:transparent;"
+            f"color:{theme.ACCENT}; font-size:12px; font-weight:600; background:transparent;"
         )
         sub.setAlignment(Qt.AlignRight)
 
@@ -86,7 +87,7 @@ class ActivationDialog(QDialog):
 
         # ── منطقة المحتوى ────────────────────────────────────────────────
         body = QWidget()
-        body.setStyleSheet("background:#F5F0E8;")
+        body.setStyleSheet(f"background:{theme.PARCHMENT_2};")
         b_lay = QVBoxLayout(body)
         b_lay.setContentsMargins(24, 20, 24, 20)
         b_lay.setSpacing(16)
@@ -109,24 +110,24 @@ class ActivationDialog(QDialog):
         self._hw_display = QLineEdit(self._hw_id)
         self._hw_display.setReadOnly(True)
         self._hw_display.setAlignment(Qt.AlignCenter)
-        self._hw_display.setStyleSheet("""
-            background:#FFFFFF; border:1.5px solid #C9921B;
+        self._hw_display.setStyleSheet(f"""
+            background:#FFFFFF; border:1.5px solid {theme.ACCENT};
             border-radius:6px; padding:8px 12px;
             font-family:'Tajawal';
-            font-size:15px; font-weight:700; color:#152433;
+            font-size:15px; font-weight:700; color:{theme.HEADER};
             letter-spacing:2px;
         """)
 
         copy_btn = QPushButton("📋 نسخ")
         copy_btn.setFixedWidth(80)
         copy_btn.setCursor(Qt.PointingHandCursor)
-        copy_btn.setStyleSheet("""
-            QPushButton {
-                background:#C9921B; color:white; border:none;
+        copy_btn.setStyleSheet(f"""
+            QPushButton {{
+                background:{theme.ACCENT}; color:white; border:none;
                 border-radius:6px; padding:8px; font-size:12px; font-weight:700;
-            }
-            QPushButton:hover  { background:#A77218; }
-            QPushButton:pressed{ background:#8A5E14; }
+            }}
+            QPushButton:hover  {{ background:{theme.ACCENT_DARK}; }}
+            QPushButton:pressed{{ background:#8A5E14; }}
         """)
         copy_btn.clicked.connect(self._copy_hw_id)
 
@@ -138,14 +139,14 @@ class ActivationDialog(QDialog):
             "أرسل هذا الكود عبر واتساب أو البريد لمشرف النظام للحصول على كود الترخيص."
         )
         hint.setWordWrap(True)
-        hint.setStyleSheet("color:#5A6B7C; font-size:11px;")
+        hint.setStyleSheet(f"color:{theme.TEXT2}; font-size:11px;")
         hint.setAlignment(Qt.AlignRight)
         b_lay.addWidget(hint)
 
         # فاصل
         sep = QFrame()
         sep.setFrameShape(QFrame.HLine)
-        sep.setStyleSheet("color:#D5CFBF;")
+        sep.setStyleSheet(f"color:{theme.BORDER};")
         b_lay.addWidget(sep)
 
         # خطوة ② — إدخال الكود
@@ -154,11 +155,11 @@ class ActivationDialog(QDialog):
         self._key_input = QLineEdit()
         self._key_input.setPlaceholderText("ATPAS-XXXX-XXXXXXXXXXXX")
         self._key_input.setAlignment(Qt.AlignCenter)
-        self._key_input.setStyleSheet("""
-            background:#FFFFFF; border:1.5px solid #C3BBAA;
+        self._key_input.setStyleSheet(f"""
+            background:#FFFFFF; border:1.5px solid {theme.BORDER2};
             border-radius:6px; padding:10px 14px;
             font-family:'Tajawal';
-            font-size:14px; letter-spacing:1px; color:#121B28;
+            font-size:14px; letter-spacing:1px; color:{theme.TEXT};
         """)
         self._key_input.textChanged.connect(self._on_key_changed)
         self._key_input.returnPressed.connect(self._on_activate)
@@ -235,8 +236,8 @@ class ActivationDialog(QDialog):
         lbl = QLabel(text)
         lbl.setAlignment(Qt.AlignRight)
         lbl.setStyleSheet(
-            "font-size:12px; font-weight:700; color:#152433;"
-            "padding-bottom:2px; border-bottom:1px solid #D5CFBF;"
+            f"font-size:12px; font-weight:700; color:{theme.HEADER};"
+            f"padding-bottom:2px; border-bottom:1px solid {theme.BORDER};"
         )
         return lbl
 
@@ -311,11 +312,11 @@ class ActivationDialog(QDialog):
         self._status_lbl.setStyleSheet(
             "font-size:12px; font-weight:600; color:transparent;"
         )
-        self._key_input.setStyleSheet("""
-            background:#FFFFFF; border:1.5px solid #C3BBAA;
+        self._key_input.setStyleSheet(f"""
+            background:#FFFFFF; border:1.5px solid {theme.BORDER2};
             border-radius:6px; padding:10px 14px;
             font-family:'Tajawal';
-            font-size:14px; letter-spacing:1px; color:#121B28;
+            font-size:14px; letter-spacing:1px; color:{theme.TEXT};
         """)
 
     # ──────────────────────────────────────────────────────────────────────

@@ -28,6 +28,7 @@ from PyQt5.QtWidgets import (
 )
 
 from ui.motion import motion_ms, prefers_reduced_motion
+from ui import theme
 
 
 def _get_marker_path() -> Path:
@@ -63,7 +64,7 @@ _STEPS = [
             "ستظهر الأكواد المناسبة تلقائياً."
         ),
         "bg": "#EEF5FB",
-        "border": "#1C3045",
+        "border": theme.NAVY_MID,
         "num_fg": "#FDF7E8",
     },
     {
@@ -89,8 +90,8 @@ _STEPS = [
             "ملف Word جاهز خلال ثوانٍ!"
         ),
         "bg": "#FFF8E7",
-        "border": "#C9921B",
-        "num_fg": "#152433",
+        "border": theme.ACCENT,
+        "num_fg": theme.HEADER,
     },
 ]
 
@@ -182,7 +183,7 @@ class WelcomeDialog(QDialog):
 
         welcome_lbl = QLabel("مرحباً بك في نظام الرواف", self)
         welcome_lbl.setStyleSheet(
-            "font-size: 18px; font-weight: 900; color: #152433;"
+            f"font-size: 18px; font-weight: 900; color: {theme.HEADER};"
         )
 
         sub_lbl = QLabel("نظام بناء العروض الفنية الهندسية الذكي", self)
@@ -198,13 +199,13 @@ class WelcomeDialog(QDialog):
         # ── فاصل ───────────────────────────────────────────────────────
         sep = QWidget(self)
         sep.setFixedHeight(2)
-        sep.setStyleSheet("background: #C9921B; border-radius: 1px;")
+        sep.setStyleSheet(f"background: {theme.ACCENT}; border-radius: 1px;")
         layout.addWidget(sep)
 
         # ── عنوان البداية ──────────────────────────────────────────────
         guide_lbl = QLabel("⚡ البدء في 3 خطوات بسيطة:", self)
         guide_lbl.setStyleSheet(
-            "font-size: 13px; font-weight: 700; color: #1C3045;"
+            f"font-size: 13px; font-weight: 700; color: {theme.NAVY_MID};"
         )
         layout.addWidget(guide_lbl)
 
@@ -222,8 +223,8 @@ class WelcomeDialog(QDialog):
             self,
         )
         tip_lbl.setStyleSheet(
-            "font-size: 11px; color: #555; background: #FFF8E7; "
-            "border-right: 3px solid #C9921B; border-radius: 5px; "
+            f"font-size: 11px; color: #555; background: #FFF8E7; "
+            f"border-right: 3px solid {theme.ACCENT}; border-radius: 5px; "
             "padding: 8px 10px;"
         )
         tip_lbl.setWordWrap(True)
@@ -245,14 +246,14 @@ class WelcomeDialog(QDialog):
         dont_show_btn.clicked.connect(self._dismiss_permanently)
 
         start_btn = QPushButton("🚀  فهمت، لنبدأ!", self)
-        start_btn.setStyleSheet("""
-            QPushButton {
-                background: #152433; color: #C9921B;
+        start_btn.setStyleSheet(f"""
+            QPushButton {{
+                background: {theme.HEADER}; color: {theme.ACCENT};
                 border: none; border-radius: 6px;
                 padding: 8px 28px; font-size: 13px; font-weight: 800;
-            }
-            QPushButton:hover { background: #1C3045; }
-            QPushButton:pressed { background: #0D1C2B; }
+            }}
+            QPushButton:hover {{ background: {theme.NAVY_MID}; }}
+            QPushButton:pressed {{ background: {theme.HEADER2}; }}
         """)
         start_btn.setDefault(True)
         start_btn.clicked.connect(self.accept)

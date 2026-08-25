@@ -134,8 +134,8 @@ class CodeManagerDialog(QDialog):
         title = QLabel("إدارة الأكواد الفنية")
         title.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
         title.setStyleSheet(
-            "font-size: 18px; font-weight: 900; color: #152433; "
-            "padding-bottom: 7px; border-bottom: 2px solid #C9921B;"
+            f"font-size: 18px; font-weight: 900; color: {theme.HEADER}; "
+            f"padding-bottom: 7px; border-bottom: 2px solid {theme.ACCENT};"
         )
         root.addWidget(title)
 
@@ -143,7 +143,7 @@ class CodeManagerDialog(QDialog):
             "أضف أو عدّل كودًا من هنا بدون فتح ملف JSON. استخدم التعطيل بدل الحذف للحفاظ على السجل."
         )
         hint.setWordWrap(True)
-        hint.setStyleSheet("color: #5A6B7C; font-size: 12px;")
+        hint.setStyleSheet(f"color: {theme.TEXT2}; font-size: 12px;")
         root.addWidget(hint)
 
         splitter = QSplitter(Qt.Horizontal)
@@ -299,59 +299,58 @@ class CodeManagerDialog(QDialog):
         root.addLayout(close_row)
 
         self.setStyleSheet(
-            """
-            QDialog {
-                background: #FEFCF7;
-                color: #121B28;
-            }
-            QLineEdit, QTextEdit, QComboBox, QListWidget, QSpinBox {
+            f"""
+            QDialog {{
+                background: {theme.SURFACE};
+                color: {theme.TEXT};
+            }}
+            QLineEdit, QTextEdit, QComboBox, QListWidget, QSpinBox {{
                 background: white;
-                border: 1px solid #C3BBAA;
+                border: 1px solid {theme.BORDER2};
                 border-radius: 7px;
                 padding: 6px;
-                color: #121B28;
-            }
-            QPushButton {
+                color: {theme.TEXT};
+            }}
+            QPushButton {{
                 min-height: 32px;
                 border-radius: 7px;
-                border: 1px solid #C3BBAA;
-                background: #FEFCF7;
-                color: #121B28;
+                border: 1px solid {theme.BORDER2};
+                background: {theme.SURFACE};
+                color: {theme.TEXT};
                 font-weight: 700;
                 padding: 6px 14px;
-            }
-            QPushButton:hover {
-                background: #FAF0DC;
-                border-color: #C9921B;
-                color: #A77218;
-            }
-            QPushButton#codeManagerSaveBtn {
-                background: %s;
+            }}
+            QPushButton:hover {{
+                background: {theme.ACCENT_PALE};
+                border-color: {theme.ACCENT};
+                color: {theme.ACCENT_DARK};
+            }}
+            QPushButton#codeManagerSaveBtn {{
+                background: {theme.SUCCESS};
                 color: white;
                 border: none;
                 font-weight: 900;
-            }
-            QPushButton#codeManagerSaveBtn:hover {
+            }}
+            QPushButton#codeManagerSaveBtn:hover {{
                 background: #236040;
                 color: white;
-            }
-            QPushButton#codeManagerWordBtn {
+            }}
+            QPushButton#codeManagerWordBtn {{
                 background: #1F3A56;
                 color: white;
                 border: none;
                 font-weight: 700;
                 min-width: 220px;
-            }
-            QPushButton#codeManagerWordBtn:hover {
-                background: #152433;
+            }}
+            QPushButton#codeManagerWordBtn:hover {{
+                background: {theme.HEADER};
                 color: #F5D48B;
-            }
-            QPushButton#codeManagerWordBtn:disabled {
-                background: #C3BBAA;
+            }}
+            QPushButton#codeManagerWordBtn:disabled {{
+                background: {theme.BORDER2};
                 color: #888;
-            }
+            }}
             """
-            % theme.SUCCESS
         )
 
     def _refresh_list(self) -> None:

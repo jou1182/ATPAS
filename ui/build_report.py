@@ -182,11 +182,11 @@ class BuildReportDialog(QDialog):
 
         stats_row.addWidget(_stat_card(
             "📋", "عدد الأكواد",
-            str(code_count), "#152433", self,
+            str(code_count), theme.HEADER, self,
         ))
         stats_row.addWidget(_stat_card(
             "📄", "الصفحات التقديرية",
-            str(page_count), "#1C3045", self,
+            str(page_count), theme.NAVY_MID, self,
         ))
         stats_row.addWidget(_stat_card(
             "💾", "حجم الملف",
@@ -194,7 +194,7 @@ class BuildReportDialog(QDialog):
         ))
         stats_row.addWidget(_stat_card(
             "⏱️", "وقت البناء",
-            elapsed_s, "#C9921B", self,
+            elapsed_s, theme.ACCENT, self,
         ))
         layout.addLayout(stats_row)
 
@@ -234,7 +234,7 @@ class BuildReportDialog(QDialog):
         open_btn.setCursor(Qt.PointingHandCursor)
 
         folder_btn = QPushButton("📁  فتح المجلد", self)
-        folder_btn.setStyleSheet(self._btn_style("#1C3045", "white"))
+        folder_btn.setStyleSheet(self._btn_style(theme.NAVY_MID, "white"))
         folder_btn.clicked.connect(self._open_folder)
         folder_btn.setCursor(Qt.PointingHandCursor)
 
@@ -277,8 +277,6 @@ class BuildReportDialog(QDialog):
                 border: none; border-radius: 6px;
                 padding: 9px 16px; font-size: 12px; font-weight: 700;
             }}
-            QPushButton:hover {{ opacity: 0.9; }}
-            QPushButton:pressed {{ opacity: 0.8; }}
         """
 
     def _estimate_pages(self) -> int:

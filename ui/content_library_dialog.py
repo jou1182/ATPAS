@@ -72,8 +72,8 @@ class ContentLibraryDialog(QDialog):
         title = QLabel("مركز إدارة مكتبة Word")
         title.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
         title.setStyleSheet(
-            "font-size: 18px; font-weight: 900; color: #152433; "
-            "padding-bottom: 7px; border-bottom: 2px solid #C9921B;"
+            f"font-size: 18px; font-weight: 900; color: {theme.HEADER}; "
+            f"padding-bottom: 7px; border-bottom: 2px solid {theme.ACCENT};"
         )
         root.addWidget(title)
 
@@ -81,8 +81,8 @@ class ContentLibraryDialog(QDialog):
         self._summary.setAlignment(Qt.AlignCenter)
         self._summary.setWordWrap(True)
         self._summary.setStyleSheet(
-            "font-weight: 800; padding: 8px 12px; color: #152433; "
-            "background: #FAF0DC; border: 1px solid #D5CFBF; border-radius: 8px;"
+            f"font-weight: 800; padding: 8px 12px; color: {theme.HEADER}; "
+            f"background: {theme.ACCENT_PALE}; border: 1px solid {theme.BORDER}; border-radius: 8px;"
         )
         root.addWidget(self._summary)
 
@@ -122,35 +122,35 @@ class ContentLibraryDialog(QDialog):
         root.addLayout(body, stretch=1)
 
         self.setStyleSheet(
-            """
-            QDialog {
-                background: #FEFCF7;
-                color: #121B28;
-            }
-            QTextBrowser, QListWidget {
+            f"""
+            QDialog {{
+                background: {theme.SURFACE};
+                color: {theme.TEXT};
+            }}
+            QTextBrowser, QListWidget {{
                 background: #FFFFFF;
-                border: 1px solid #D5CFBF;
+                border: 1px solid {theme.BORDER};
                 border-radius: 9px;
                 padding: 6px;
-            }
-            QPushButton {
+            }}
+            QPushButton {{
                 min-width: 105px;
                 padding: 8px 14px;
                 border-radius: 8px;
-                border: 1px solid #C3BBAA;
-                background: #FEFCF7;
-                color: #121B28;
+                border: 1px solid {theme.BORDER2};
+                background: {theme.SURFACE};
+                color: {theme.TEXT};
                 font-weight: 700;
-            }
-            QPushButton:hover {
-                background: #FAF0DC;
-                border-color: #C9921B;
-                color: #A77218;
-            }
-            QPushButton:disabled {
-                background: #EDEAE4;
+            }}
+            QPushButton:hover {{
+                background: {theme.ACCENT_PALE};
+                border-color: {theme.ACCENT};
+                color: {theme.ACCENT_DARK};
+            }}
+            QPushButton:disabled {{
+                background: {theme.DISABLED_BG};
                 color: #9B9B9B;
-            }
+            }}
             """
         )
 
@@ -175,7 +175,7 @@ class ContentLibraryDialog(QDialog):
             self._states[code_id] = state
             counts[state.status] = counts.get(state.status, 0) + 1
 
-            color, bg = _STATE_COLORS.get(state.status, ("#5A6B7C", "#F5F1E8"))
+            color, bg = _STATE_COLORS.get(state.status, (theme.TEXT2, "#F5F1E8"))
             name_ar = data.get("activity_name_ar", code_id)
             item = QListWidgetItem(f"{code_id}  —  {name_ar}\n{state.label_ar}")
             item.setData(Qt.UserRole, code_id)
@@ -222,10 +222,10 @@ class ContentLibraryDialog(QDialog):
         ) or "<tr><td colspan='3'>لا توجد ملاحظات جودة.</td></tr>"
 
         self._details.setHtml(f"""
-        <html dir="rtl"><body style="font-family:Tajawal; color:#121B28; line-height:1.6;">
-        <h2 style="color:#152433;">{code_id} — {code.get('activity_name_ar', code_id)}</h2>
+        <html dir="rtl"><body style="font-family:Tajawal; color:{theme.TEXT}; line-height:1.6;">
+        <h2 style="color:{theme.HEADER};">{code_id} — {code.get('activity_name_ar', code_id)}</h2>
         <table width="100%" cellspacing="0" cellpadding="7" style="border-collapse:collapse;">
-          <tr style="background:#152433;color:#F5D48B;"><th>البند</th><th>القيمة</th></tr>
+          <tr style="background:{theme.HEADER};color:#F5D48B;"><th>البند</th><th>القيمة</th></tr>
           <tr><td>حالة الاعتماد</td><td>{state.label_ar}</td></tr>
           <tr><td>مسار الملف</td><td style="direction:ltr;">{audit.path or 'لا يوجد'}</td></tr>
           <tr><td>الفقرات</td><td>{audit.paragraph_count}</td></tr>
@@ -235,9 +235,9 @@ class ContentLibraryDialog(QDialog):
           <tr><td>تاريخ الاعتماد</td><td>{state.approved_at or '-'}</td></tr>
           <tr><td>ملاحظات الاعتماد</td><td>{state.notes or '-'}</td></tr>
         </table>
-        <h3 style="color:#152433;">ملاحظات الفحص</h3>
+        <h3 style="color:{theme.HEADER};">ملاحظات الفحص</h3>
         <table width="100%" cellspacing="0" cellpadding="7" style="border-collapse:collapse;">
-          <tr style="background:#152433;color:#F5D48B;"><th>النوع</th><th>الملاحظة</th><th>الإجراء</th></tr>
+          <tr style="background:{theme.HEADER};color:#F5D48B;"><th>النوع</th><th>الملاحظة</th><th>الإجراء</th></tr>
           {issue_rows}
         </table>
         </body></html>

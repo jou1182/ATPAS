@@ -37,47 +37,47 @@ from ui import theme
 # ─────────────────────────────────────────────────────────────────────────────
 
 # _STYLE_BASE: هيكل HTML كامل مع <html dir="rtl"> لضمان RTL في Qt
-_STYLE_BASE = """<!DOCTYPE html>
+_STYLE_BASE = f"""<!DOCTYPE html>
 <html dir="rtl"><head><meta charset="utf-8">
 <style>
-  body  { font-family:'Tajawal'; font-size:13px;
-          color:#121B28; direction:rtl; text-align:right;
-          margin:10px 14px; padding:0; unicode-bidi:embed; }
-  h2    { color:#152433; border-bottom:2px solid #C9921B;
+  body  {{ font-family:'Tajawal'; font-size:13px;
+          color:{theme.TEXT}; direction:rtl; text-align:right;
+          margin:10px 14px; padding:0; unicode-bidi:embed; }}
+  h2    {{ color:{theme.HEADER}; border-bottom:2px solid {theme.ACCENT};
           padding-bottom:6px; margin-top:16px; margin-bottom:8px;
-          font-size:16px; font-weight:800; text-align:right; }
-  h3    { color:#1C3045; margin-top:12px; margin-bottom:6px;
-          font-size:14px; font-weight:800; text-align:right; }
-  p     { margin:6px 0; text-align:right; direction:rtl; }
-  .step { background:#EEF5FB; border-right:4px solid #1C3045;
+          font-size:16px; font-weight:800; text-align:right; }}
+  h3    {{ color:{theme.NAVY_MID}; margin-top:12px; margin-bottom:6px;
+          font-size:14px; font-weight:800; text-align:right; }}
+  p     {{ margin:6px 0; text-align:right; direction:rtl; }}
+  .step {{ background:#EEF5FB; border-right:4px solid {theme.NAVY_MID};
           border-radius:6px; padding:10px 14px; margin:8px 0;
-          text-align:right; direction:rtl; }
-  .num  { background:#152433; color:#C9921B; border-radius:50%;
+          text-align:right; direction:rtl; }}
+  .num  {{ background:{theme.HEADER}; color:{theme.ACCENT}; border-radius:50%;
           display:inline-block; width:24px; height:24px;
           text-align:center; font-weight:800; line-height:24px;
-          margin-left:8px; }
-  .tip  { background:#FFF8E7; border-right:4px solid #C9921B;
+          margin-left:8px; }}
+  .tip  {{ background:#FFF8E7; border-right:4px solid {theme.ACCENT};
           border-radius:6px; padding:8px 12px; margin:8px 0; font-size:12px;
-          text-align:right; direction:rtl; }
-  .warn { background:#FFF4E6; border-right:4px solid __WARNING__;
+          text-align:right; direction:rtl; }}
+  .warn {{ background:#FFF4E6; border-right:4px solid __WARNING__;
           border-radius:6px; padding:8px 12px; margin:8px 0;
-          text-align:right; direction:rtl; }
-  .ok   { background:#EAF5EF; border-right:4px solid __SUCCESS__;
+          text-align:right; direction:rtl; }}
+  .ok   {{ background:#EAF5EF; border-right:4px solid __SUCCESS__;
           border-radius:6px; padding:8px 12px; margin:8px 0;
-          text-align:right; direction:rtl; }
-  .line { margin:3px 0; text-align:right; direction:rtl; }
-  .ltr  { direction:ltr; unicode-bidi:embed; display:inline-block;
-          font-family:Tajawal; }
-  table { width:100%; border-collapse:collapse; margin:10px 0; }
-  th    { background:#152433; color:#C9921B; padding:8px 12px;
-          font-weight:700; text-align:right; direction:rtl; }
-  td    { padding:7px 12px; border-bottom:1px solid #E0E0E0;
-          text-align:right; direction:rtl; }
-  tr:nth-child(even) td { background:#F5F5F5; }
-  kbd   { background:#E8E8E8; border:1px solid #999; border-radius:4px;
-          padding:2px 7px; font-size:12px; font-family:Tajawal; }
-  .badge{ background:#C9921B; color:white; border-radius:4px;
-          padding:2px 8px; font-size:11px; font-weight:700; }
+          text-align:right; direction:rtl; }}
+  .line {{ margin:3px 0; text-align:right; direction:rtl; }}
+  .ltr  {{ direction:ltr; unicode-bidi:embed; display:inline-block;
+          font-family:Tajawal; }}
+  table {{ width:100%; border-collapse:collapse; margin:10px 0; }}
+  th    {{ background:{theme.HEADER}; color:{theme.ACCENT}; padding:8px 12px;
+          font-weight:700; text-align:right; direction:rtl; }}
+  td    {{ padding:7px 12px; border-bottom:1px solid #E0E0E0;
+          text-align:right; direction:rtl; }}
+  tr:nth-child(even) td {{ background:#F5F5F5; }}
+  kbd   {{ background:#E8E8E8; border:1px solid #999; border-radius:4px;
+          padding:2px 7px; font-size:12px; font-family:Tajawal; }}
+  .badge{{ background:{theme.ACCENT}; color:white; border-radius:4px;
+          padding:2px 8px; font-size:11px; font-weight:700; }}
 </style></head>
 """.replace("__WARNING__", theme.WARNING).replace("__SUCCESS__", theme.SUCCESS)
 
@@ -329,9 +329,9 @@ class HelpDialog(QDialog):
         # ── عنوان ──────────────────────────────────────────────────────
         title = QLabel("المساعدة — نظام بناء العروض الفنية")
         title.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
-        title.setStyleSheet("""
-            font-size: 16px; font-weight: 800; color: #152433;
-            padding: 4px 0; border-bottom: 2px solid #C9921B;
+        title.setStyleSheet(f"""
+            font-size: 16px; font-weight: 800; color: {theme.HEADER};
+            padding: 4px 0; border-bottom: 2px solid {theme.ACCENT};
         """)
         layout.addWidget(title)
 
@@ -339,20 +339,20 @@ class HelpDialog(QDialog):
         tabs = QTabWidget()
         tabs.setLayoutDirection(Qt.RightToLeft)
         tabs.setDocumentMode(True)
-        tabs.setStyleSheet("""
-            QTabBar::tab {
+        tabs.setStyleSheet(f"""
+            QTabBar::tab {{
                 font-size: 12px; padding: 8px 18px;
                 font-weight: 700; min-width: 128px;
                 text-align: center;
-            }
-            QTabBar::tab:selected {
-                background: #152433; color: #C9921B;
-                border-bottom: 3px solid #C9921B;
-            }
-            QTabBar::tab:!selected {
+            }}
+            QTabBar::tab:selected {{
+                background: {theme.HEADER}; color: {theme.ACCENT};
+                border-bottom: 3px solid {theme.ACCENT};
+            }}
+            QTabBar::tab:!selected {{
                 background: #F0F0F0; color: #444;
-            }
-            QTabWidget::pane { border: 1px solid #DDD; }
+            }}
+            QTabWidget::pane {{ border: 1px solid #DDD; }}
         """)
 
         tabs.addTab(self._make_browser(_HOW_TO_HTML),     "كيف تستخدم")
@@ -371,24 +371,24 @@ class HelpDialog(QDialog):
         # زر "أعد عرض دليل البداية" — يحذف ملف الترحيب ويفتح الشاشة مجدداً
         welcome_btn = QPushButton("🏁 أعد عرض دليل البداية")
         welcome_btn.setToolTip("يحذف علامة 'شاهدت الترحيب' ويفتح شاشة البداية الآن")
-        welcome_btn.setStyleSheet("""
-            QPushButton {
-                background: #1C3045; color: #C9921B;
+        welcome_btn.setStyleSheet(f"""
+            QPushButton {{
+                background: {theme.NAVY_MID}; color: {theme.ACCENT};
                 border: none; border-radius: 5px;
                 padding: 6px 16px; font-size: 12px; font-weight: 700;
-            }
-            QPushButton:hover { background: #152433; }
+            }}
+            QPushButton:hover {{ background: {theme.HEADER}; }}
         """)
         welcome_btn.clicked.connect(self._reshow_welcome)
 
         close_btn = QPushButton("إغلاق")
-        close_btn.setStyleSheet("""
-            QPushButton {
-                background: #152433; color: white;
+        close_btn.setStyleSheet(f"""
+            QPushButton {{
+                background: {theme.HEADER}; color: white;
                 border: none; border-radius: 5px;
                 padding: 6px 24px; font-size: 12px; font-weight: 700;
-            }
-            QPushButton:hover { background: #1C3045; }
+            }}
+            QPushButton:hover {{ background: {theme.NAVY_MID}; }}
         """)
         close_btn.clicked.connect(self.accept)
 
@@ -426,8 +426,8 @@ class HelpDialog(QDialog):
         browser.setHtml(html)
         browser.setOpenExternalLinks(False)
         browser.setStyleSheet(
-            "QTextBrowser { border: none; background: white; padding: 6px; "
-            "color: #121B28; }"
+            f"QTextBrowser {{ border: none; background: white; padding: 6px; "
+            f"color: {theme.TEXT}; }}"
         )
         return browser
 

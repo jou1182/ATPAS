@@ -44,6 +44,7 @@ from PyQt5.QtWidgets import (
 )
 
 from engine.builder import Builder
+from ui import theme
 from ui.motion import motion_ms, motion_single_shot, prefers_reduced_motion
 from ui.build_report import BuildReportDialog
 from ui.build_history import BuildHistoryManager
@@ -203,12 +204,12 @@ class BuildProgressDialog(QDialog):
         # ── Buttons ────────────────────────────────────────────────────
         _btn_secondary = (
             "QPushButton {"
-            "  background: #FEFCF7; color: #152433;"
-            "  border: 1.5px solid #152433; border-radius: 6px;"
+            f"  background: {theme.SURFACE}; color: {theme.HEADER};"
+            f"  border: 1.5px solid {theme.HEADER}; border-radius: 6px;"
             "  padding: 6px 16px; font-size: 12px; font-weight: 700;"
             "}"
-            "QPushButton:hover { background: #EDE7D9; }"
-            "QPushButton:pressed { background: #D5CFBF; }"
+            f"QPushButton:hover {{ background: {theme.BG}; }}"
+            f"QPushButton:pressed {{ background: {theme.BORDER}; }}"
         )
 
         self._open_btn = QPushButton("فتح الملف")
@@ -225,12 +226,12 @@ class BuildProgressDialog(QDialog):
         self._report_btn.setVisible(False)
         self._report_btn.setStyleSheet(
             "QPushButton {"
-            "  background: #152433; color: #C9921B;"
+            f"  background: {theme.HEADER}; color: {theme.ACCENT};"
             "  border: none; border-radius: 6px;"
             "  padding: 6px 16px; font-size: 12px; font-weight: 700;"
             "}"
-            "QPushButton:hover { background: #1C3045; }"
-            "QPushButton:pressed { background: #0D1C2B; }"
+            f"QPushButton:hover {{ background: {theme.NAVY_MID}; }}"
+            f"QPushButton:pressed {{ background: {theme.HEADER2}; }}"
         )
         self._report_btn.clicked.connect(self._open_report_dialog)
 
@@ -265,12 +266,12 @@ class BuildProgressDialog(QDialog):
         self._close_btn.setEnabled(False)
         self._close_btn.setStyleSheet(
             "QPushButton {"
-            "  background: #EDE7D9; color: #5A6B7C;"
-            "  border: 1.5px solid #D5CFBF; border-radius: 6px;"
+            f"  background: {theme.BG}; color: {theme.TEXT2};"
+            f"  border: 1.5px solid {theme.BORDER}; border-radius: 6px;"
             "  padding: 6px 16px; font-size: 12px;"
             "}"
-            "QPushButton:hover { background: #D5CFBF; }"
-            "QPushButton:enabled { color: #152433; }"
+            f"QPushButton:hover {{ background: {theme.BORDER}; }}"
+            f"QPushButton:enabled {{ color: {theme.HEADER}; }}"
         )
         self._close_btn.clicked.connect(self.accept)
 
@@ -461,11 +462,11 @@ class BuildProgressDialog(QDialog):
             self._fade_in(self._report_btn,  delay_ms=440)
         else:
             self._progress_bar.setStyleSheet(
-                "QProgressBar::chunk { background: #C62828; }"
+                f"QProgressBar::chunk {{ background: {theme.DEV_RED}; }}"
             )
             self._status_label.setText("✗ تعذّر إنشاء العرض الفني")
             self._status_label.setStyleSheet(
-                "font-size: 13px; font-weight: bold; padding: 4px; color: #C62828;"
+                f"font-size: 13px; font-weight: bold; padding: 4px; color: {theme.DEV_RED};"
             )
             self._log.addItem(QListWidgetItem(f"الخطأ: {error_ar}"))
             # Taskbar: show red bar + failure notification

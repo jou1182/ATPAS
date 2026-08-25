@@ -54,8 +54,8 @@ class SystemHealthDialog(QDialog):
         title = QLabel("تقرير صحة النظام")
         title.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
         title.setStyleSheet(
-            "font-size: 18px; font-weight: 900; color: #152433; "
-            "padding-bottom: 7px; border-bottom: 2px solid #C9921B;"
+            f"font-size: 18px; font-weight: 900; color: {theme.HEADER}; "
+            f"padding-bottom: 7px; border-bottom: 2px solid {theme.ACCENT};"
         )
         root.addWidget(title)
 
@@ -93,32 +93,32 @@ class SystemHealthDialog(QDialog):
         root.addLayout(actions)
 
         self.setStyleSheet(
-            """
-            QDialog {
-                background: #FEFCF7;
-                color: #121B28;
-            }
-            QTextBrowser {
+            f"""
+            QDialog {{
+                background: {theme.SURFACE};
+                color: {theme.TEXT};
+            }}
+            QTextBrowser {{
                 background: #FFFFFF;
-                border: 1px solid #D5CFBF;
+                border: 1px solid {theme.BORDER};
                 border-radius: 10px;
                 padding: 8px;
-                color: #121B28;
-            }
-            QPushButton {
+                color: {theme.TEXT};
+            }}
+            QPushButton {{
                 min-width: 110px;
                 padding: 8px 18px;
                 border-radius: 8px;
-                border: 1px solid #C3BBAA;
-                background: #FEFCF7;
-                color: #121B28;
+                border: 1px solid {theme.BORDER2};
+                background: {theme.SURFACE};
+                color: {theme.TEXT};
                 font-weight: 700;
-            }
-            QPushButton:hover {
-                background: #FAF0DC;
-                border-color: #C9921B;
-                color: #A77218;
-            }
+            }}
+            QPushButton:hover {{
+                background: {theme.ACCENT_PALE};
+                border-color: {theme.ACCENT};
+                color: {theme.ACCENT_DARK};
+            }}
             """
         )
 
@@ -141,14 +141,14 @@ class SystemHealthDialog(QDialog):
         layout.addWidget(label_w)
         layout.addWidget(value_w)
         card.setStyleSheet(
-            """
-            QWidget#healthCard {
-                background: #FEFCF7;
-                border: 1px solid #D5CFBF;
-                border-top: 3px solid %s;
+            f"""
+            QWidget#healthCard {{
+                background: {theme.SURFACE};
+                border: 1px solid {theme.BORDER};
+                border-top: 3px solid {color};
                 border-radius: 10px;
-            }
-            """ % color
+            }}
+            """
         )
         return card
 
@@ -169,17 +169,17 @@ class SystemHealthDialog(QDialog):
           <style>
             body {{
               font-family: 'Tajawal';
-              color: #121B28;
+              color: {theme.TEXT};
               direction: rtl;
               text-align: right;
               margin: 8px 10px;
               line-height: 1.55;
             }}
             h2 {{
-              color: #152433;
+              color: {theme.HEADER};
               margin: 12px 0 8px 0;
               padding-bottom: 5px;
-              border-bottom: 1px solid #D5CFBF;
+              border-bottom: 1px solid {theme.BORDER};
               font-size: 16px;
             }}
             table {{
@@ -188,7 +188,7 @@ class SystemHealthDialog(QDialog):
               margin: 8px 0 14px 0;
             }}
             th {{
-              background: #152433;
+              background: {theme.HEADER};
               color: #F5D48B;
               padding: 8px;
               font-weight: 800;

@@ -60,8 +60,8 @@ def _section_title(text: str) -> QLabel:
     label = QLabel(text)
     label.setAlignment(Qt.AlignCenter)
     label.setStyleSheet(
-        "font-size: 12px; font-weight: 800; color: #152433; "
-        "background: #FAF0DC; border: 1px solid #D5CFBF; "
+        f"font-size: 12px; font-weight: 800; color: {theme.HEADER}; "
+        f"background: {theme.ACCENT_PALE}; border: 1px solid {theme.BORDER}; "
         "border-radius: 6px; padding: 4px 10px;"
     )
     return label
@@ -349,8 +349,8 @@ class PreviewPanelWidget(QWidget):
         title = QLabel("هيكل العرض المتوقع قبل البناء")
         title.setAlignment(Qt.AlignCenter)
         title.setStyleSheet(
-            "font-size: 16px; font-weight: 900; color: #152433; "
-            "border-bottom: 2px solid #C9921B; padding-bottom: 8px;"
+            f"font-size: 16px; font-weight: 900; color: {theme.HEADER}; "
+            f"border-bottom: 2px solid {theme.ACCENT}; padding-bottom: 8px;"
         )
         browser = QTextBrowser(dialog)
         browser.setLayoutDirection(Qt.RightToLeft)
@@ -489,10 +489,10 @@ class PreviewPanelWidget(QWidget):
                 f"<td>{pages}</td><td>{content}</td></tr>"
             )
         return (
-            "<html dir='rtl'><body style='font-family: Tajawal; color:#121B28;'>"
+            f"<html dir='rtl'><body style='font-family: Tajawal; color:{theme.TEXT};'>"
             "<table width='100%' cellspacing='0' cellpadding='7' "
             "style='border-collapse:collapse;'>"
-            "<tr style='background:#152433;color:#F5D48B;'>"
+            f"<tr style='background:{theme.HEADER};color:#F5D48B;'>"
             "<th>م</th><th>الكود</th><th>العنوان</th><th>صفحات</th><th>المحتوى</th></tr>"
             + "".join(rows)
             + "</table></body></html>"

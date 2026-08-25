@@ -53,6 +53,8 @@ from PyQt5.QtWidgets import (
     QWidget,
 )
 
+from ui import theme
+
 # ── ثوابت ──────────────────────────────────────────────────────────────────
 _SOURCE_DOCS_DIR   = Path("templates/source_documents")
 _STYLE_TMPL_DIR    = Path("templates/style_templates")
@@ -123,16 +125,16 @@ _CATEGORIES: list[tuple[str, str]] = [
     ("005", "005 — الإنهاء والتسليم"),
 ]
 
-_BTN_PRIMARY = """
-    QPushButton {
-        background: #152433; color: #C9921B;
+_BTN_PRIMARY = f"""
+    QPushButton {{
+        background: {theme.HEADER}; color: {theme.ACCENT};
         border: none; border-radius: 6px;
         font-size: 12px; font-weight: 700;
         padding: 6px 18px;
-    }
-    QPushButton:hover  { background: #1C3045; }
-    QPushButton:pressed{ background: #0D1C2B; }
-    QPushButton:disabled { background: #B0A898; color: #7A706A; }
+    }}
+    QPushButton:hover  {{ background: {theme.NAVY_MID}; }}
+    QPushButton:pressed{{ background: {theme.HEADER2}; }}
+    QPushButton:disabled {{ background: #B0A898; color: #7A706A; }}
 """
 _BTN_SECONDARY = """
     QPushButton {
@@ -142,13 +144,13 @@ _BTN_SECONDARY = """
     }
     QPushButton:hover { background: #E5E0D8; }
 """
-_BTN_DANGER = """
-    QPushButton {
-        background: #FFEBEE; color: #C62828;
+_BTN_DANGER = f"""
+    QPushButton {{
+        background: #FFEBEE; color: {theme.DEV_RED};
         border: 1px solid #FFCDD2; border-radius: 5px;
         font-size: 11px; padding: 5px 14px;
-    }
-    QPushButton:hover { background: #FFCDD2; }
+    }}
+    QPushButton:hover {{ background: #FFCDD2; }}
 """
 
 
@@ -446,7 +448,7 @@ class _ImportCodesTab(QWidget):
         scroll.setWidgetResizable(True)
         scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         scroll.setFrameShape(QFrame.NoFrame)
-        scroll.setStyleSheet("background: #F8F5EE;")
+        scroll.setStyleSheet(f"background: {theme.SURFACE_ALT};")
         outer.addWidget(scroll, 1)
 
         # ── شريط الأزرار السفلي ─────────────────────────────────────────
@@ -640,7 +642,7 @@ class _OwnersTab(QWidget):
         # ── قائمة الجهات الموجودة ────────────────────────────────────────
         left = QVBoxLayout()
         lbl = QLabel("الجهات الموجودة")
-        lbl.setStyleSheet("font-weight: bold; color: #152433;")
+        lbl.setStyleSheet(f"font-weight: bold; color: {theme.HEADER};")
         lbl.setAlignment(Qt.AlignRight)
 
         self._owner_list = QListWidget()
@@ -670,8 +672,8 @@ class _OwnersTab(QWidget):
         right = QVBoxLayout()
         self._form_title = QLabel("اختر جهةً أو أضف جديدةً")
         self._form_title.setStyleSheet(
-            "font-size: 14px; font-weight: 800; color: #152433;"
-            " border-bottom: 2px solid #C9921B; padding-bottom: 4px;"
+            f"font-size: 14px; font-weight: 800; color: {theme.HEADER};"
+            f" border-bottom: 2px solid {theme.ACCENT}; padding-bottom: 4px;"
         )
         self._form_title.setAlignment(Qt.AlignRight)
         right.addWidget(self._form_title)
@@ -983,13 +985,13 @@ class ImportWizardDialog(QDialog):
         # ── عنوان علوي ──────────────────────────────────────────────────
         header = QFrame()
         header.setStyleSheet(
-            "QFrame { background: #152433; border-bottom: 3px solid #C9921B; }"
+            f"QFrame {{ background: {theme.HEADER}; border-bottom: 3px solid {theme.ACCENT}; }}"
         )
         hl = QHBoxLayout(header)
         hl.setContentsMargins(16, 10, 16, 10)
         title_lbl = QLabel("📥  معالج الاستيراد وإدارة البيانات")
         title_lbl.setStyleSheet(
-            "color: #C9921B; font-size: 15px; font-weight: 800; background: transparent;"
+            f"color: {theme.ACCENT}; font-size: 15px; font-weight: 800; background: transparent;"
         )
         title_lbl.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
         hl.addStretch()
@@ -1000,19 +1002,19 @@ class ImportWizardDialog(QDialog):
         tabs = QTabWidget()
         tabs.setLayoutDirection(Qt.RightToLeft)
         tabs.setDocumentMode(True)
-        tabs.setStyleSheet("""
-            QTabWidget::pane  { border: none; background: #F8F5EE; }
-            QTabBar::tab {
+        tabs.setStyleSheet(f"""
+            QTabWidget::pane  {{ border: none; background: {theme.SURFACE_ALT}; }}
+            QTabBar::tab {{
                 background: #E8E4DC; color: #3A4A5A;
                 padding: 8px 18px; font-size: 12px; font-weight: 600;
                 border: 1px solid #C8C0B0; border-bottom: none;
                 border-radius: 6px 6px 0 0; margin-left: 2px;
-            }
-            QTabBar::tab:selected {
-                background: #F8F5EE; color: #152433;
-                border-bottom: 2px solid #F8F5EE;
-            }
-            QTabBar::tab:hover:!selected { background: #DDD8CC; }
+            }}
+            QTabBar::tab:selected {{
+                background: {theme.SURFACE_ALT}; color: {theme.HEADER};
+                border-bottom: 2px solid {theme.SURFACE_ALT};
+            }}
+            QTabBar::tab:hover:!selected {{ background: #DDD8CC; }}
         """)
 
         self._codes_tab = _ImportCodesTab(registry_data, config_data)

@@ -112,7 +112,7 @@ class LogoMark(QWidget):
         p.setRenderHint(QPainter.Antialiasing)
 
         gold   = QColor(theme.ACCENT)
-        gold2  = QColor("#E8C050")
+        gold2  = QColor(theme.GOLD_GLOW)
         navy   = QColor(theme.HEADER)
 
         w, h   = self.width(), self.height()
@@ -168,13 +168,13 @@ _HEADER_BUTTONS: list[tuple[str, str, str, str]] = [
     ("import_requested",           "📥  استيراد",     "استيراد أكواد جديدة أو إدارة الجهات المالكة (Ctrl+I)",  "#5CB8E8"),
     ("boq_import_requested",       "📋  جدول كميات",  "استورد جدول كميات BOQ وحدد الأكواد المناسبة تلقائياً",   "#FF8A65"),
     ("health_requested",           "🩺  الصحة",       "فحص الأكواد والجهات وملفات Word",                       "#6EC6A4"),
-    ("code_manager_requested",     "🧩  الأكواد",     "إضافة أو تعديل أو تعطيل الأكواد بدون فتح JSON",         "#E8C050"),
+    ("code_manager_requested",     "🧩  الأكواد",     "إضافة أو تعديل أو تعطيل الأكواد بدون فتح JSON",         theme.GOLD_GLOW),
     ("content_library_requested",  "📚  المكتبة",     "إدارة ملفات Word وحالات اعتماد المحتوى",                "#CFA7FF"),
     ("last_proposal_requested",    "📄  آخر عرض",     "فتح آخر ملف Word تم إنشاؤه",                            "#F1D68A"),
     ("session_history_requested",  "🕐  الجلسات",     "عرض واسترجاع الجلسات المحفوظة (Ctrl+J)",                "#7EC8E3"),
     ("dark_mode_toggle_requested", "🌙  داكن",        "تبديل الوضع الداكن/الفاتح (Ctrl+D)",                    "#9B6BB7"),
     ("about_requested",            "ⓘ  عن النظام",    "معلومات الإصدار والصحة وآخر نشاط",                      "#D7DDE8"),
-    ("help_requested",             "❓  مساعدة",      "فتح دليل المساعدة (F1)",                                "#C9921B"),
+    ("help_requested",             "❓  مساعدة",      "فتح دليل المساعدة (F1)",                                theme.ACCENT),
     ("settings_requested",         "⚙  إعدادات",      "إعدادات التشغيل والحفظ",                                "#D7B56D"),
 ]
 

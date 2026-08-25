@@ -42,12 +42,12 @@ from utils.json_manager import save_json
 # لتعيينها: hashlib.sha256("كلمة_السر".encode()).hexdigest()
 _CONFIG_PATH = Path("master_config.json")
 _PROJECT_COLORS: dict[str, str] = {
-    "wastewater": "#1F5B8E",
+    "wastewater": theme.CTX_INFRA,
     "water_supply": "#2E7399",
     "water_transmission": "#3A618F",
-    "asphalt": "#A4641E",
+    "asphalt": theme.CTX_ROAD,
     "road_maintenance": "#B1742A",
-    "general_construction": "#4C6E5A",
+    "general_construction": theme.CTX_BUILD,
 }
 
 

@@ -14,6 +14,7 @@ from PyQt5.QtWidgets import (
 from engine.boq_importer import BOQImportError, read_boq
 from engine.boq_matcher import BOQMatcher, MatchResult
 from engine.gap_handler import GapHandler
+from ui import theme
 from utils.json_manager import load_json
 
 

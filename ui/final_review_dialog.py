@@ -60,8 +60,8 @@ class FinalReviewDialog(QDialog):
         title = QLabel("الاعتماد النهائي قبل بناء العرض")
         title.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
         title.setStyleSheet(
-            "font-size: 18px; font-weight: 900; color: #152433; "
-            "padding-bottom: 7px; border-bottom: 2px solid #C9921B;"
+            f"font-size: 18px; font-weight: 900; color: {theme.HEADER}; "
+            f"padding-bottom: 7px; border-bottom: 2px solid {theme.ACCENT};"
         )
         root.addWidget(title)
 
@@ -91,43 +91,42 @@ class FinalReviewDialog(QDialog):
         root.addLayout(actions)
 
         self.setStyleSheet(
-            """
-            QDialog {
-                background: #FEFCF7;
-                color: #121B28;
-            }
-            QTextBrowser {
+            f"""
+            QDialog {{
+                background: {theme.SURFACE};
+                color: {theme.TEXT};
+            }}
+            QTextBrowser {{
                 background: #FFFFFF;
-                border: 1px solid #D5CFBF;
+                border: 1px solid {theme.BORDER};
                 border-radius: 10px;
                 padding: 8px;
-                color: #121B28;
-            }
-            QPushButton {
+                color: {theme.TEXT};
+            }}
+            QPushButton {{
                 min-width: 130px;
                 padding: 8px 18px;
                 border-radius: 8px;
-                border: 1px solid #C3BBAA;
-                background: #FEFCF7;
-                color: #121B28;
+                border: 1px solid {theme.BORDER2};
+                background: {theme.SURFACE};
+                color: {theme.TEXT};
                 font-weight: 700;
-            }
-            QPushButton:hover {
-                background: #FAF0DC;
-                border-color: #C9921B;
-                color: #A77218;
-            }
-            QPushButton:default {
-                background: %s;
+            }}
+            QPushButton:hover {{
+                background: {theme.ACCENT_PALE};
+                border-color: {theme.ACCENT};
+                color: {theme.ACCENT_DARK};
+            }}
+            QPushButton:default {{
+                background: {theme.SUCCESS};
                 color: #FFFFFF;
                 border: none;
-            }
-            QPushButton:disabled {
-                background: #EDEAE4;
+            }}
+            QPushButton:disabled {{
+                background: {theme.DISABLED_BG};
                 color: #9B9B9B;
-            }
+            }}
             """
-            % theme.SUCCESS
         )
 
     def _metric_card(self, label: str, value: str, color: str) -> QWidget:
@@ -149,14 +148,14 @@ class FinalReviewDialog(QDialog):
         layout.addWidget(label_w)
         layout.addWidget(value_w)
         card.setStyleSheet(
-            """
-            QWidget#finalReviewCard {
-                background: #FEFCF7;
-                border: 1px solid #D5CFBF;
-                border-top: 3px solid %s;
+            f"""
+            QWidget#finalReviewCard {{
+                background: {theme.SURFACE};
+                border: 1px solid {theme.BORDER};
+                border-top: 3px solid {color};
                 border-radius: 10px;
-            }
-            """ % color
+            }}
+            """
         )
         return card
 
@@ -176,17 +175,17 @@ class FinalReviewDialog(QDialog):
           <style>
             body {{
               font-family: Tajawal;
-              color: #121B28;
+              color: {theme.TEXT};
               direction: rtl;
               text-align: right;
               line-height: 1.58;
               margin: 8px 10px;
             }}
             h2 {{
-              color: #152433;
+              color: {theme.HEADER};
               margin: 13px 0 8px;
               padding-bottom: 5px;
-              border-bottom: 1px solid #D5CFBF;
+              border-bottom: 1px solid {theme.BORDER};
               font-size: 15px;
             }}
             table {{
@@ -195,7 +194,7 @@ class FinalReviewDialog(QDialog):
               margin: 8px 0 14px;
             }}
             th {{
-              background: #152433;
+              background: {theme.HEADER};
               color: #F5D48B;
               padding: 8px;
               font-weight: 800;
@@ -213,7 +212,7 @@ class FinalReviewDialog(QDialog):
               font-weight: 800;
               color: {self._decision_color()};
             }}
-            .muted {{ color: #5A6B7C; }}
+            .muted {{ color: {theme.TEXT2}; }}
             .ltr {{
               direction: ltr;
               unicode-bidi: embed;

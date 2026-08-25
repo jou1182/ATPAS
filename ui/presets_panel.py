@@ -66,30 +66,30 @@ class PresetsPanelWidget(QWidget):
         header.setLayoutDirection(Qt.RightToLeft)
         header.setFrameShape(QFrame.NoFrame)
         header.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-        header.setStyleSheet("""
-            QFrame {
-                background: #253C52;
+        header.setStyleSheet(f"""
+            QFrame {{
+                background: {theme.NAVY_SOFT};
                 border-radius: 8px 8px 0 0;
                 padding: 0;
-            }
+            }}
         """)
         header_layout = QHBoxLayout(header)
         header_layout.setContentsMargins(12, 6, 12, 6)
 
         title_lbl = QLabel("⚡  الأنماط الجاهزة")
-        title_lbl.setStyleSheet("color: #C8912A; font-weight: 700; font-size: 13px; background: transparent;")
+        title_lbl.setStyleSheet(f"color: {theme.ACCENT}; font-weight: 700; font-size: 13px; background: transparent;")
         title_lbl.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
 
-        _btn_style = """
-            QPushButton {
+        _btn_style = f"""
+            QPushButton {{
                 background: transparent;
-                color: #A8BCC8;
-                border: 1px solid #3D5570;
+                color: {theme.NAVY_MUTED};
+                border: 1px solid {theme.NAVY_LINE};
                 border-radius: 5px;
                 font-size: 11px;
                 padding: 2px 8px;
-            }
-            QPushButton:hover { background: #3D5570; color: white; }
+            }}
+            QPushButton:hover {{ background: {theme.NAVY_LINE}; color: white; }}
         """
 
         self._toggle_btn = QPushButton("▲ إخفاء")
@@ -121,7 +121,7 @@ class PresetsPanelWidget(QWidget):
         # ── content area (collapsible) ────────────────────────────────
         self._content = QWidget()
         self._content.setLayoutDirection(Qt.RightToLeft)
-        self._content.setStyleSheet("background: #1E3347;")
+        self._content.setStyleSheet(f"background: {theme.NAVY_DEEP};")
         content_layout = QHBoxLayout(self._content)
         content_layout.setContentsMargins(8, 6, 8, 6)
         content_layout.setSpacing(10)
@@ -137,13 +137,13 @@ class PresetsPanelWidget(QWidget):
         scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         scroll.setFrameShape(QFrame.NoFrame)
         scroll.setFixedHeight(125)    # compact strip height (extra room for explicit title label)
-        scroll.setStyleSheet("""
-            QScrollArea {
-                background: #1E3347;
+        scroll.setStyleSheet(f"""
+            QScrollArea {{
+                background: {theme.NAVY_DEEP};
                 border: none;
                 border-radius: 0 0 8px 8px;
-            }
-            QScrollArea > QWidget > QWidget { background: #1E3347; }
+            }}
+            QScrollArea > QWidget > QWidget {{ background: {theme.NAVY_DEEP}; }}
         """)
 
         self._scroll_wrapper = scroll
@@ -182,7 +182,7 @@ class PresetsPanelWidget(QWidget):
             box.setStyleSheet(
                 f"QGroupBox {{"
                 f"  border: 1px solid {color}44; border-radius: 8px; "
-                f"  margin-top: 0; background: #253C52; padding: 0;"
+                f"  margin-top: 0; background: {theme.NAVY_SOFT}; padding: 0;"
                 f"}}"
             )
             box_layout = QVBoxLayout(box)
@@ -228,7 +228,7 @@ class PresetsPanelWidget(QWidget):
             f"QPushButton {{"
             f"  text-align: right; padding: 3px 10px 3px 8px;"
             f"  border: 1px solid {color}55; border-radius: 5px;"
-            f"  font-size: 11px; color: #D0DDE8; background: #1E3347;"
+            f"  font-size: 11px; color: {theme.NAVY_TEXT}; background: {theme.NAVY_DEEP};"
             f"}}"
             f"QPushButton:hover {{"
             f"  background: {color}30; border-color: {color}; color: #FFFFFF;"

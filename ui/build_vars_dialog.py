@@ -26,13 +26,15 @@ from PyQt5.QtWidgets import (
     QWidget,
 )
 
+from ui import theme
+
 
 # ── Style constants ──────────────────────────────────────────────────────────
 
-_NAVY   = "#152433"
-_GOLD   = "#C9921B"
-_CREAM  = "#FEFCF7"
-_BORDER = "#D5CFBF"
+_NAVY   = theme.HEADER
+_GOLD   = theme.ACCENT
+_CREAM  = theme.SURFACE
+_BORDER = theme.BORDER
 
 _FIELD_STYLE = (
     "QLineEdit, QDateEdit {"
@@ -51,8 +53,8 @@ _BTN_PRIMARY = (
     "  border: none; border-radius: 6px;"
     "  padding: 8px 24px; font-size: 13px; font-weight: 700;"
     "}"
-    f"QPushButton:hover {{ background: #1C3045; }}"
-    f"QPushButton:pressed {{ background: #0D1C2B; }}"
+    f"QPushButton:hover {{ background: {theme.NAVY_MID}; }}"
+    f"QPushButton:pressed {{ background: {theme.HEADER2}; }}"
 )
 
 _BTN_SECONDARY = (
@@ -61,8 +63,8 @@ _BTN_SECONDARY = (
     f"  border: 1.5px solid {_NAVY}; border-radius: 6px;"
     "  padding: 8px 24px; font-size: 13px; font-weight: 700;"
     "}"
-    "QPushButton:hover { background: #EDE7D9; }"
-    "QPushButton:pressed { background: #D5CFBF; }"
+    f"QPushButton:hover {{ background: {theme.BG}; }}"
+    f"QPushButton:pressed {{ background: {theme.BORDER}; }}"
 )
 
 

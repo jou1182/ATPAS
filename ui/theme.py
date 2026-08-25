@@ -71,6 +71,19 @@ DARK_HOVER       = "#2A3555"   # hover backgrounds
 # ── Derived navy steps (were hardcoded across many dialogs) ────────
 NAVY_MID     = "#1C3045"       # hover step of the header navy
 NAVY_SOFT    = "#253C52"       # elevated navy surfaces
+NAVY_DEEP    = "#1E3347"       # recessed navy strips (presets panel bg)
+NAVY_LINE    = "#3D5570"       # borders on navy surfaces
+NAVY_MUTED   = "#A8BCC8"       # secondary text on navy surfaces
+NAVY_TEXT    = "#D0DDE8"       # primary button text on navy surfaces
+GOLD_GLOW    = "#E8C050"       # bright gold highlight (logo strokes, accents)
+
+# ── Elevated parchment variants ────────────────────────────────────
+SURFACE_ALT  = "#F8F5EE"       # scroll areas / list backdrops
+SURFACE_LIST = "#FDFCF8"       # list & table bodies
+PARCHMENT_2  = "#F5F0E8"       # hover tint on lists
+PRESS_TINT   = "#EDE4CC"       # pressed button tint
+DISABLED_BG  = "#EDEAE4"
+DEV_RED      = "#C62828"       # DEV badge background
 
 # ── Shared button recipes ──────────────────────────────────────────
 def primary_button_css(

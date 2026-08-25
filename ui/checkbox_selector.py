@@ -204,7 +204,7 @@ class _CodeItem(QWidget):
         pal = QPalette()
         pal.setColor(
             QPalette.Window,
-            QColor("#FAF0DC") if state else QColor("#F0EDE6"),
+            QColor(theme.ACCENT_PALE) if state else QColor("#F0EDE6"),
         )
         self.setAutoFillBackground(True)
         self.setPalette(pal)
@@ -302,8 +302,8 @@ class CheckboxSelectorWidget(QGroupBox):
         title_lbl = QLabel("الأكواد المتاحة")
         title_lbl.setAlignment(Qt.AlignCenter)
         title_lbl.setStyleSheet(
-            "font-size: 13px; font-weight: 800; color: #152433; "
-            "background: #FAF0DC; border: 1px solid #D5CFBF; "
+            f"font-size: 13px; font-weight: 800; color: {theme.HEADER}; "
+            f"background: {theme.ACCENT_PALE}; border: 1px solid {theme.BORDER}; "
             "border-radius: 6px; padding: 4px 12px;"
         )
 
@@ -708,24 +708,24 @@ class _AddCustomCodeDialog(QDialog):
 
         # Enforce a readable palette even if app-level stylesheet sets transparent widgets.
         pal = self.palette()
-        pal.setColor(QPalette.Window, QColor("#FEFCF7"))
+        pal.setColor(QPalette.Window, QColor(theme.SURFACE))
         pal.setColor(QPalette.WindowText, QColor("#0F2740"))
         pal.setColor(QPalette.Base, QColor("#FFFDFA"))
-        pal.setColor(QPalette.Text, QColor("#121B28"))
+        pal.setColor(QPalette.Text, QColor(theme.TEXT))
         self.setPalette(pal)
 
         # Force readable colors in this dialog regardless of global theme state.
         self.setStyleSheet(
-            """
+            f"""
             QDialog#addCustomCodeDialog,
-            QDialog#addCustomCodeDialog QWidget {
-                background: #FEFCF7;
-                color: #121B28;
-            }
-            QDialog#addCustomCodeDialog QWidget#addCustomCodePanel {
-                background: #FEFCF7;
-            }
-            QDialog#addCustomCodeDialog QLabel {
+            QDialog#addCustomCodeDialog QWidget {{
+                background: {theme.SURFACE};
+                color: {theme.TEXT};
+            }}
+            QDialog#addCustomCodeDialog QWidget#addCustomCodePanel {{
+                background: {theme.SURFACE};
+            }}
+            QDialog#addCustomCodeDialog QLabel {{
                 color: #FDF7E8;
                 background: #1F3A56;
                 border: 1px solid #D9B66A;
@@ -733,22 +733,22 @@ class _AddCustomCodeDialog(QDialog):
                 padding: 4px 10px;
                 font-weight: 700;
                 font-size: 13px;
-            }
+            }}
             QDialog#addCustomCodeDialog QLineEdit,
-            QDialog#addCustomCodeDialog QSpinBox {
+            QDialog#addCustomCodeDialog QSpinBox {{
                 background: #FFFDFA;
                 color: #0E1A29;
-                border: 1px solid #C3BBAA;
+                border: 1px solid {theme.BORDER2};
                 border-radius: 7px;
                 padding: 6px 10px;
                 font-size: 13px;
-            }
-            QDialog#addCustomCodeDialog QLineEdit::placeholder {
+            }}
+            QDialog#addCustomCodeDialog QLineEdit::placeholder {{
                 color: #445A72;
-            }
-            QDialog#addCustomCodeDialog QDialogButtonBox QPushButton {
+            }}
+            QDialog#addCustomCodeDialog QDialogButtonBox QPushButton {{
                 min-width: 90px;
-            }
+            }}
             """
         )
 

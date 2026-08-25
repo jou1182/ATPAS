@@ -35,6 +35,8 @@ from PyQt5.QtWidgets import (
     QWidget,
 )
 
+from ui import theme
+
 # ── Files and directories included in every backup ────────────────────────────
 _BACKUP_DIR  = Path("backups")
 
@@ -122,7 +124,7 @@ def list_backups() -> list[Path]:
 # ── Shared style helpers ──────────────────────────────────────────────────────
 
 def _btn(text: str, color: str = "#2E7D91", danger: bool = False) -> QPushButton:
-    bg   = "#C62828" if danger else color
+    bg   = theme.DEV_RED if danger else color
     hov  = "#B71C1C" if danger else "#1B5E7D"
     btn  = QPushButton(text)
     btn.setCursor(Qt.PointingHandCursor)
@@ -171,12 +173,12 @@ class BackupDialog(QDialog):
         # ── header ─────────────────────────────────────────────────────
         hdr = QFrame()
         hdr.setFixedHeight(60)
-        hdr.setStyleSheet("""
-            QFrame {
+        hdr.setStyleSheet(f"""
+            QFrame {{
                 background: qlineargradient(x1:0,y1:0,x2:1,y2:0,
-                    stop:0 #152433, stop:1 #1C3045);
-                border-bottom: 3px solid #C9921B;
-            }
+                    stop:0 {theme.HEADER}, stop:1 {theme.NAVY_MID});
+                border-bottom: 3px solid {theme.ACCENT};
+            }}
         """)
         hdr_l = QHBoxLayout(hdr)
         hdr_l.setContentsMargins(18, 0, 18, 0)
@@ -184,7 +186,7 @@ class BackupDialog(QDialog):
         icon_lbl.setStyleSheet("font-size: 22px; background: transparent;")
         title_lbl = QLabel("إدارة النسخ الاحتياطية")
         title_lbl.setStyleSheet(
-            "color: #C9921B; font-size: 16px; font-weight: 800; background: transparent;"
+            f"color: {theme.ACCENT}; font-size: 16px; font-weight: 800; background: transparent;"
         )
         sub_lbl = QLabel("codes_registry · master_config · presets · owner_specifications")
         sub_lbl.setStyleSheet(
@@ -216,27 +218,27 @@ class BackupDialog(QDialog):
         # backup list
         self._list = QListWidget()
         self._list.setLayoutDirection(Qt.RightToLeft)
-        self._list.setStyleSheet("""
-            QListWidget {
+        self._list.setStyleSheet(f"""
+            QListWidget {{
                 background: #FFFFFF;
                 border: 1px solid #C8D8E8;
                 border-radius: 8px;
                 font-size: 12px;
                 outline: none;
-            }
-            QListWidget::item {
+            }}
+            QListWidget::item {{
                 padding: 10px 14px;
                 border-bottom: 1px solid #EAF0F8;
-                color: #1C3045;
-            }
-            QListWidget::item:selected {
+                color: {theme.NAVY_MID};
+            }}
+            QListWidget::item:selected {{
                 background: #D4EAFA;
                 color: #0D2A3D;
                 border-left: 3px solid #1E7BC4;
-            }
-            QListWidget::item:hover:!selected {
+            }}
+            QListWidget::item:hover:!selected {{
                 background: #EBF4FC;
-            }
+            }}
         """)
         self._list.currentItemChanged.connect(self._on_selection_changed)
         body_l.addWidget(self._list, stretch=1)

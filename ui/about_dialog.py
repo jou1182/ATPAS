@@ -20,6 +20,8 @@ from PyQt5.QtWidgets import (
     QLabel, QLineEdit, QPushButton, QVBoxLayout, QWidget,
 )
 
+from ui import theme
+
 
 # ── رسم المربع المستدير الملوّن ─────────────────────────────────────────────
 def _card(bg: str, border: str = "") -> str:
@@ -50,10 +52,10 @@ class AboutDialog(QDialog):
 
     def _make_header(self) -> QWidget:
         hdr = QWidget()
-        hdr.setStyleSheet("""
+        hdr.setStyleSheet(f"""
             background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
-                stop:0 #1C3045, stop:1 #0D1C2B);
-            border-bottom: 4px solid #C9921B;
+                stop:0 {theme.NAVY_MID}, stop:1 {theme.HEADER2});
+            border-bottom: 4px solid {theme.ACCENT};
         """)
         lay = QVBoxLayout(hdr)
         lay.setContentsMargins(28, 20, 28, 16)
@@ -66,15 +68,15 @@ class AboutDialog(QDialog):
 
         # اسم الشركة
         brand = QLabel("الرواف للهندسة والتقنية  |  Al-Rawaf Engineering")
-        brand.setStyleSheet("color:#C9921B; font-size:12px; font-weight:600; background:transparent;")
+        brand.setStyleSheet(f"color:{theme.ACCENT}; font-size:12px; font-weight:600; background:transparent;")
         brand.setLayoutDirection(Qt.LeftToRight)
         brand.setAlignment(Qt.AlignLeft)
 
         # شارة الإصدار
         ver = self._get_version()
         ver_lbl = QLabel(f"ATPAS  {ver}")
-        ver_lbl.setStyleSheet("""
-            color:#152433; background:#C9921B;
+        ver_lbl.setStyleSheet(f"""
+            color:{theme.HEADER}; background:{theme.ACCENT};
             font-size:11px; font-weight:800;
             padding:4px 14px; border-radius:5px;
         """)
@@ -112,14 +114,14 @@ class AboutDialog(QDialog):
         close_btn = QPushButton("إغلاق")
         close_btn.setFixedHeight(42)
         close_btn.setCursor(Qt.PointingHandCursor)
-        close_btn.setStyleSheet("""
-            QPushButton {
-                background:#1C3045; color:#FFF;
+        close_btn.setStyleSheet(f"""
+            QPushButton {{
+                background:{theme.NAVY_MID}; color:#FFF;
                 font-size:13px; font-weight:700;
                 border:none; border-radius:8px;
-            }
-            QPushButton:hover   { background:#2A4A63; }
-            QPushButton:pressed { background:#152433; }
+            }}
+            QPushButton:hover   {{ background:#2A4A63; }}
+            QPushButton:pressed {{ background:{theme.HEADER}; }}
         """)
         close_btn.clicked.connect(self.accept)
         lay.addWidget(close_btn)
@@ -143,7 +145,7 @@ class AboutDialog(QDialog):
                 status_text = f"مفعّل — {days_left} يوم متبقية" if days_left else "مفعّل"
                 color = "#1B5E36"
         else:
-            bg, border, icon = "#FDECEA", "#C62828", "❌"
+            bg, border, icon = "#FDECEA", theme.DEV_RED, "❌"
             status_text = lic.get("message", "غير مفعّل")
             color = "#B71C1C"
 
@@ -182,7 +184,7 @@ class AboutDialog(QDialog):
         lay.setSpacing(6)
 
         lbl = QLabel("💻  معرّف الجهاز (Hardware ID)")
-        lbl.setStyleSheet("color:#1C3045; font-size:12px; font-weight:800; background:transparent;")
+        lbl.setStyleSheet(f"color:{theme.NAVY_MID}; font-size:12px; font-weight:800; background:transparent;")
         lbl.setAlignment(Qt.AlignRight)
         lay.addWidget(lbl)
 
@@ -194,25 +196,25 @@ class AboutDialog(QDialog):
         self._hw_field.setAlignment(Qt.AlignCenter)
         self._hw_field.setFont(QFont("Tajawal", 13))
         self._hw_field.setFixedHeight(38)
-        self._hw_field.setStyleSheet("""
-            QLineEdit {
+        self._hw_field.setStyleSheet(f"""
+            QLineEdit {{
                 background:#F0F4FA; border:1.5px solid #B0BEC5;
                 border-radius:6px; padding:0 10px;
-                color:#1C3045; font-weight:700; letter-spacing:1px;
-            }
+                color:{theme.NAVY_MID}; font-weight:700; letter-spacing:1px;
+            }}
         """)
 
         copy_btn = QPushButton("📋 نسخ")
         copy_btn.setFixedSize(80, 38)
         copy_btn.setCursor(Qt.PointingHandCursor)
-        copy_btn.setStyleSheet("""
-            QPushButton {
-                background:#1C3045; color:#FFF;
+        copy_btn.setStyleSheet(f"""
+            QPushButton {{
+                background:{theme.NAVY_MID}; color:#FFF;
                 font-size:12px; font-weight:700;
                 border:none; border-radius:6px;
-            }
-            QPushButton:hover   { background:#2A4A63; }
-            QPushButton:pressed { background:#152433; }
+            }}
+            QPushButton:hover   {{ background:#2A4A63; }}
+            QPushButton:pressed {{ background:{theme.HEADER}; }}
         """)
         self._copy_hw_btn = copy_btn
 
@@ -240,7 +242,7 @@ class AboutDialog(QDialog):
         lay.setSpacing(8)
 
         lbl = QLabel("📞  الدعم الفني")
-        lbl.setStyleSheet("color:#1C3045; font-size:12px; font-weight:800; background:transparent;")
+        lbl.setStyleSheet(f"color:{theme.NAVY_MID}; font-size:12px; font-weight:800; background:transparent;")
         lbl.setAlignment(Qt.AlignRight)
         lay.addWidget(lbl)
 

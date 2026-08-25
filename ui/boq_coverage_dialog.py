@@ -57,8 +57,8 @@ _CLOSE_BTN_STYLE = (
     f"  border: none; border-radius: 6px;"
     f"  padding: 7px 22px; font-size: 13px; font-weight: 700;"
     f"}}"
-    f"QPushButton:hover {{ background: #1C3045; }}"
-    f"QPushButton:pressed {{ background: #0D1C2B; }}"
+    f"QPushButton:hover {{ background: {theme.NAVY_MID}; }}"
+    f"QPushButton:pressed {{ background: {theme.HEADER2}; }}"
 )
 
 
@@ -202,4 +202,4 @@ class BOQCoverageDialog(QDialog):
             return "#388E3C"    # green
         if pct >= 50:
             return "#F57C00"    # orange
-        return "#C62828"        # red
+        return theme.DEV_RED    # red

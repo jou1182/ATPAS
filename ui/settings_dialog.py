@@ -54,8 +54,8 @@ class SettingsDialog(QDialog):
         title = QLabel("إعدادات التشغيل")
         title.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
         title.setStyleSheet(
-            "font-size: 16px; font-weight: 800; color: #152433; "
-            "padding-bottom: 6px; border-bottom: 2px solid #C9921B;"
+            f"font-size: 16px; font-weight: 800; color: {theme.HEADER}; "
+            f"padding-bottom: 6px; border-bottom: 2px solid {theme.ACCENT};"
         )
         root.addWidget(title)
 
@@ -63,7 +63,7 @@ class SettingsDialog(QDialog):
         self._restore_draft = QCheckBox("سؤالي عن استعادة آخر جلسة عند فتح التطبيق")
         for cb in (self._auto_backup, self._restore_draft):
             cb.setLayoutDirection(Qt.RightToLeft)
-            cb.setStyleSheet("font-weight: 600; color: #1C3045;")
+            cb.setStyleSheet(f"font-weight: 600; color: {theme.NAVY_MID};")
             root.addWidget(cb)
 
         sep = QFrame()
@@ -72,7 +72,7 @@ class SettingsDialog(QDialog):
 
         self._use_custom_output = QCheckBox("استخدام مجلد مخصص لحفظ عروض Word")
         self._use_custom_output.setLayoutDirection(Qt.RightToLeft)
-        self._use_custom_output.setStyleSheet("font-weight: 700; color: #1C3045;")
+        self._use_custom_output.setStyleSheet(f"font-weight: 700; color: {theme.NAVY_MID};")
         self._use_custom_output.stateChanged.connect(self._sync_output_controls)
         root.addWidget(self._use_custom_output)
 
@@ -99,7 +99,7 @@ class SettingsDialog(QDialog):
             "بجوار نسخة التشغيل."
         )
         hint.setWordWrap(True)
-        hint.setStyleSheet("color: #5A6B7C; font-size: 11px;")
+        hint.setStyleSheet(f"color: {theme.TEXT2}; font-size: 11px;")
         root.addWidget(hint)
 
         root.addStretch()
@@ -122,22 +122,21 @@ class SettingsDialog(QDialog):
         root.addLayout(actions)
 
         self.setStyleSheet(
-            """
-            QDialog {
-                background: #FEFCF7;
-                color: #121B28;
-            }
-            QPushButton#settingsSaveBtn {
-                background: %s;
+            f"""
+            QDialog {{
+                background: {theme.SURFACE};
+                color: {theme.TEXT};
+            }}
+            QPushButton#settingsSaveBtn {{
+                background: {theme.SUCCESS};
                 color: white;
                 border: none;
                 font-weight: 800;
-            }
-            QPushButton#settingsSaveBtn:hover {
+            }}
+            QPushButton#settingsSaveBtn:hover {{
                 background: #236040;
-            }
+            }}
             """
-            % theme.SUCCESS
         )
 
     def _load(self) -> None:

@@ -34,6 +34,7 @@ from PyQt5.QtWidgets import (
     QWidget,
 )
 
+from ui import theme
 from utils.batch_runner import BatchJob, BatchJobResult, BatchRunner
 from utils.json_manager import load_json
 
@@ -137,23 +138,23 @@ class _PresetPickerDialog(QDialog):
 
 _STYLE_PRIMARY = (
     "QPushButton {"
-    "  background: #152433; color: #C9921B;"
+    f"  background: {theme.HEADER}; color: {theme.ACCENT};"
     "  border: none; border-radius: 6px;"
     "  padding: 7px 18px; font-size: 12px; font-weight: 700;"
     "}"
-    "QPushButton:hover { background: #1C3045; }"
-    "QPushButton:pressed { background: #0D1C2B; }"
+    f"QPushButton:hover {{ background: {theme.NAVY_MID}; }}"
+    f"QPushButton:pressed {{ background: {theme.HEADER2}; }}"
     "QPushButton:disabled { background: #BDBDBD; color: #757575; }"
 )
 
 _STYLE_SECONDARY = (
     "QPushButton {"
-    "  background: #FEFCF7; color: #152433;"
-    "  border: 1.5px solid #152433; border-radius: 6px;"
+    f"  background: {theme.SURFACE}; color: {theme.HEADER};"
+    f"  border: 1.5px solid {theme.HEADER}; border-radius: 6px;"
     "  padding: 6px 16px; font-size: 12px; font-weight: 700;"
     "}"
-    "QPushButton:hover { background: #EDE7D9; }"
-    "QPushButton:pressed { background: #D5CFBF; }"
+    f"QPushButton:hover {{ background: {theme.BG}; }}"
+    f"QPushButton:pressed {{ background: {theme.BORDER}; }}"
     "QPushButton:disabled { color: #BDBDBD; border-color: #BDBDBD; }"
 )
 
@@ -186,7 +187,7 @@ class _JobListScreen(QWidget):
 
         # Header
         hdr = QLabel("الوظائف المُضافة:")
-        hdr.setStyleSheet("font-weight: 700; font-size: 14px; color: #152433;")
+        hdr.setStyleSheet(f"font-weight: 700; font-size: 14px; color: {theme.HEADER};")
         layout.addWidget(hdr)
 
         # Job list
@@ -199,7 +200,7 @@ class _JobListScreen(QWidget):
             "  background: #F8FAFC; font-size: 12px;"
             "}"
             "QListWidget::item { padding: 6px 10px; border-bottom: 1px solid #E8EDF2; }"
-            "QListWidget::item:selected { background: #EBF5FB; color: #152433; }"
+            f"QListWidget::item:selected {{ background: #EBF5FB; color: {theme.HEADER}; }}"
         )
         layout.addWidget(self._list_widget, stretch=1)
 
@@ -364,7 +365,7 @@ class _ProgressScreen(QWidget):
         layout.setContentsMargins(16, 16, 16, 16)
 
         hdr = QLabel("تقدّم البناء:")
-        hdr.setStyleSheet("font-weight: 700; font-size: 14px; color: #152433;")
+        hdr.setStyleSheet(f"font-weight: 700; font-size: 14px; color: {theme.HEADER};")
         layout.addWidget(hdr)
 
         self._status_lbl = QLabel("جارٍ التحضير...")
@@ -468,7 +469,7 @@ class _ProgressScreen(QWidget):
                 item.setForeground(item.foreground())  # keep default
             else:
                 from PyQt5.QtGui import QColor
-                item.setForeground(QColor("#C62828"))
+                item.setForeground(QColor(theme.DEV_RED))
 
     def _on_all_done(self, results: list) -> None:
         results_typed: list[BatchJobResult] = results
@@ -479,7 +480,7 @@ class _ProgressScreen(QWidget):
         )
         self._status_lbl.setStyleSheet(
             "font-size: 13px; font-weight: bold;"
-            + (" color: #C62828;" if fail else " color: #1B5E20;")
+            + (f" color: {theme.DEV_RED};" if fail else " color: #1B5E20;")
         )
         self._results_lbl.setText(
             f"الوظائف الناجحة: {ok} / {len(results_typed)}"
