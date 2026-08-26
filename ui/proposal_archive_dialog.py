@@ -27,10 +27,12 @@ from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtWidgets import (
     QComboBox,
     QDialog,
+    QFileDialog,
     QFrame,
     QHBoxLayout,
     QLabel,
     QLineEdit,
+    QMessageBox,
     QPushButton,
     QScrollArea,
     QVBoxLayout,
@@ -39,6 +41,7 @@ from PyQt5.QtWidgets import (
 
 from ui import theme
 from ui.build_history import BuildHistoryManager, _OWNER_NAMES, _PROJECT_NAMES
+from utils.archive_index import ArchiveIndex
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -50,8 +53,16 @@ class _ArchiveCard(QFrame):
 
     restore_requested = pyqtSignal(str, str, list)   # project_id, owner_id, codes
 
-    def __init__(self, entry: dict[str, Any], idx: int, parent=None) -> None:
+    def __init__(
+        self,
+        entry: dict[str, Any],
+        idx: int,
+        parent=None,
+        relocate_callback=None,
+    ) -> None:
         super().__init__(parent)
+        self._relocate_callback = relocate_callback
+        self._proposal_id = entry.get("proposal_id", "")
         self.setLayoutDirection(Qt.RightToLeft)
         self.setFrameShape(QFrame.StyledPanel)
         self.setStyleSheet(f"""
@@ -162,16 +173,21 @@ class _ArchiveCard(QFrame):
         else:
             row4.addStretch(1)
 
-        # "فتح الملف" button — only active if file exists
+        # "فتح الملف" — أو "تحديث المسار" إن انتقل الملف (FR-007)
         file_exists = bool(output_file) and Path(output_file).exists()
-        open_btn = QPushButton("\U0001f4c2 فتح الملف")
-        open_btn.setFixedWidth(100)
-        open_btn.setEnabled(file_exists)
-        open_btn.setCursor(Qt.PointingHandCursor if file_exists else Qt.ArrowCursor)
-        open_btn.setToolTip(
-            output_file if file_exists
-            else "الملف غير موجود"
-        )
+        if file_exists:
+            open_btn = QPushButton("\U0001f4c2 فتح الملف")
+            open_btn.setToolTip(output_file)
+        else:
+            open_btn = QPushButton("\U0001f4c2 تحديث المسار")
+            open_btn.setToolTip(
+                "الملف غير موجود في المسار المسجل — اضغط لتحديد موقعه الجديد"
+                if self._proposal_id and self._relocate_callback
+                else "الملف غير موجود"
+            )
+        open_btn.setFixedWidth(110)
+        open_btn.setEnabled(file_exists or bool(self._proposal_id and self._relocate_callback))
+        open_btn.setCursor(Qt.PointingHandCursor if open_btn.isEnabled() else Qt.ArrowCursor)
         open_btn.setStyleSheet("""
             QPushButton {
                 background: #EAF2FB; color: #1A5276;
@@ -184,7 +200,10 @@ class _ArchiveCard(QFrame):
             QPushButton:disabled       { background: #F4F6F7; color: #AEB6BF; border-color: #D5D8DC; }
         """)
         _file = output_file  # capture for lambda
-        open_btn.clicked.connect(lambda: self._open_file(_file))
+        if file_exists:
+            open_btn.clicked.connect(lambda: self._open_file(_file))
+        else:
+            open_btn.clicked.connect(self._on_relocate)
 
         restore_btn = QPushButton("↩ إعادة التطبيق")
         restore_btn.setFixedWidth(120)
@@ -223,6 +242,19 @@ class _ArchiveCard(QFrame):
         except Exception:  # noqa: BLE001
             pass
 
+    def _on_relocate(self) -> None:
+        """المستخدم يحدد الموقع الجديد للملف — يُحدَّث الفهرس (FR-007)."""
+        if not (self._proposal_id and self._relocate_callback):
+            return
+        new_path, _ = QFileDialog.getOpenFileName(
+            self,
+            "حدد الموقع الجديد لملف العرض",
+            "",
+            "Word (*.docx);;All Files (*)",
+        )
+        if new_path:
+            self._relocate_callback(self._proposal_id, new_path)
+
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Archive dialog
@@ -237,10 +269,36 @@ class ProposalArchiveDialog(QDialog):
 
     restore_requested = pyqtSignal(str, str, list)   # project_id, owner_id, codes
 
-    def __init__(self, manager: BuildHistoryManager, parent=None) -> None:
+    def __init__(
+        self,
+        manager: BuildHistoryManager,
+        versions_manager=None,
+        parent=None,
+    ) -> None:
         super().__init__(parent)
         self._manager = manager
-        self._all_entries: list[dict] = manager.load()
+        self._versions_manager = versions_manager
+        self._index: ArchiveIndex | None = None
+        self._relocated_ids: set[str] = set()
+
+        # وضع الفهرس (specs/004): مصدر البيانات = archive_index.db
+        # المبني تلقائياً من proposal_versions.json. بدونه: السلوك القديم.
+        if versions_manager is not None:
+            try:
+                json_path = Path(versions_manager._json_path)
+                self._index = ArchiveIndex(json_path.parent / "archive_index.db")
+                status, added, skipped = self._index.ensure_built(json_path)
+                if status == "rebuilt":
+                    import logging
+                    logging.getLogger(__name__).info(
+                        "Archive index rebuilt: %d added, %d skipped", added, skipped
+                    )
+            except Exception:  # noqa: BLE001
+                self._index = None
+
+        self._all_entries: list[dict] = (
+            manager.load() if self._index is None else []
+        )
 
         self.setWindowTitle("أرشيف العروض")
         self.setLayoutDirection(Qt.RightToLeft)
@@ -264,7 +322,7 @@ class ProposalArchiveDialog(QDialog):
             "background: transparent;"
         )
 
-        total = len(self._all_entries)
+        total = self._index.count() if self._index else len(self._all_entries)
         count_lbl_text = f"{total} عرض" if total else "لا يوجد"
         self._count_badge = QLabel(count_lbl_text)
         self._count_badge.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
@@ -272,9 +330,40 @@ class ProposalArchiveDialog(QDialog):
             "font-size: 11px; color: #8090A0; background: transparent; border: none;"
         )
 
+        # زر الرؤى (US3) — يظهر في وضع الفهرس فقط
+        self._insights_btn = None
+        self._insights_lbl = None
+        if self._index is not None:
+            self._insights_btn = QPushButton("📊 رؤى")
+            self._insights_btn.setFixedWidth(80)
+            self._insights_btn.setCursor(Qt.PointingHandCursor)
+            self._insights_btn.setToolTip("إحصاءات الأرشيف: أكثر الجهات، النشاط الشهري، المتوسطات")
+            self._insights_btn.setStyleSheet(
+                f"QPushButton {{ background: {theme.ACCENT_PALE}; color: {theme.ACCENT_DARK}; "
+                f"border: 1px solid {theme.BORDER}; border-radius: 5px; "
+                "font-size: 11px; font-weight: 700; padding: 4px 10px; }"
+                f"QPushButton:hover {{ background: {theme.BG}; }}"
+            )
+            self._insights_btn.clicked.connect(self._toggle_insights)
+
+            self._insights_lbl = QLabel()
+            self._insights_lbl.setWordWrap(True)
+            self._insights_lbl.setAlignment(Qt.AlignRight | Qt.AlignTop)
+            self._insights_lbl.setStyleSheet(
+                f"font-size: 11px; color: {theme.TEXT2}; background: {theme.INFO_PALE};"
+                f"border: 1px dashed {theme.BORDER2}; border-radius: 6px; padding: 8px;"
+            )
+            self._insights_lbl.hide()
+
         header_row.addWidget(title_lbl, 1)
+        if self._insights_btn is not None:
+            header_row.addWidget(self._insights_btn)
         header_row.addWidget(self._count_badge)
         outer.addLayout(header_row)
+
+        if self._insights_lbl is not None:
+            outer.addWidget(self._insights_lbl)
+            self._insights_visible = False
 
         # ── Filter bar ──────────────────────────────────────────────────
         filter_frame = QFrame()
@@ -303,7 +392,7 @@ class ProposalArchiveDialog(QDialog):
         self._owner_combo.addItem(
             "كل الجهات", ""
         )
-        for key, label in sorted(_OWNER_NAMES.items(), key=lambda x: x[1]):
+        for key, label in sorted(self._combo_items("owner").items(), key=lambda x: x[1]):
             self._owner_combo.addItem(label, key)
         self._owner_combo.setStyleSheet(
             "QComboBox { border: 1px solid #CCC; border-radius: 5px; "
@@ -316,7 +405,7 @@ class ProposalArchiveDialog(QDialog):
         self._project_combo.addItem(
             "كل المشاريع", ""
         )
-        for key, label in sorted(_PROJECT_NAMES.items(), key=lambda x: x[1]):
+        for key, label in sorted(self._combo_items("project").items(), key=lambda x: x[1]):
             self._project_combo.addItem(label, key)
         self._project_combo.setStyleSheet(
             "QComboBox { border: 1px solid #CCC; border-radius: 5px; "
@@ -392,6 +481,52 @@ class ProposalArchiveDialog(QDialog):
     # Filter helpers
     # ------------------------------------------------------------------
 
+    def _combo_items(self, kind: str) -> dict[str, str]:
+        """خيارات القوائم: من الفهرس (كل القيم الفعلية) أو الخريطة الثابتة."""
+        static = _OWNER_NAMES if kind == "owner" else _PROJECT_NAMES
+        items = dict(static)
+        if self._index is not None:
+            try:
+                col = f"{kind}_id"
+                rows = self._index._connect().execute(
+                    f"SELECT DISTINCT {col} FROM proposals WHERE {col} != '' ORDER BY {col}"
+                ).fetchall()
+                for r in rows:
+                    key = r[0]
+                    if key and key not in items:
+                        items[key] = key   # قيمة بلا اسم معجمي — اعرض المعرّف
+            except Exception:  # noqa: BLE001
+                pass
+        return items
+
+    def _toggle_insights(self) -> None:
+        """أظهر/أخفِ ملخص رؤى الأرشيف (US3)."""
+        if self._index is None or self._insights_lbl is None:
+            return
+        self._insights_visible = not getattr(self, "_insights_visible", False)
+        if self._insights_visible:
+            ins = self._index.insights()
+            top = " · ".join(
+                f"{_OWNER_NAMES.get(o, o)} ({n})" for o, n in ins["top_owners"][:3]
+            ) or "—"
+            month = ins["monthly"][0] if ins["monthly"] else None
+            month_txt = (
+                f"هذا الشهر ({month['month']}): {month['count']} عرض — "
+                f"متوسط {month['avg_pages']} صفحة"
+                if month else "لا نشاط مسجل"
+            )
+            self._insights_lbl.setText(
+                f"📈 الإجمالي: {ins['total']} عرض  |  متوسط الأكواد: {ins['avg_codes']}  |  "
+                f"متوسط الصفحات: {ins['avg_pages']}\n"
+                f"🏆 أكثر الجهات: {top}\n"
+                f"📅 {month_txt}"
+            )
+            self._insights_lbl.show()
+            self._insights_btn.setText("📊 إخفاء")
+        else:
+            self._insights_lbl.hide()
+            self._insights_btn.setText("📊 رؤى")
+
     def _clear_filters(self) -> None:
         """Reset all filter controls to their defaults."""
         self._search_edit.blockSignals(True)
@@ -414,11 +549,18 @@ class ProposalArchiveDialog(QDialog):
         owner_id   = self._owner_combo.currentData() or ""
         project_id = self._project_combo.currentData() or ""
 
-        results = self._manager.search(
-            query=query,
-            owner_id=owner_id,
-            project_id=project_id,
-        )
+        if self._index is not None:
+            results = self._index.search(
+                query=query, owner_id=owner_id, project_id=project_id
+            )
+            total = self._index.count()
+        else:
+            results = self._manager.search(
+                query=query,
+                owner_id=owner_id,
+                project_id=project_id,
+            )
+            total = len(self._all_entries)
 
         # Clear current cards
         while self._scroll_layout.count():
@@ -437,16 +579,35 @@ class ProposalArchiveDialog(QDialog):
             self._scroll_layout.addWidget(empty_lbl)
         else:
             for i, entry in enumerate(results):
-                card = _ArchiveCard(entry, i, parent=self._scroll_widget)
+                card = _ArchiveCard(
+                    entry, i,
+                    parent=self._scroll_widget,
+                    relocate_callback=(
+                        self._relocate_entry
+                        if self._index is not None and entry.get("proposal_id")
+                        else None
+                    ),
+                )
                 card.restore_requested.connect(self._on_restore)
                 self._scroll_layout.addWidget(card)
 
         # Update status
-        total = len(self._all_entries)
         shown = len(results)
         self._status_lbl.setText(
             f"عرض {shown} من {total}"
         )
+
+    def _relocate_entry(self, proposal_id: str, new_path: str) -> None:
+        """حدّث مسار ملف في الفهرس ثم أعد العرض (FR-007 / T012)."""
+        if self._index is None:
+            return
+        if self._index.update_path(proposal_id, new_path):
+            self._relocated_ids.add(proposal_id)
+            self._refresh()
+            QMessageBox.information(
+                self, "تم التحديث",
+                f"تم تحديث مسار العرض:\n{Path(new_path).name}",
+            )
 
     def _on_restore(self, project_id: str, owner_id: str, codes: list) -> None:
         self.restore_requested.emit(project_id, owner_id, codes)

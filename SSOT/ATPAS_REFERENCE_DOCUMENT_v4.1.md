@@ -99,8 +99,9 @@ ATPAS هو تطبيق سطح مكتب Windows مبني بـ Python و PyQt5، ي
 | `engine/builder.py` | بناء ملف Word | عالية جدًا |
 | `utils/content_library.py` | ربط ملفات Word بالأكواد | عالية |
 | `utils/system_health.py` | فحص صحة الأكواد والجهات والمحتوى | عالية |
-| `utils/proposal_versions.py` | سجل إصدارات العروض الفنية | عالية مؤسسيًا |
-| `ui/theme.py` | المرجع الموحد للألوان والخطوط والمقاييس + لوحة الداكن (SSOT Design) | عالية جدًا |
+| `utils/proposal_versions.py` | سجل إصدارات العروض الفنية (عقد التبادل JSON/CSV) | عالية مؤسسيًا |
+| `utils/archive_index.py` | فهرس بحث سريع للأرشيف (SQLite/WAL) — يُبنى من JSON تلقائيًا والكتابة مزدوجة | عالية |
+| `ui/theme.py` | المرجع الموحد للألوان والخطوط والمقاييس + لوحة الداكن المعلقة (SSOT Design) | عالية جدًا |
 | `ui/motion.py` | محرك الحركة والمؤقتات الآمنة (Context-Aware) | عالية |
 | `utils/app_version.py` | المصدر الوحيد لرقم الإصدار (من version.json) | عالية |
 | `utils/company_profile.py` | هوية الشركة White-label (من company_profile.json) | عالية |

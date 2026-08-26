@@ -104,6 +104,18 @@ class SettingsDialog(QDialog):
 
         root.addStretch()
 
+        # ── صيانة الأرشيف (specs/004 T040) ─────────────────────────────
+        maintenance_row = QHBoxLayout()
+        rebuild_idx_btn = QPushButton("🗂️ إعادة بناء فهرس الأرشيف")
+        rebuild_idx_btn.setToolTip(
+            "يعيد إنشاء فهرس البحث السريع من سجل العروض (proposal_versions.json).\n"
+            "استخدمه إذا بدت نتائج البحث في الأرشيف ناقصة أو قديمة."
+        )
+        rebuild_idx_btn.clicked.connect(self._rebuild_archive_index)
+        maintenance_row.addWidget(rebuild_idx_btn)
+        maintenance_row.addStretch()
+        root.addLayout(maintenance_row)
+
         actions = QHBoxLayout()
         reset_welcome = QPushButton("إظهار دليل البداية مرة أخرى")
         reset_welcome.clicked.connect(self._reset_welcome)
@@ -189,6 +201,37 @@ class SettingsDialog(QDialog):
         self.settings_changed.emit()
         QMessageBox.information(self, "تم الحفظ", "تم حفظ الإعدادات بنجاح.")
         self.accept()
+
+    def _rebuild_archive_index(self) -> None:
+        """أعد بناء فهرس الأرشيف من سجل العروض (specs/004 FR-006)."""
+        reply = QMessageBox.question(
+            self,
+            "إعادة بناء الفهرس",
+            "سيُعاد إنشاء فهرس البحث من سجل العروض الحالي.\n"
+            "لن يتأثر أي ملف عرض — العملية على الفهرس فقط.\n\nمتابعة؟",
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.Yes,
+        )
+        if reply != QMessageBox.Yes:
+            return
+        try:
+            from utils.archive_index import ArchiveIndex
+
+            index_path = (
+                Path("output") / "reports" / "archive_index.db"
+            )
+            with ArchiveIndex(index_path) as index:
+                added, skipped = index.rebuild_from_json(
+                    Path("output") / "reports" / "proposal_versions.json"
+                )
+            msg = f"تم بناء الفهرس: {added} عرضاً."
+            if skipped:
+                msg += f"\nتم تخطي {skipped} سجلاً تالفاً (موثقاً في السجل)."
+            QMessageBox.information(self, "تم", msg)
+        except Exception as exc:  # noqa: BLE001
+            QMessageBox.critical(
+                self, "تعذّر إعادة البناء", f"حدث خطأ أثناء بناء الفهرس:\n{exc}"
+            )
 
     def _reset_welcome(self) -> None:
         from ui.welcome_overlay import _get_marker_path

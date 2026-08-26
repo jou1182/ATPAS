@@ -595,7 +595,11 @@ class MainWindow(QMainWindow):
 
     def _on_show_history(self) -> None:
         """Open Proposal Archive dialog."""
-        dialog = ProposalArchiveDialog(manager=self._history_manager, parent=self)
+        dialog = ProposalArchiveDialog(
+            manager=self._history_manager,
+            versions_manager=self._version_manager,
+            parent=self,
+        )
         dialog.restore_requested.connect(self._on_history_restore)
         dialog.exec_()
 

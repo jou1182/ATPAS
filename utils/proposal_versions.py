@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import csv
 import hashlib
+import logging
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
@@ -134,6 +135,21 @@ class ProposalVersionManager:
         history.append(entry)
         save_json({"proposal_versions": history}, self._json_path)
         self._write_csv(history)
+
+        # كتابة مزدوجة (specs/004 FR-004): JSON يبقى عقد التبادل،
+        # والفهرس يمنح البحث الفوري. فشل الفهرس لا يوقف التسجيل أبداً.
+        try:
+            from utils.archive_index import ArchiveIndex
+
+            index_path = self._json_path.parent / "archive_index.db"
+            with ArchiveIndex(index_path) as index:
+                if index.add_entry(entry):
+                    index.mark_source_synced(self._json_path)
+        except Exception:  # noqa: BLE001
+            logging.getLogger(__name__).warning(
+                "Archive index write failed (JSON is still authoritative)",
+                exc_info=True,
+            )
         return entry
 
     def load(self) -> list[dict[str, Any]]:
