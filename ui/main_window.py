@@ -69,7 +69,6 @@ from ui.presets_panel import PresetsPanelWidget
 from ui.project_selector import ProjectSelectorWidget
 from ui.settings_dialog import SettingsDialog, resolve_output_dir
 from ui.system_health_dialog import SystemHealthDialog
-from ui.dark_mode import DarkModeManager
 from ui.session_history_dialog import SessionHistoryDialog
 from ui.welcome_overlay import show_if_first_run
 from ui.motion import motion_ms, motion_single_shot, prefers_reduced_motion
@@ -205,15 +204,14 @@ class MainWindow(QMainWindow):
 
         self._settings = QSettings("Rawaf", "ATPAS")
 
-        # Dark Mode manager
-        self._dark_mode = DarkModeManager(self._settings, parent=self)
+        # ملاحظة 002-B: مدير الوضع الداكن معلّق بقرار المالك —
+        # الأساس محفوظ في ui/dark_mode.py (specs/002-dark-mode-strategy).
 
         self._load_startup_data()
         self._build_engine()
         self._configure_window()
         self._build_layout()
         self._restore_window_geometry()
-        self._dark_mode.apply_if_active()
         self._show_startup_issues_if_any()
 
     def showEvent(self, event) -> None:  # type: ignore[override]
@@ -441,7 +439,6 @@ class MainWindow(QMainWindow):
         self._header.about_requested.connect(self._on_about)
         self._header.boq_import_requested.connect(self._on_import_boq)
         self._header.session_history_requested.connect(self._on_session_history)
-        self._header.dark_mode_toggle_requested.connect(self._on_toggle_dark_mode)
         self._history_manager = BuildHistoryManager()
         self._wire_shortcuts()
         self._build_menu_bar()
@@ -885,19 +882,15 @@ class MainWindow(QMainWindow):
         self._session_action.triggered.connect(self._on_session_history)
         self.addAction(self._session_action)
 
-        # Ctrl+D → تبديل Dark Mode
-        self._dark_mode_action = QAction(self)
-        self._dark_mode_action.setShortcut(QKeySequence("Ctrl+D"))
-        self._dark_mode_action.setShortcutContext(Qt.WindowShortcut)
-        self._dark_mode_action.triggered.connect(self._on_toggle_dark_mode)
-        self.addAction(self._dark_mode_action)
-
         # Ctrl+Alt+D → تشخيص تخطيط الواجهة (يطبع المقاييس في السجل)
         self._metrics_action = QAction(self)
         self._metrics_action.setShortcut(QKeySequence("Ctrl+Alt+D"))
         self._metrics_action.setShortcutContext(Qt.WindowShortcut)
         self._metrics_action.triggered.connect(self._log_ui_metrics)
         self.addAction(self._metrics_action)
+
+        # ملاحظة 002-B: اختصار Ctrl+D (الوضع الداكن) أُزيل بقرار المالك —
+        # انظر specs/002-dark-mode-strategy.
 
         # Ctrl+E → تصدير CSV (يُفعَّل من PreviewPanel مباشرةً — هنا للتوثيق فقط)
 
@@ -1099,19 +1092,8 @@ class MainWindow(QMainWindow):
         # Clear draft either way — don't ask again
         self._settings.setValue(self._DRAFT_KEY_EXISTS, False)
 
-    def _on_toggle_dark_mode(self) -> None:
-        """Toggle between light and dark mode."""
-        is_dark = self._dark_mode.toggle()
-        icon = "🌙" if is_dark else "☀️"
-        label = "داكن" if is_dark else "فاتح"
-        self._show_status(
-            f"{icon} تم التبديل إلى الوضع {label}",
-            hold_ms=4_000,
-        )
-        self._activity_log.append(
-            "تبديل الوضع",
-            {"mode": "dark" if is_dark else "light"},
-        )
+    # ملاحظة 002-B: مفتاح الوضع الداكن معلّق بقرار المالك (specs/002) —
+    # الأساس التقني محفوظ في ui/dark_mode.py وتوكنز DARK_* داخل theme.py.
 
     def _on_session_history(self) -> None:
         """Open the Smart Session History dialog to view/restore past sessions."""

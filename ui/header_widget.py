@@ -172,7 +172,6 @@ _HEADER_BUTTONS: list[tuple[str, str, str, str]] = [
     ("content_library_requested",  "📚  المكتبة",     "إدارة ملفات Word وحالات اعتماد المحتوى",                "#CFA7FF"),
     ("last_proposal_requested",    "📄  آخر عرض",     "فتح آخر ملف Word تم إنشاؤه",                            "#F1D68A"),
     ("session_history_requested",  "🕐  الجلسات",     "عرض واسترجاع الجلسات المحفوظة (Ctrl+J)",                "#7EC8E3"),
-    ("dark_mode_toggle_requested", "🌙  داكن",        "تبديل الوضع الداكن/الفاتح (Ctrl+D)",                    "#9B6BB7"),
     ("about_requested",            "ⓘ  عن النظام",    "معلومات الإصدار والصحة وآخر نشاط",                      "#D7DDE8"),
     ("help_requested",             "❓  مساعدة",      "فتح دليل المساعدة (F1)",                                theme.ACCENT),
     ("settings_requested",         "⚙  إعدادات",      "إعدادات التشغيل والحفظ",                                "#D7B56D"),
@@ -224,8 +223,6 @@ class HeaderWidget(QWidget):
     boq_import_requested = pyqtSignal()
     #: يُطلق عند الضغط على زر الجلسات المحفوظة — MainWindow يفتح SessionHistoryDialog
     session_history_requested = pyqtSignal()
-    #: يُطلق عند الضغط على زر Dark Mode — MainWindow يبدّل الوضع
-    dark_mode_toggle_requested = pyqtSignal()
 
     def __init__(self, active_codes: int = 0, parent: QWidget | None = None) -> None:
         super().__init__(parent)

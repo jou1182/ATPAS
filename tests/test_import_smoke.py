@@ -40,21 +40,25 @@ def test_theme_module_importable_everywhere_it_is_used() -> None:
     """Static guard: any ui file referencing `theme.X` must import the module."""
     import re
 
-    uses = re.compile(r"^\s*[^#\n]*\btheme\.[A-Za-z_]", re.MULTILINE)
+    uses = re.compile(r"\btheme\.[A-Za-z_]")
     has_import = re.compile(
         r"^\s*from\s+ui\s+import\s+[^\n]*\btheme\b|^\s*from\s+ui\.theme\s+import\s+[^\n]*[\s(,]theme[\s,)\n]|^\s*import\s+ui\.theme(?:\s+as\s+theme)?",
         re.MULTILINE,
     )
+
+    def _strip_noncode(src: str) -> str:
+        """احذف docstrings ثم التعليقات — الحارس يفحص الكود الفعلي فقط."""
+        src = re.sub(r'"""[\s\S]*?"""', " ", src)
+        src = re.sub(r"'''[\s\S]*?'''", " ", src)
+        return "\n".join(
+            line.split("#", 1)[0] for line in src.splitlines()
+        )
+
     for py in sorted((ROOT / "ui").glob("*.py")):
         if py.name == "theme.py":
             continue
-        src = py.read_text(encoding="utf-8")
-        # strip comments per line to avoid false positives like dark_mode's comment
-        stripped = "\n".join(
-            line.split("#", 1)[0] if not line.lstrip().startswith("#") else ""
-            for line in src.splitlines()
-        )
-        if uses.search(stripped) and not has_import.search(src):
+        code_only = _strip_noncode(py.read_text(encoding="utf-8"))
+        if uses.search(code_only) and not has_import.search(py.read_text(encoding="utf-8")):
             pytest.fail(f"{py.name} uses theme.* without 'from ui import theme'")
 
 
