@@ -5,7 +5,7 @@ REM -- Always run from project folder --
 cd /d "%~dp0"
 
 echo ============================================================
-echo    ATPAS v3.1 - Build EXE
+echo    ATPAS v3.2 - Build EXE
 echo    %DATE%  %TIME%
 echo ============================================================
 echo.
@@ -51,19 +51,19 @@ echo [4/6] Writing build timestamp...
 
 for /f %%i in ('powershell -NoProfile -Command "Get-Date -Format yyyy-MM-dd"') do set BUILD_DATE=%%i
 for /f %%i in ('powershell -NoProfile -Command "Get-Date -Format HH:mm:ss"') do set BUILD_TIME=%%i
-for /f %%i in ('powershell -NoProfile -Command "Get-Date -Format yyyyMMdd"') do set BUILD_TAG=3.1.%%i
+for /f %%i in ('powershell -NoProfile -Command "Get-Date -Format yyyyMMdd"') do set BUILD_TAG=3.2.%%i
 
 (
 echo {
-echo   "version": "3.1",
+echo   "version": "3.2",
 echo   "build_date": "%BUILD_DATE%",
 echo   "build_time": "%BUILD_TIME%",
-echo   "build_label": "ATPAS v3.1 built on %BUILD_DATE%",
+echo   "build_label": "ATPAS v3.2 built on %BUILD_DATE%",
 echo   "build_tag": "%BUILD_TAG%"
 echo }
 ) > version.json
 
-echo    version.json written: v3.1 -- %BUILD_DATE%
+echo    version.json written: v3.2 -- %BUILD_DATE%
 echo.
 
 REM -- 5. Create output directories --
@@ -101,7 +101,7 @@ echo.
 echo ============================================================
 echo   [SUCCESS] Build complete!
 echo   File:    dist\ATPAS\ATPAS.exe
-echo   Version: v3.1 -- %DATE%  %TIME:~0,8%
+echo   Version: v3.2 -- %DATE%  %TIME:~0,8%
 echo   Size:    !EXE_MB! MB
 echo.
 echo   NOTE: To distribute, copy the entire dist\ATPAS folder,
