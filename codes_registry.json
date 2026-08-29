@@ -89,7 +89,8 @@
       "created_date": "2026-04-01",
       "last_modified": "2026-04-20",
       "version": "1.0",
-      "notes": "يجب الحصول عليها بعد المسح الأولي"
+      "notes": "يجب الحصول عليها بعد المسح الأولي",
+      "source_document": "001-PRM-GOV.docx"
     },
     "001-PRM-MUN": {
       "code_id": "001-PRM-MUN",
@@ -128,7 +129,8 @@
       "created_date": "2026-04-01",
       "last_modified": "2026-04-20",
       "version": "1.0",
-      "notes": "خاص بمشاريع أمانة مكة المكرمة فقط"
+      "notes": "خاص بمشاريع أمانة مكة المكرمة فقط",
+      "source_document": "001-PRM-MUN.docx"
     },
     "001-APP-DES": {
       "code_id": "001-APP-DES",
@@ -169,7 +171,8 @@
       "created_date": "2026-04-01",
       "last_modified": "2026-04-20",
       "version": "1.0",
-      "notes": "يتضمن الرسومات والمخططات الهندسية"
+      "notes": "يتضمن الرسومات والمخططات الهندسية",
+      "source_document": "001-APP-DES.docx"
     },
     "001-APP-HSE": {
       "code_id": "001-APP-HSE",
@@ -210,7 +213,8 @@
       "created_date": "2026-04-01",
       "last_modified": "2026-04-20",
       "version": "1.0",
-      "notes": "خطة شاملة للسلامة والصحة المهنية"
+      "notes": "خطة شاملة للسلامة والصحة المهنية",
+      "source_document": "001-APP-HSE.docx"
     },
     "002-MAT-SITE": {
       "code_id": "002-MAT-SITE",
@@ -251,7 +255,8 @@
       "created_date": "2026-04-01",
       "last_modified": "2026-04-20",
       "version": "1.0",
-      "notes": "نقل آمن وموثق للمواد والمعدات"
+      "notes": "نقل آمن وموثق للمواد والمعدات",
+      "source_document": "002-MAT-SITE.docx"
     },
     "002-EXC-FINE": {
       "code_id": "002-EXC-FINE",
@@ -300,7 +305,8 @@
       "version": "1.0",
       "notes": "حفر دقيق مع حماية الحواف - أنابيب قطر أقل من 400 ملم",
       "depth_range": "0.5-1.5m",
-      "width_range": "0.4-0.8m"
+      "width_range": "0.4-0.8m",
+      "source_document": "002-EXC-FINE.docx"
     },
     "002-EXC-OPEN": {
       "code_id": "002-EXC-OPEN",
@@ -350,7 +356,8 @@
       "version": "1.0",
       "notes": "حفر مكشوف واسع مع التسند - أنابيب قطر أكبر من 600 ملم",
       "depth_range": "1.5-4m",
-      "width_range": "1.5-3m"
+      "width_range": "1.5-3m",
+      "source_document": "002-EXC-OPEN.docx"
     },
     "002-EXC-TUNNEL": {
       "code_id": "002-EXC-TUNNEL",
@@ -401,7 +408,8 @@
       "notes": "حفر نفقي عميق باستخدام آلة حفر نفقي - أنابيب قطر أكبر من 1000 ملم",
       "depth_range": ">4m",
       "width_range": "1.0-3.5m",
-      "complexity": "high"
+      "complexity": "high",
+      "source_document": "002-EXC-TUNNEL.docx"
     },
     "002-EXC-PAV": {
       "code_id": "002-EXC-PAV",
@@ -447,7 +455,8 @@
       "version": "1.0",
       "notes": "قطع الأسفلت الحالي وإزالته - خاص بمشاريع الطرق",
       "depth_range": "0.05-0.15m",
-      "typical_thickness": "0.08m"
+      "typical_thickness": "0.08m",
+      "source_document": "002-EXC-PAV.docx"
     },
     "001-SUR-NET": {
       "code_id": "001-SUR-NET",
@@ -486,7 +495,8 @@
       "created_date": "2026-04-20",
       "last_modified": "2026-04-20",
       "version": "1.0",
-      "notes": "مسح تفصيلي لمسار الشبكة وتحديد الإحداثيات"
+      "notes": "مسح تفصيلي لمسار الشبكة وتحديد الإحداثيات",
+      "source_document": "001-SUR-NET.docx"
     },
     "001-PRM-ENV": {
       "code_id": "001-PRM-ENV",
@@ -527,7 +537,8 @@
       "created_date": "2026-04-20",
       "last_modified": "2026-04-20",
       "version": "1.0",
-      "notes": "الموافقة البيئية من الجهات المختصة"
+      "notes": "الموافقة البيئية من الجهات المختصة",
+      "source_document": "001-PRM-ENV.docx"
     },
     "001-APP-MRL": {
       "code_id": "001-APP-MRL",
@@ -568,7 +579,8 @@
       "created_date": "2026-04-20",
       "last_modified": "2026-04-20",
       "version": "1.0",
-      "notes": "اعتماد المواد والموارد المستخدمة قبل البدء"
+      "notes": "اعتماد المواد والموارد المستخدمة قبل البدء",
+      "source_document": "001-APP-MRL.docx"
     },
     "002-MAT-STORE": {
       "code_id": "002-MAT-STORE",
@@ -610,7 +622,8 @@
       "created_date": "2026-04-20",
       "last_modified": "2026-04-20",
       "version": "1.0",
-      "notes": "تخزين آمن ومنظم للمواد والمعدات في الموقع"
+      "notes": "تخزين آمن ومنظم للمواد والمعدات في الموقع",
+      "source_document": "002-MAT-STORE.docx"
     },
     "002-WST-RECY": {
       "code_id": "002-WST-RECY",
@@ -652,7 +665,8 @@
       "created_date": "2026-04-20",
       "last_modified": "2026-04-20",
       "version": "1.0",
-      "notes": "إعادة استخدام المخلفات الصالحة وفرزها بشكل بيئي"
+      "notes": "إعادة استخدام المخلفات الصالحة وفرزها بشكل بيئي",
+      "source_document": "002-WST-RECY.docx"
     },
     "002-WST-EXC": {
       "code_id": "002-WST-EXC",
@@ -698,7 +712,8 @@
       "last_modified": "2026-04-20",
       "version": "1.0",
       "notes": "نقل وتصريف آمن للمخلفات من أعمال الحفر",
-      "dependencies_note": "يعتمد على أي من طرق الحفر المختارة"
+      "dependencies_note": "يعتمد على أي من طرق الحفر المختارة",
+      "source_document": "002-WST-EXC.docx"
     },
     "003-PIP-SEW": {
       "code_id": "003-PIP-SEW",
@@ -750,7 +765,8 @@
         "250mm",
         "300mm",
         "400mm"
-      ]
+      ],
+      "source_document": "003-PIP-SEW.docx"
     },
     "003-PIP-WAT": {
       "code_id": "003-PIP-WAT",
@@ -802,7 +818,8 @@
         "200mm",
         "250mm",
         "300mm"
-      ]
+      ],
+      "source_document": "003-PIP-WAT.docx"
     },
     "003-PIP-FIT": {
       "code_id": "003-PIP-FIT",
@@ -848,7 +865,8 @@
       "created_date": "2026-04-20",
       "last_modified": "2026-04-20",
       "version": "1.0",
-      "notes": "تركيب التجهيزات والوصلات والصمامات"
+      "notes": "تركيب التجهيزات والوصلات والصمامات",
+      "source_document": "003-PIP-FIT.docx"
     },
     "003-WLD-MECH": {
       "code_id": "003-WLD-MECH",
@@ -893,7 +911,8 @@
       "created_date": "2026-04-20",
       "last_modified": "2026-04-20",
       "version": "1.0",
-      "notes": "الوصلات الميكانيكية بدون لحام - فلنجات وكوابل"
+      "notes": "الوصلات الميكانيكية بدون لحام - فلنجات وكوابل",
+      "source_document": "003-WLD-MECH.docx"
     },
     "003-WLD-FLD": {
       "code_id": "003-WLD-FLD",
@@ -937,7 +956,8 @@
       "version": "1.0",
       "notes": "لحام حقلي لأنابيب معدنية - مع اختبارات جودة شاملة",
       "welding_standard": "ISO 5817",
-      "certification_required": true
+      "certification_required": true,
+      "source_document": "003-WLD-FLD.docx"
     },
     "004-TST-LEK": {
       "code_id": "004-TST-LEK",
@@ -982,7 +1002,8 @@
       "last_modified": "2026-04-20",
       "version": "1.0",
       "notes": "اختبار التسرب - التأكد من سلامة الوصلات",
-      "acceptance_criteria": "Zero leakage at test pressure"
+      "acceptance_criteria": "Zero leakage at test pressure",
+      "source_document": "004-TST-LEK.docx"
     },
     "004-TST-HYD": {
       "code_id": "004-TST-HYD",
@@ -1025,7 +1046,8 @@
       "version": "1.0",
       "notes": "اختبار ضغط هيدروستاتيكي - لشبكات المياه المضغوطة",
       "acceptance_criteria": "No visible damage or leakage",
-      "pressure_margin_percent": 50
+      "pressure_margin_percent": 50,
+      "source_document": "004-TST-HYD.docx"
     },
     "004-QC-MATS": {
       "code_id": "004-QC-MATS",
@@ -1074,7 +1096,8 @@
       "created_date": "2026-04-20",
       "last_modified": "2026-04-20",
       "version": "1.0",
-      "notes": "فحص المواد المستخدمة ومطابقتها للمواصفات"
+      "notes": "فحص المواد المستخدمة ومطابقتها للمواصفات",
+      "source_document": "004-QC-MATS.docx"
     },
     "004-QC-INSTALL": {
       "code_id": "004-QC-INSTALL",
@@ -1124,7 +1147,8 @@
       "created_date": "2026-04-01",
       "last_modified": "2026-04-20",
       "version": "1.0",
-      "notes": "فحص شامل لجودة عمليات التركيب"
+      "notes": "فحص شامل لجودة عمليات التركيب",
+      "source_document": "004-QC-INSTALL.docx"
     },
     "005-BKF-SND": {
       "code_id": "005-BKF-SND",
@@ -1166,7 +1190,8 @@
       "created_date": "2026-04-01",
       "last_modified": "2026-04-20",
       "version": "1.0",
-      "notes": "ردم رمل لحماية الأنابيب من الأضرار"
+      "notes": "ردم رمل لحماية الأنابيب من الأضرار",
+      "source_document": "005-BKF-SND.docx"
     },
     "005-BKF-SOL": {
       "code_id": "005-BKF-SOL",
@@ -1211,7 +1236,8 @@
       "created_date": "2026-04-01",
       "last_modified": "2026-04-20",
       "version": "1.0",
-      "notes": "ردم تربة مع ضغط حسب المواصفات - كثافة 95%"
+      "notes": "ردم تربة مع ضغط حسب المواصفات - كثافة 95%",
+      "source_document": "005-BKF-SOL.docx"
     },
     "005-BKF-BASE": {
       "code_id": "005-BKF-BASE",
@@ -1251,7 +1277,8 @@
       "created_date": "2026-04-01",
       "last_modified": "2026-04-20",
       "version": "1.0",
-      "notes": "إعداد أساس صلب وموثوق للطبقة الإسفلتية"
+      "notes": "إعداد أساس صلب وموثوق للطبقة الإسفلتية",
+      "source_document": "005-BKF-BASE.docx"
     },
     "005-RST-ASP": {
       "code_id": "005-RST-ASP",
@@ -1299,7 +1326,8 @@
       "created_date": "2026-04-01",
       "last_modified": "2026-04-20",
       "version": "1.0",
-      "notes": "إعادة رصف الطريق - 3 طبقات أسفلتية قياسية"
+      "notes": "إعادة رصف الطريق - 3 طبقات أسفلتية قياسية",
+      "source_document": "005-RST-ASP.docx"
     },
     "005-RST-LND": {
       "code_id": "005-RST-LND",
@@ -1339,7 +1367,8 @@
       "created_date": "2026-04-01",
       "last_modified": "2026-04-20",
       "version": "1.0",
-      "notes": "استعادة المناظر الطبيعية والبيئة المحيطة"
+      "notes": "استعادة المناظر الطبيعية والبيئة المحيطة",
+      "source_document": "005-RST-LND.docx"
     },
     "005-RST-PAV": {
       "code_id": "005-RST-PAV",
@@ -1380,7 +1409,8 @@
       "created_date": "2026-04-20",
       "last_modified": "2026-04-20",
       "version": "1.0",
-      "notes": "استعادة الرصيف وأرصفة المشاة للحالة الأصلية"
+      "notes": "استعادة الرصيف وأرصفة المشاة للحالة الأصلية",
+      "source_document": "005-RST-PAV.docx"
     },
     "005-HND-TRN": {
       "code_id": "005-HND-TRN",
@@ -1426,7 +1456,8 @@
       "created_date": "2026-04-20",
       "last_modified": "2026-04-20",
       "version": "1.0",
-      "notes": "تدريب فريق التشغيل والصيانة على النظام"
+      "notes": "تدريب فريق التشغيل والصيانة على النظام",
+      "source_document": "005-HND-TRN.docx"
     },
     "005-HND-DOC": {
       "code_id": "005-HND-DOC",
@@ -1475,7 +1506,8 @@
       "created_date": "2026-04-01",
       "last_modified": "2026-04-20",
       "version": "1.0",
-      "notes": "تسليم جميع الوثائق والرسومات الخاصة بالمشروع"
+      "notes": "تسليم جميع الوثائق والرسومات الخاصة بالمشروع",
+      "source_document": "005-HND-DOC.docx"
     },
     "005-HND-FIN": {
       "code_id": "005-HND-FIN",
@@ -1523,7 +1555,8 @@
       "created_date": "2026-04-01",
       "last_modified": "2026-04-20",
       "version": "1.0",
-      "notes": "التسليم النهائي الرسمي للمشروع من المقاول للجهة المالكة"
+      "notes": "التسليم النهائي الرسمي للمشروع من المقاول للجهة المالكة",
+      "source_document": "005-HND-FIN.docx"
     },
     "001-TRF-MGT": {
       "code_id": "001-TRF-MGT",
