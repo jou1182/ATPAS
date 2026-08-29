@@ -212,6 +212,7 @@ def test_build_called_with_correct_args():
         output_path=Path("output/roads.docx"),
         template_vars={"client": "وزارة النقل"},
         boq_order=["001-SUR-BASE"],
+        skip_validation=True,
     )
 
 
@@ -239,3 +240,31 @@ def test_empty_boq_and_vars_passed_as_none():
     _, kwargs = mock_instance.build.call_args
     assert kwargs["template_vars"] is None
     assert kwargs["boq_order"] is None
+
+
+# ---------------------------------------------------------------------------
+# 12. skip_validation forwarded (P3 default True, can be disabled)
+# ---------------------------------------------------------------------------
+
+def test_skip_validation_default_true():
+    job = _make_job("job_skip")
+    with patch("utils.batch_runner.Builder") as MockBuilder:
+        mock_instance = MockBuilder.return_value
+        mock_instance.build.return_value = (True, None)
+        runner = BatchRunner(codes={})
+        runner.run([job])
+
+    _, kwargs = mock_instance.build.call_args
+    assert kwargs["skip_validation"] is True
+
+
+def test_skip_validation_can_be_disabled():
+    job = _make_job("job_validate")
+    with patch("utils.batch_runner.Builder") as MockBuilder:
+        mock_instance = MockBuilder.return_value
+        mock_instance.build.return_value = (True, None)
+        runner = BatchRunner(codes={})
+        runner.run([job], skip_validation=False)
+
+    _, kwargs = mock_instance.build.call_args
+    assert kwargs["skip_validation"] is False

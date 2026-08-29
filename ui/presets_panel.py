@@ -319,29 +319,39 @@ class PresetsPanelWidget(QWidget):
         self._expanded = not self._expanded
         self._toggle_btn.setText("▲ إخفاء" if self._expanded else "▼ عرض")
 
-        _ANIM_MS = 230
+        _ANIM_MS = 200
 
         if prefers_reduced_motion():
             self._scroll_wrapper.setVisible(self._expanded)
             self._scroll_wrapper.setMaximumHeight(self._expanded_h if self._expanded else 0)
             return
 
+        # P3: أنيميشن opacity (Fade) بدل طيّ الارتفاع — أخف على العين وأداء
+        # أنعم. الطي الفعلي للمساحة يتم فوراً (maximumHeight) بينما يتلاشى
+        # المحتوى بصرياً.
+        wrapper = self._scroll_wrapper
+        wrapper.setVisible(True)
+        wrapper.setMaximumHeight(self._expanded_h if self._expanded else 0)
+
+        effect = QGraphicsOpacityEffect(wrapper)
+        wrapper.setGraphicsEffect(effect)
         if self._expanded:
-            # Make visible before animating (height starts at 0)
-            self._scroll_wrapper.setVisible(True)
-            self._scroll_wrapper.setMaximumHeight(0)
+            effect.setOpacity(0.0)
+        else:
+            effect.setOpacity(1.0)
 
-        anim = QPropertyAnimation(self._scroll_wrapper, b"maximumHeight", self)
+        anim = QPropertyAnimation(effect, b"opacity", wrapper)
         anim.setDuration(motion_ms(_ANIM_MS))
-        anim.setStartValue(self._scroll_wrapper.maximumHeight())
-        anim.setEndValue(self._expanded_h if self._expanded else 0)
-        anim.setEasingCurve(
-            QEasingCurve.OutCubic if self._expanded else QEasingCurve.InCubic
-        )
+        anim.setStartValue(0.0 if self._expanded else 1.0)
+        anim.setEndValue(1.0 if self._expanded else 0.0)
+        anim.setEasingCurve(QEasingCurve.OutCubic)
 
-        if not self._expanded:
-            # Hide the widget only *after* the collapse finishes
-            anim.finished.connect(lambda: self._scroll_wrapper.setVisible(False))
+        def _finish() -> None:
+            # أزل التأثير بعد الانتهاء حتى لا يبقى شبحاً بصرياً
+            wrapper.setGraphicsEffect(None)
+            if not self._expanded:
+                wrapper.setVisible(False)
 
+        anim.finished.connect(_finish)
         self._toggle_anim = anim
         anim.start(QPropertyAnimation.DeleteWhenStopped)

@@ -48,6 +48,8 @@ class BatchRunner:
         on_job_start: Callable[[int, int, str], None] | None = None,
         on_job_done: Callable[[BatchJobResult], None] | None = None,
         on_all_done: Callable[[list[BatchJobResult]], None] | None = None,
+        *,
+        skip_validation: bool = True,
     ) -> list[BatchJobResult]:
         """Run all jobs sequentially. Callbacks called on each step.
 
@@ -56,6 +58,8 @@ class BatchRunner:
             on_job_start: called with (job_index, total, job_id) before each job
             on_job_done: called with BatchJobResult after each job
             on_all_done: called with all results when finished
+            skip_validation: default True — the UI validates before batch,
+                so re-validating each job is redundant work (P3).
 
         Returns: list of BatchJobResult
         """
@@ -77,6 +81,7 @@ class BatchRunner:
                     output_path=job.output_path,
                     template_vars=job.template_vars or None,
                     boq_order=job.boq_order or None,
+                    skip_validation=skip_validation,
                 )
             except Exception as exc:
                 success = False

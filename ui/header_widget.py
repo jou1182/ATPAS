@@ -163,18 +163,20 @@ class LogoMark(QWidget):
 
 # ── تعريف أزرار الشريط العلوي في جدول واحد ──────────────────────────────────
 # (اسم الإشارة، النص، التلميح، لون التمييز)
+# تدقيق P2-3: توحيد ألوان الأزرار — ذهبي للأهم، أزرق للأدوات، أخضر للنسخ،
+# رمادي هادئ للثانوية (بدل 11 لوناً عشوائياً).
 _HEADER_BUTTONS: list[tuple[str, str, str, str]] = [
-    ("backup_requested",           "🗄️  نسخ احتياطي", "إدارة النسخ الاحتياطية للبيانات (Ctrl+B)",              "#8BC34A"),
-    ("import_requested",           "📥  استيراد",     "استيراد أكواد جديدة أو إدارة الجهات المالكة (Ctrl+I)",  "#5CB8E8"),
-    ("boq_import_requested",       "📋  جدول كميات",  "استورد جدول كميات BOQ وحدد الأكواد المناسبة تلقائياً",   "#FF8A65"),
-    ("health_requested",           "🩺  الصحة",       "فحص الأكواد والجهات وملفات Word",                       "#6EC6A4"),
-    ("code_manager_requested",     "🧩  الأكواد",     "إضافة أو تعديل أو تعطيل الأكواد بدون فتح JSON",         theme.GOLD_GLOW),
-    ("content_library_requested",  "📚  المكتبة",     "إدارة ملفات Word وحالات اعتماد المحتوى",                "#CFA7FF"),
-    ("last_proposal_requested",    "📄  آخر عرض",     "فتح آخر ملف Word تم إنشاؤه",                            "#F1D68A"),
-    ("session_history_requested",  "🕐  الجلسات",     "عرض واسترجاع الجلسات المحفوظة (Ctrl+J)",                "#7EC8E3"),
-    ("about_requested",            "ⓘ  عن النظام",    "معلومات الإصدار والصحة وآخر نشاط",                      "#D7DDE8"),
-    ("help_requested",             "❓  مساعدة",      "فتح دليل المساعدة (F1)",                                theme.ACCENT),
-    ("settings_requested",         "⚙  إعدادات",      "إعدادات التشغيل والحفظ",                                "#D7B56D"),
+    ("backup_requested",           "🗄️  نسخ احتياطي", "إدارة النسخ الاحتياطية للبيانات (Ctrl+B)",              theme.SUCCESS),
+    ("import_requested",           "📥  استيراد",     "استيراد أكواد جديدة أو إدارة الجهات المالكة (Ctrl+I)",  theme.INFO),
+    ("boq_import_requested",       "📋  جدول كميات",  "استورد جدول كميات BOQ وحدد الأكواد المناسبة تلقائياً",   theme.INFO),
+    ("health_requested",           "🩺  الصحة",       "فحص الأكواد والجهات وملفات Word",                       theme.TEXT2),
+    ("code_manager_requested",     "🧩  الأكواد",     "إضافة أو تعديل أو تعطيل الأكواد بدون فتح JSON",         theme.ACCENT),
+    ("content_library_requested",  "📚  المكتبة",     "إدارة ملفات Word وحالات اعتماد المحتوى",                theme.ACCENT),
+    ("last_proposal_requested",    "📄  آخر عرض",     "فتح آخر ملف Word تم إنشاؤه",                            theme.INFO),
+    ("session_history_requested",  "🕐  الجلسات",     "عرض واسترجاع الجلسات المحفوظة (Ctrl+J)",                theme.ACCENT),
+    ("about_requested",            "ⓘ  عن النظام",    "معلومات الإصدار والصحة وآخر نشاط",                      theme.TEXT2),
+    ("help_requested",             "❓  مساعدة",      "فتح دليل المساعدة (F1)",                                theme.TEXT2),
+    ("settings_requested",         "⚙  إعدادات",      "إعدادات التشغيل والحفظ",                                theme.TEXT2),
 ]
 
 _HDR_BTN_TEMPLATE = """
