@@ -80,6 +80,37 @@ Tajawal + RTL + محاذاة يمين
 
 ---
 
+## 5.1 الهيكل المتقدم — تجميع الأقسام حسب الفئات (v3.2)
+
+بدل ترتيب مسطّح للأقسام، يجمّع `engine/builder.py: _add_sections` الأقسام حسب الفئة (001–005) مع **صفحة فاصل** لكل فئة:
+
+- الفاصل = صفحة بعنوان الفئة ووصفها من `master_config.json → code_ranges`.
+- الفئة الأولى لا تبدأ بصفحة جديدة (تلي الفهرس طبيعياً)؛ كل انتقال بعدها يبدأ صفحة.
+- `estimate_pages` يضيف +1 صفحة لكل فئة إضافية ممثلة (`_category_divider_count`).
+- الاختبار: `tests/test_builder.py → TestCategoryGrouping`.
+
+---
+
+## 5.2 سياق الحفر (Spec 001) — تصنيف وفحص
+
+أكواد فئة `002` (الحفر) تحمل حقل `excavation_context`:
+
+| السياق | الأكواد | المشاريع المقابلة |
+|---|---|---|
+| `infrastructure` | FINE / OPEN / TUNNEL | wastewater, water_supply, water_transmission |
+| `building` | FND / BLK + المساند الخمسة (DEW/SHR/TRM/SOL/WPR) | general_construction |
+| `road` | PAV / MIL | asphalt, road_maintenance |
+
+**قاعدة التحقق** في `engine/validator.py: _check_excavation_context`:
+- **خلط سياقين مختلفين في عرض واحد = خطأ يمنع البناء** (رسالة عربية تحدد الأكواد).
+- سياق لا يطابق المشروع = تحذير (لا يمنع).
+- كود حفر بلا تصنيف = تحذير مراجعة (لا يُختار صامتاً — FR-017).
+
+**عند إضافة كود حفر جديد**: حدّد `excavation_context` الصحيح وإلا سيظهر تحذير مراجعة دائماً.
+الاختبار: `tests/test_excavation_context.py`.
+
+---
+
 ## 6. دورة "التعديل ← النشر"
 
 بعد إجراء أي تعديل في الكود أو ملفات الـ JSON، اتبع الخطوات التالية بالترتيب:
@@ -139,4 +170,4 @@ pyinstaller license_generator.spec
 ---
 
 *تم إعداد هذا الدليل لضمان أعلى معايير الجودة والاستمرارية لشركة الرواف.*
-*آخر تحديث: 2026-04-30 | ATPAS v3.1*
+*آخر تحديث: 29 أغسطس 2026 | ATPAS v3.2*

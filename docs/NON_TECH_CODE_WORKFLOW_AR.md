@@ -190,6 +190,13 @@ codes_registry.json
 | `source_document` | اسم ملف Word الخاص بالكود | `003-PIP-MAIN.docx` |
 | `status` | هل يظهر أم لا؟ | `active` |
 
+> **ملاحظة لأكواد الحفر (الفئة 002):** يجب إضافة حقل `excavation_context` — يحدد سياق الحفر حتى لا يُخلط مع سياق آخر:
+> - `infrastructure` — حفر الشبكات (مواسير): FINE/OPEN/TUNNEL
+> - `building` — حفر المباني (أساسات + مساند): FND/BLK/DEW/SHR/TRM/SOL/WPR
+> - `road` — حفر الطرق: PAV/MIL
+>
+> كود حفر بلا هذا الحقل سيظهر تحذير "بلا تصنيف سياق" دائماً.
+
 ---
 
 ## قيم المشاريع المتاحة
