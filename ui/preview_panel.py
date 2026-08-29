@@ -25,13 +25,15 @@ from PyQt5.QtWidgets import (
     QGraphicsOpacityEffect,
     QGroupBox,
     QHBoxLayout,
+    QHeaderView,
     QLabel,
     QListWidget,
     QListWidgetItem,
     QMessageBox,
     QPushButton,
     QSizePolicy,
-    QTextBrowser,
+    QTreeWidget,
+    QTreeWidgetItem,
     QVBoxLayout,
     QWidget,
 )
@@ -81,15 +83,20 @@ class PreviewPanelWidget(QWidget):
     auto_fix_requested = pyqtSignal()
     build_requested = pyqtSignal()
 
-    def __init__(self, registry_data: dict[str, Any], parent=None) -> None:
+    def __init__(
+        self,
+        registry_data: dict[str, Any],
+        config_data: dict[str, Any] | None = None,
+        parent=None,
+    ) -> None:
         super().__init__(parent)
         self.setLayoutDirection(Qt.RightToLeft)
 
         self._codes: dict[str, dict] = registry_data.get("codes", {})
+        self._code_ranges: dict[str, dict] = (config_data or {}).get("code_ranges", {})
 
-        self._summary_label = QLabel("لم يتم اختيار أكواد بعد")
-        self._summary_label.setAlignment(Qt.AlignCenter)
-        self._summary_label.setStyleSheet("font-weight: bold; padding: 4px;")
+        # أُزيل العنوان المكرر — شريط الجاهزية أدناه يؤدي الدور (توفير ارتفاع)
+        self._summary_label = None
         self._readiness_label = QLabel("جاهزية التسليم: لم يتم اختيار أكواد بعد")
         self._readiness_label.setAlignment(Qt.AlignCenter)
         self._readiness_label.setWordWrap(True)
@@ -108,7 +115,7 @@ class PreviewPanelWidget(QWidget):
         self._codes_list = QListWidget()
         self._codes_list.setLayoutDirection(Qt.RightToLeft)
         self._codes_list.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        self._codes_list.setMinimumHeight(72)   # لا تنهار إلى شريحة على الشاشات المكثفة
+        self._codes_list.setMinimumHeight(44)   # أرضية مرنة — لا انهار كشرائحة
         codes_layout.addWidget(self._codes_list)
 
         # Validation messages
@@ -120,7 +127,7 @@ class PreviewPanelWidget(QWidget):
         val_layout.addWidget(_section_title("التحقق والتحذيرات"))
         self._validation_list = QListWidget()
         self._validation_list.setLayoutDirection(Qt.RightToLeft)
-        self._validation_list.setMinimumHeight(64)   # نفس الحماية من الانهيار
+        self._validation_list.setMinimumHeight(40)   # نفس الحماية من الانهيار
         self._validation_list.setMaximumHeight(140)
         val_layout.addWidget(self._validation_list)
 
@@ -181,12 +188,16 @@ class PreviewPanelWidget(QWidget):
         self._current_selected: list[str] = []
 
         root = QVBoxLayout(self)
-        root.addWidget(self._summary_label)
+        root.setContentsMargins(8, 8, 8, 8)
+        root.setSpacing(6)
         root.addWidget(self._readiness_label)
         root.addWidget(codes_box, stretch=3)
         root.addWidget(val_box, stretch=2)
+        # صف أزرار واحد: إصلاح | بناء | (مساحة) | هيكل | CSV — توفير صف كامل
+        btn_layout.addStretch()
+        btn_layout.addWidget(self._outline_btn)
+        btn_layout.addWidget(self._export_btn)
         root.addLayout(btn_layout)
-        root.addLayout(export_row)
 
     # ------------------------------------------------------------------
     # Public API
@@ -202,7 +213,6 @@ class PreviewPanelWidget(QWidget):
         self._current_selected = list(selected_codes)
         self._refresh_codes_list(selected_codes)
         self._refresh_validation(errors, warnings)
-        self._refresh_summary(selected_codes, errors)
         self._refresh_readiness(selected_codes, errors, warnings)
 
         now_enabled = len(errors) == 0 and len(selected_codes) > 0
@@ -279,8 +289,11 @@ class PreviewPanelWidget(QWidget):
         self._current_selected = []
         self._codes_list.clear()
         self._validation_list.clear()
-        self._summary_label.setText("لم يتم اختيار أكواد بعد")
         self._readiness_label.setText("جاهزية التسليم: لم يتم اختيار أكواد بعد")
+        self._readiness_label.setStyleSheet(
+            "font-weight: 800; padding: 6px 10px; color: #30465E; "
+            "background: #EEF3FA; border: 1px solid #D5E1F0; border-radius: 8px;"
+        )
         self._build_btn.setEnabled(False)
         self._autofix_btn.setEnabled(False)
         self._export_btn.setEnabled(False)
@@ -341,28 +354,143 @@ class PreviewPanelWidget(QWidget):
             QMessageBox.critical(self, "خطأ", f"تعذّر التصدير:\n{exc}")
 
     def _on_show_outline(self) -> None:
-        """Show the expected proposal outline before building."""
+        """Show the expected proposal outline before building.
+
+        A tree grouped by category (001–005) with per-code columns
+        (code, name, pages, content) — collapsible, colour-coded,
+        matching the actual built document structure.
+        """
         dialog = QDialog(self)
         dialog.setWindowTitle("معاينة هيكل العرض الفني")
         dialog.setLayoutDirection(Qt.RightToLeft)
-        dialog.setMinimumSize(620, 520)
+        dialog.resize(760, 560)
 
         layout = QVBoxLayout(dialog)
-        title = QLabel("هيكل العرض المتوقع قبل البناء")
+        title = QLabel("هيكل العرض المتوقع قبل البناء — حسب مراحل التنفيذ")
         title.setAlignment(Qt.AlignCenter)
         title.setStyleSheet(
             f"font-size: 16px; font-weight: 900; color: {theme.HEADER}; "
             f"border-bottom: 2px solid {theme.ACCENT}; padding-bottom: 8px;"
         )
-        browser = QTextBrowser(dialog)
-        browser.setLayoutDirection(Qt.RightToLeft)
-        browser.setHtml(self._outline_html())
+
+        tree = QTreeWidget(dialog)
+        tree.setLayoutDirection(Qt.RightToLeft)
+        tree.setColumnCount(4)
+        tree.setHeaderLabels(["المرحلة / الكود", "الكود", "الصفحات", "المحتوى"])
+        tree.setAlternatingRowColors(True)
+        header = tree.header()
+        header.setStretchLastSection(False)
+        header.setSectionResizeMode(0, header.ResizeMode.Stretch)
+
+        self._populate_outline_tree(tree)
+        tree.expandAll()
+
+        # Summary header
+        total_codes = len(self._current_selected)
+        total_pages = sum(
+            _safe_int(self._codes.get(cid, {}).get("page_count"), 0)
+            for cid in self._current_selected
+        )
+        total_cats = len(self._outline_categories())
+        summary = QLabel(
+            f"📦 {total_codes} كوداً  ·  📄 {total_pages} صفحة  ·  🗂 {total_cats} مراحل"
+        )
+        summary.setAlignment(Qt.AlignCenter)
+        summary.setStyleSheet(
+            f"font-weight: 800; padding: 5px; color: {theme.HEADER}; "
+            f"background: {theme.ACCENT_PALE}; border-radius: 6px;"
+        )
+
+        btn_row = QHBoxLayout()
+        expand_btn = QPushButton("توسيع الكل")
+        expand_btn.clicked.connect(tree.expandAll)
+        collapse_btn = QPushButton("طي الكل")
+        collapse_btn.clicked.connect(tree.collapseAll)
         close_btn = QPushButton("إغلاق")
         close_btn.clicked.connect(dialog.accept)
+        btn_row.addWidget(expand_btn)
+        btn_row.addWidget(collapse_btn)
+        btn_row.addStretch()
+        btn_row.addWidget(close_btn)
+
         layout.addWidget(title)
-        layout.addWidget(browser, stretch=1)
-        layout.addWidget(close_btn)
+        layout.addWidget(summary)
+        layout.addWidget(tree, stretch=1)
+        layout.addLayout(btn_row)
         dialog.exec_()
+
+    def _outline_categories(self) -> list[str]:
+        """Ordered list of category ids present in the current selection."""
+        cats: list[str] = []
+        for cid in self._sorted_codes(self._current_selected):
+            c = self._codes.get(cid, {})
+            cat = str(c.get("category", ""))
+            if cat and cat not in cats:
+                cats.append(cat)
+        return cats
+
+    def _populate_outline_tree(self, tree: QTreeWidget) -> None:
+        """Fill the tree: category top-level rows → code child rows."""
+        tree.clear()
+        if tree.columnCount() < 4:
+            tree.setColumnCount(4)
+            tree.setHeaderLabels(["المرحلة / الكود", "الكود", "الصفحات", "المحتوى"])
+        cat_color = {
+            "001": theme.CTX_INFRA,
+            "002": theme.CTX_WATER,
+            "003": theme.CTX_ROAD,
+            "004": theme.CTX_BUILD,
+            "005": theme.CTX_MIXED,
+        }
+
+        # Group selected codes by category, preserving sequence order
+        grouped: dict[str, list[str]] = {}
+        for cid in self._sorted_codes(self._current_selected):
+            c = self._codes.get(cid, {})
+            cat = str(c.get("category", "") or "أخرى")
+            grouped.setdefault(cat, []).append(cid)
+
+        for cat in self._outline_categories() or grouped.keys():
+            codes = grouped.get(cat, [])
+            info = self._code_ranges.get(cat, {})
+            cat_name = info.get("category_name_ar") or cat
+            cat_pages = sum(
+                _safe_int(self._codes.get(cid, {}).get("page_count"), 0)
+                for cid in codes
+            )
+            color = cat_color.get(cat, theme.NEUTRAL)
+
+            cat_item = QTreeWidgetItem(tree)
+            cat_item.setText(0, f"📂 {cat_name}")
+            cat_item.setText(1, "")
+            cat_item.setText(2, str(cat_pages))
+            cat_item.setText(3, f"{len(codes)} نشاط")
+            cat_item.setForeground(0, QColor(color))
+            font = cat_item.font(0)
+            font.setBold(True)
+            cat_item.setFont(0, font)
+
+            for cid in codes:
+                c = self._codes.get(cid, {})
+                name_ar = c.get("activity_name_ar", cid)
+                pages = _safe_int(c.get("page_count"), 0)
+                has_content = _CONTENT_LIB.exists(cid)
+
+                child = QTreeWidgetItem(cat_item)
+                child.setText(0, name_ar)
+                child.setText(1, cid)
+                child.setText(2, str(pages))
+                child.setText(3, "🟢 Word" if has_content else "🔘 بديل")
+                child.setToolTip(
+                    3,
+                    "محتوى Word حقيقي" if has_content
+                    else "لا يوجد ملف Word بعد — سيُعرض نص بديل",
+                )
+                if has_content:
+                    child.setForeground(3, QColor(_COLOR_OK))
+                else:
+                    child.setForeground(3, QColor(theme.NEUTRAL))
+                child.setTextAlignment(2, Qt.AlignCenter)
 
     # ------------------------------------------------------------------
     # Private helpers
@@ -416,38 +544,6 @@ class PreviewPanelWidget(QWidget):
             info_item.setBackground(QColor(_BG_INFO))
             self._validation_list.addItem(info_item)
 
-    def _refresh_summary(self, selected_codes: list[str], errors: list[str]) -> None:
-        if not selected_codes:
-            self._summary_label.setText("لم يتم اختيار أكواد بعد")
-            self._summary_label.setStyleSheet(
-                "font-weight: bold; padding: 5px 8px; color: #30465E; "
-                "background: #EEF3FA; border: 1px solid #D5E1F0; border-radius: 7px;"
-            )
-            return
-
-        total_pages = sum(
-            _safe_int(self._codes.get(cid, {}).get("page_count"), 0)
-            for cid in selected_codes
-        )
-        real_count = sum(1 for cid in selected_codes if _CONTENT_LIB.exists(cid))
-        ph_count = len(selected_codes) - real_count
-        content_note = (
-            f"🟢 {real_count} حقيقي"
-            + (f"  🔘 {ph_count} placeholder" if ph_count else "")
-        )
-        status_color = _COLOR_ERROR if errors else _COLOR_OK
-        status_text = "يوجد أخطاء" if errors else "جاهز للبناء"
-        self._summary_label.setText(
-            f"{len(selected_codes)} كود  |  {total_pages} صفحة تقريباً  |  "
-            f"{content_note}  |  {status_text}"
-        )
-        bg_color = _BG_ERROR if errors else _BG_OK
-        border_color = theme.ERROR if errors else theme.SUCCESS
-        self._summary_label.setStyleSheet(
-            f"font-weight: bold; padding: 5px 8px; color: {status_color}; "
-            f"background: {bg_color}; border: 1px solid {border_color}; border-radius: 7px;"
-        )
-
     def _refresh_readiness(
         self,
         selected_codes: list[str],
@@ -477,25 +573,4 @@ class PreviewPanelWidget(QWidget):
         self._readiness_label.setStyleSheet(
             f"font-weight: 900; padding: 6px 10px; color: {color}; "
             f"background: {bg}; border: 1px solid {border}; border-radius: 8px;"
-        )
-
-    def _outline_html(self) -> str:
-        rows = []
-        for idx, cid in enumerate(self._sorted_codes(self._current_selected), 1):
-            cdata = self._codes.get(cid, {})
-            name_ar = cdata.get("activity_name_ar", cid)
-            pages = _safe_int(cdata.get("page_count"), 0)
-            content = "محتوى Word" if _CONTENT_LIB.exists(cid) else "نص بديل"
-            rows.append(
-                f"<tr><td>{idx}</td><td>{cid}</td><td>{name_ar}</td>"
-                f"<td>{pages}</td><td>{content}</td></tr>"
-            )
-        return (
-            f"<html dir='rtl'><body style='font-family: Tajawal; color:{theme.TEXT};'>"
-            "<table width='100%' cellspacing='0' cellpadding='7' "
-            "style='border-collapse:collapse;'>"
-            f"<tr style='background:{theme.HEADER};color:#F5D48B;'>"
-            "<th>م</th><th>الكود</th><th>العنوان</th><th>صفحات</th><th>المحتوى</th></tr>"
-            + "".join(rows)
-            + "</table></body></html>"
         )

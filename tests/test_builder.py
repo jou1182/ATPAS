@@ -410,3 +410,106 @@ def test_build_performance(builder):
     assert elapsed < 5.0, f"Build took {elapsed:.2f}s (limit 5s)"
     estimated_pages = builder.estimate_pages(selected)
     assert estimated_pages >= 60, f"Expected ≥60 pages, got {estimated_pages}"
+
+
+# ---------------------------------------------------------------------------
+# Advanced structure: category grouping + dividers
+# ---------------------------------------------------------------------------
+
+class TestCategoryGrouping:
+    """Verify sections are grouped by category (001–005) with divider pages."""
+
+    def test_estimate_pages_adds_divider_per_extra_category(self, codes) -> None:
+        b = Builder(codes)
+        # Single category → no divider pages
+        one_cat = ["001-SUR-BASE", "001-PRM-GOV"]
+        assert b._category_divider_count(one_cat) == 0
+        # Two categories → 1 divider page
+        two_cat = ["001-SUR-BASE", "002-EXC-FINE"]
+        assert b._category_divider_count(two_cat) == 1
+        # Five categories → 4 divider pages
+        five_cat = [
+            "001-SUR-BASE", "002-EXC-FINE", "003-PIP-SEW",
+            "004-TST-LEK", "005-HND-FIN",
+        ]
+        assert b._category_divider_count(five_cat) == 4
+
+    def test_estimate_pages_reflects_dividers(self, codes) -> None:
+        b = Builder(codes)
+        # Same two codes; adding a second category adds exactly +1 divider page
+        one_cat = ["001-SUR-BASE", "001-PRM-GOV"]           # 1 category
+        same_codes_two_cats = ["001-SUR-BASE", "002-EXC-FINE"]  # 2 categories
+        base_pages = b.estimate_pages(one_cat)
+        multi_pages = b.estimate_pages(same_codes_two_cats)
+        # Differing code pages (5 vs 4) + 1 divider page
+        code_page_diff = (
+            codes["002-EXC-FINE"].get("page_count", 0)
+            - codes["001-PRM-GOV"].get("page_count", 0)
+        )
+        assert multi_pages == base_pages + code_page_diff + 1
+
+    def test_category_divider_appears_in_document(self, builder) -> None:
+        """The built document contains the category names from code_ranges."""
+        selected = ["001-SUR-BASE", "002-EXC-FINE"]
+        out = _OUTPUT_DIR / "category_grouping.docx"
+        success, err = builder.build(selected, "wastewater", "nwc", out,
+                                     skip_validation=True)
+        assert success, f"Build failed: {err}"
+        doc = Document(str(out))
+        full_text = " ".join(p.text for p in doc.paragraphs)
+        # Category names from master_config.json → code_ranges
+        assert "الأعمال التحضيرية" in full_text
+        assert "الحفر والمخلفات" in full_text
+
+    def test_category_divider_order_matches_code_sequence(self, builder) -> None:
+        """Category dividers appear in code sequence order (001 before 002)."""
+        selected = ["001-SUR-BASE", "002-EXC-FINE", "003-PIP-SEW"]
+        out = _OUTPUT_DIR / "category_order.docx"
+        success, err = builder.build(selected, "wastewater", "nwc", out,
+                                     skip_validation=True)
+        assert success, f"Build failed: {err}"
+        doc = Document(str(out))
+        texts = [p.text.strip() for p in doc.paragraphs if p.text.strip()]
+        # Build the position map for category names
+        pos_001 = next(i for i, t in enumerate(texts) if "الأعمال التحضيرية" in t)
+        pos_002 = next(i for i, t in enumerate(texts) if "الحفر والمخلفات" in t)
+        pos_003 = next(i for i, t in enumerate(texts) if "التركيب والتوصيل" in t)
+        assert pos_001 < pos_002 < pos_003
+
+    def test_category_divider_page_break_count(self, builder) -> None:
+        """Number of explicit page breaks before category sections ≥ categories-1."""
+        selected = [
+            "001-SUR-BASE", "002-EXC-FINE", "003-PIP-SEW",
+            "004-TST-LEK", "005-HND-FIN",
+        ]
+        out = _OUTPUT_DIR / "category_breaks.docx"
+        success, err = builder.build(selected, "wastewater", "nwc", out,
+                                     skip_validation=True)
+        assert success, f"Build failed: {err}"
+        doc = Document(str(out))
+        page_breaks = 0
+        for p in doc.paragraphs:
+            for br in p._p.iter(qn("w:br")):
+                if br.get(qn("w:type")) == "page":
+                    page_breaks += 1
+        # Cover + TOC have their own breaks; dividers add categories-1 more
+        assert page_breaks >= 4, f"Expected ≥4 page breaks, got {page_breaks}"
+
+    def test_unknown_category_falls_back_to_raw_id(self, codes, tmp_path) -> None:
+        """A code with an unknown category still builds (no KeyError)."""
+        # Inject a fake code with category 'ZZZ'
+        fake_codes = dict(codes)
+        fake_codes["999-TST-XXX"] = {
+            "code_id": "999-TST-XXX",
+            "category": "ZZZ",
+            "activity_name_ar": "اختبار فئة غير معروفة",
+            "activity_name_en": "Unknown category test",
+            "sequence_order": 9999,
+            "page_count": 1,
+            "status": "active",
+        }
+        b = Builder(fake_codes)
+        out = tmp_path / "unknown_cat.docx"
+        success, err = b.build(["999-TST-XXX"], "wastewater", "nwc", out,
+                               skip_validation=True)
+        assert success, f"Build failed: {err}"

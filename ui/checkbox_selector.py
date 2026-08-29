@@ -320,17 +320,26 @@ class CheckboxSelectorWidget(QGroupBox):
         )
 
         outer = QVBoxLayout(self)
-        outer.setContentsMargins(12, 12, 12, 12)
-        outer.setSpacing(8)
+        outer.setContentsMargins(10, 9, 10, 9)
+        outer.setSpacing(6)
         outer.addWidget(title_lbl)
         outer.addWidget(self._counter_label)
         outer.addWidget(self._search_box)
         outer.addWidget(self._no_results_lbl)
         outer.addWidget(self._scroll, stretch=1)
         outer.addWidget(add_btn)
+        # أرضية مرنة: القائمة القابلة للتمرير هي ما ينكمش أولاً بدل كسر البقية
+        self._scroll.setMinimumHeight(64)
 
         # Track which container is currently shown
         self._current_container: QWidget | None = None
+
+    def resizeEvent(self, event) -> None:  # type: ignore[override]
+        """عند الضيق: أخفِ وصف المشاريع (يبقى في التلميح) — قرار لحظي دقيق."""
+        super().resizeEvent(event)
+        info = getattr(self, "_info_label", None)
+        if info is not None:
+            info.setVisible(self.height() >= 300)
 
     def eventFilter(self, obj, event):  # noqa: N802 — Qt naming
         """Escape في خانة البحث يمسحها ويعرض كل الأكواد فوراً."""

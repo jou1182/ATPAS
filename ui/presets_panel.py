@@ -307,6 +307,14 @@ class PresetsPanelWidget(QWidget):
         self._expanded_h = self._measure_expanded_height(self._scroll_wrapper)
         self._scroll_wrapper.setFixedHeight(self._expanded_h)
 
+    def set_collapsed_instant(self) -> None:
+        """اطوِ الشريط فوراً بلا أنيميشن — لبدء التشغيل على شاشات قصيرة."""
+        self._expanded = False
+        self._toggle_btn.setText("▼ عرض")
+        if self._scroll_wrapper is not None:
+            self._scroll_wrapper.setVisible(False)
+            self._scroll_wrapper.setMaximumHeight(0)
+
     def _toggle_panel(self) -> None:
         self._expanded = not self._expanded
         self._toggle_btn.setText("▲ إخفاء" if self._expanded else "▼ عرض")

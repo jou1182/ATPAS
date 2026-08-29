@@ -112,8 +112,8 @@ class ProjectSelectorWidget(QGroupBox):
 
     def _build_layout(self) -> None:
         root = QVBoxLayout(self)
-        root.setContentsMargins(12, 12, 12, 12)
-        root.setSpacing(9)
+        root.setContentsMargins(10, 9, 10, 9)
+        root.setSpacing(7)
 
         title_lbl = QLabel("اختيار المشروع والجهة المالكة")
         title_lbl.setAlignment(Qt.AlignCenter)

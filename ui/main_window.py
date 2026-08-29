@@ -224,9 +224,57 @@ class MainWindow(QMainWindow):
         # Offer to restore draft session (after UI is visible)
         motion_single_shot(800, self._maybe_restore_draft)
         # تشخيص ذاتي: مقاييس التخطيط بعد استقرار الواجهة (2.5 ثانية)
-        motion_single_shot(2500, self._log_ui_metrics)
+        motion_single_shot(2500, lambda: self._log_ui_metrics(save_snapshot=True))
 
-    def _log_ui_metrics(self) -> None:
+    def resizeEvent(self, event) -> None:  # type: ignore[override]
+        """تكيّف حي: أي تغيير مقاس (تكبير/استعادة) يعيد فحص الميزانية العمودية."""
+        super().resizeEvent(event)
+        if not self._startup_anim_started:
+            return
+        # كبح: لا نعيد الفحص إلا بعد استقرار التحجيم 400ms
+        if getattr(self, "_adapt_timer", None) is None:
+            from PyQt5.QtCore import QTimer as _QTimer
+            self._adapt_timer = _QTimer(self)
+            self._adapt_timer.setSingleShot(True)
+            self._adapt_timer.setInterval(400)
+            self._adapt_timer.timeout.connect(self._adapt_layout)
+        self._adapt_timer.start()
+
+    def _adapt_layout(self) -> None:
+        """موازنة الميزانية العمودية بعد أي تغيير مقاس.
+
+        القرار على **ارتفاع النافذة** (ثابت بيد المستخدم) لا ارتفاع المنتقي —
+        لأن طيّ الأنماط يغيّر ارتفاع المنتقي نفسه، والقرار عليه يصنع تذبذباً
+        لا نهائياً (طوّر ← اتسع ← افتح ← ضاق ← طوّر...).
+
+        1. نافذة < 760px منطقية (شاشات 150%) → اطوِ الأنماط مرة.
+        2. نافذة ≥ 900px بعد طيّ تلقائي → أعد فتحها.
+        3. سجّل المقاييس (اللقطة الذاتية عند الإقلاع فقط).
+        """
+        try:
+            sel = self._checkbox_selector
+            panel = getattr(self, "_presets_panel", None)
+            wh = self.height()
+
+            if panel is not None and panel._expanded and wh < 760:
+                panel._toggle_panel()
+                self._auto_collapsed = True
+                self._logger.info("ADAPT | presets collapsed (win=%dpx)", wh)
+            elif (
+                panel is not None
+                and getattr(self, "_auto_collapsed", False)
+                and not panel._expanded
+                and wh >= 900
+            ):
+                panel._toggle_panel()
+                self._auto_collapsed = False
+                self._logger.info("ADAPT | presets re-expanded (win=%dpx)", wh)
+
+            self._log_ui_metrics()
+        except Exception:  # noqa: BLE001
+            self._logger.exception("ADAPT failed")
+
+    def _log_ui_metrics(self, save_snapshot: bool = False) -> None:
         """سجل تشخيصي بمقاييس التخطيط الفعلية — يحسم أي بلاغ «انضغاط» بالأرقام.
 
         يُستدعى تلقائياً بعد الإقلاع وعند الطلب بـ Ctrl+Alt+D.
@@ -271,6 +319,8 @@ class MainWindow(QMainWindow):
         except Exception:  # noqa: BLE001
             self._logger.exception("UI_METRICS dump failed")
 
+        if not save_snapshot:
+            return
         # لقطة ذاتية بجوار السجل — تحكيم بصري مباشر حتى على جلسة مقفلة
         try:
             from pathlib import Path as _P
@@ -350,9 +400,26 @@ class MainWindow(QMainWindow):
 
         self.setWindowTitle(title)
         self.resize(width, height)
-        # الحد الأدنى يمنع «القصّ والتقاطع» على شاشات التكبير 125%+: تحت هذا
-        # المنطق لا تكفي الميزانية العمودية للهيدر+الأنماط+المشروع+اللوحتين.
-        self.setMinimumSize(1200, 780)   # يضمن ظهور كل أزرار الهيدر دون تصادم
+
+        # ── حد أدنى ديناميكي (specs: ملاءمة شاشات 125%/150%) ────────────
+        # حد أدنى ثابت أعلى من المساحة المنطقية المتاحة = وضع «انتهاك» في
+        # Qt (قصّ وتقاطع). لذا نقيّد الحد الأدنى بمساحة الشاشة الفعلية.
+        from PyQt5.QtWidgets import QApplication as _QApp
+
+        screen = _QApp.primaryScreen()
+        if screen is not None:
+            avail = screen.availableGeometry()
+            min_w = min(1200, max(880, avail.width() - 16))
+            min_h = min(780, max(560, avail.height() - 16))
+        else:  # pragma: no cover — بلا شاشة (اختبارات)
+            min_w, min_h = 1200, 780
+        self.setMinimumSize(min_w, min_h)
+        self._min_h_logical = min_h
+
+        # شاشة قصيرة منطقياً (< 900) → ابدأ بالأنماط مطوية (توفير ~150px)
+        if screen is not None and screen.availableGeometry().height() < 900:
+            self._start_presets_collapsed = True
+
         self.setLayoutDirection(Qt.RightToLeft)
 
         self.setStatusBar(QStatusBar(self))
@@ -395,7 +462,7 @@ class MainWindow(QMainWindow):
         content.setAttribute(Qt.WA_StyledBackground, True)
         content.setLayoutDirection(Qt.RightToLeft)
         content_layout = QVBoxLayout(content)
-        content_layout.setContentsMargins(12, 10, 12, 10)
+        content_layout.setContentsMargins(8, 8, 8, 8)
         content_layout.setSpacing(8)
         root_layout.addWidget(content, stretch=1)
 
@@ -417,7 +484,9 @@ class MainWindow(QMainWindow):
         self._checkbox_selector = CheckboxSelectorWidget(self.registry_data, parent=self)
         middle.addWidget(self._checkbox_selector, stretch=3)
 
-        self._preview_panel = PreviewPanelWidget(self.registry_data, parent=self)
+        self._preview_panel = PreviewPanelWidget(
+            self.registry_data, self.config_data, parent=self
+        )
         middle.addWidget(self._preview_panel, stretch=2)
 
         # ── Wire signals ───────────────────────────────────────────────
@@ -440,6 +509,16 @@ class MainWindow(QMainWindow):
         self._header.boq_import_requested.connect(self._on_import_boq)
         self._header.session_history_requested.connect(self._on_session_history)
         self._history_manager = BuildHistoryManager()
+
+        # طيّ فوري قبل أول ظهور على الشاشات قصيرة الميزانية (بلا وميض)
+        if getattr(self, "_start_presets_collapsed", False) and self._presets_panel is not None:
+            self._presets_panel.set_collapsed_instant()
+            self._auto_collapsed = True
+            self._logger.info(
+                "ADAPT | presets start collapsed (avail_h=%d)",
+                self._min_h_logical,
+            )
+
         self._wire_shortcuts()
         self._build_menu_bar()
 

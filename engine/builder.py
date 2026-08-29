@@ -105,9 +105,12 @@ class Builder:
         try:
             cfg = load_json(Path(master_config))
             self._owner_specs: Dict[str, Dict] = cfg.get("owner_specifications", {})
+            # Category ranges (001–005) used for section grouping + dividers
+            self._code_ranges: Dict[str, Dict] = cfg.get("code_ranges", {})
         except (FileNotFoundError, ValueError, OSError):
             logger.warning("master_config.json not loadable — owner names will fall back to owner_id")
             self._owner_specs = {}
+            self._code_ranges = {}
 
     # ------------------------------------------------------------------
     # Public API
@@ -222,13 +225,18 @@ class Builder:
         Includes 2 fixed pages present in every proposal:
           +1 cover page
           +1 table of contents
+
+        Plus +1 divider page for every extra category represented
+        (the first category's divider shares the previous page boundary
+        — only transitions add a full page).
         """
         code_pages = sum(
             self._codes[c].get("page_count", 0)
             for c in selected_codes
             if c in self._codes
         )
-        return code_pages + 2
+        divider_pages = self._category_divider_count(selected_codes)
+        return code_pages + 2 + divider_pages
 
     def estimate_images(self, selected_codes: List[str]) -> int:
         """Estimate total image count for the selected codes."""
@@ -367,9 +375,13 @@ class Builder:
         formatter: Optional[Formatter],
     ) -> None:
         """
-        Add one section per code in sequence order.
+        Add one section per code in sequence order, grouped by category.
 
-        Priority:
+        A category divider (title + description on its own page) is inserted
+        before the first code of each new category (001–005), turning the flat
+        code stack into ordered proposal phases.
+
+        Priority per section:
           1. Real content from content library (templates/source_documents/{code_id}.docx)
           2. Metadata-based placeholder (activity name + description)
         """
@@ -379,10 +391,19 @@ class Builder:
             if isinstance(a, dict) and "code_id" in a
         }
 
+        current_category: Optional[str] = None
         for code_id in ordered_codes:
             code = self._codes.get(code_id)
             if not code:
                 continue
+
+            category = code.get("category")
+            if category != current_category:
+                self._add_category_divider(
+                    doc, category, formatter,
+                    is_first=(current_category is None),
+                )
+                current_category = category
 
             activity = activities.get(code_id, {})
             name_ar = code.get("activity_name_ar", code_id)
@@ -419,6 +440,70 @@ class Builder:
                 logger.info("Used content library for %s", code_id)
 
             doc.add_paragraph()  # section spacer
+
+    # ------------------------------------------------------------------
+    # Category grouping helpers
+    # ------------------------------------------------------------------
+
+    def _category_divider_count(self, selected_codes: List[str]) -> int:
+        """Number of full divider pages: every category transition after the first."""
+        cats: List[str] = []
+        for cid in selected_codes:
+            code = self._codes.get(cid)
+            if not code:
+                continue
+            cat = code.get("category")
+            if cat != (cats[-1] if cats else None):
+                cats.append(cat)
+        return max(0, len(cats) - 1)
+
+    def _category_info(self, category: Optional[str]) -> Dict:
+        """Resolve a category id to its display info (name + description).
+
+        Falls back to the raw id / empty text when the category is unknown
+        (e.g. custom 999-CUS codes) so existing builds never break.
+        """
+        info = self._code_ranges.get(category, {}) if category else {}
+        return {
+            "name_ar": info.get("category_name_ar") or category or "أخرى",
+            "description": info.get("description", ""),
+        }
+
+    def _add_category_divider(
+        self,
+        doc: Document,
+        category: Optional[str],
+        formatter: Optional[Formatter],
+        *,
+        is_first: bool = False,
+    ) -> None:
+        """Insert a category divider: page break + title + description.
+
+        The first category does NOT get a leading page break (it follows the
+        TOC page naturally); every transition after it starts a new page.
+        """
+        if not is_first:
+            doc.add_page_break()
+
+        info = self._category_info(category)
+        name_ar = info["name_ar"]
+        description = info["description"]
+
+        if formatter:
+            formatter.add_heading(doc, name_ar, level=1)
+            if description:
+                formatter.add_body_paragraph(doc, description)
+        else:
+            h = doc.add_heading(name_ar, level=1)
+            h.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+            set_rtl(h)
+            if description:
+                p = doc.add_paragraph(description)
+                p.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+                set_rtl(p)
+
+        doc.add_paragraph()  # spacer after divider
+        logger.info("Category divider added: %s", name_ar)
 
     # ------------------------------------------------------------------
     # Helpers
