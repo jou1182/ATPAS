@@ -274,6 +274,7 @@
         "moh"
       ],
       "excavation_type": "FINE",
+      "excavation_context": "infrastructure",
       "sequence_order": 7,
       "dependencies": [
         "002-MAT-SITE"
@@ -322,6 +323,7 @@
         "moh"
       ],
       "excavation_type": "OPEN",
+      "excavation_context": "infrastructure",
       "sequence_order": 7,
       "dependencies": [
         "002-MAT-SITE"
@@ -370,6 +372,7 @@
         "moh"
       ],
       "excavation_type": "TUNNEL",
+      "excavation_context": "infrastructure",
       "sequence_order": 7,
       "dependencies": [
         "002-MAT-SITE"
@@ -418,6 +421,7 @@
         "moh"
       ],
       "excavation_type": "PAV",
+      "excavation_context": "road",
       "sequence_order": 7,
       "dependencies": [
         "002-MAT-SITE"
@@ -1665,6 +1669,7 @@
         "001-TRF-MGT"
       ],
       "excavation_type": "MIL",
+      "excavation_context": "road",
       "has_images": true,
       "image_count": 4,
       "page_count": 5,
@@ -2143,6 +2148,7 @@
         "001-APP-DES"
       ],
       "excavation_type": "FND",
+      "excavation_context": "building",
       "has_images": true,
       "image_count": 3,
       "page_count": 5,
@@ -2183,6 +2189,7 @@
         "001-APP-DES"
       ],
       "excavation_type": "BLK",
+      "excavation_context": "building",
       "has_images": true,
       "image_count": 2,
       "page_count": 4,
@@ -2695,6 +2702,176 @@
       "last_modified": "2026-04-20",
       "version": "1.0"
     },
+    "002-DEW-WTR": {
+      "code_id": "002-DEW-WTR",
+      "category": "002",
+      "phase": "DEW",
+      "variation": "WTR",
+      "activity_name_ar": "نزح المياه الجوفية من الحفر",
+      "activity_name_en": "Groundwater Dewatering",
+      "project_ids": [
+        "general_construction"
+      ],
+      "network_types": [],
+      "applicable_owners": [
+        "nhi",
+        "moh"
+      ],
+      "sequence_order": 26,
+      "dependencies": [
+        "002-EXC-FND"
+      ],
+      "has_images": false,
+      "image_count": 0,
+      "page_count": 3,
+      "source_document": "",
+      "excavation_context": "building",
+      "tags": [
+        "dewatering",
+        "groundwater",
+        "excavation"
+      ],
+      "status": "active",
+      "created_date": "2026-08-29",
+      "last_modified": "2026-08-29",
+      "version": "1.0"
+    },
+    "002-SHR-SPT": {
+      "code_id": "002-SHR-SPT",
+      "category": "002",
+      "phase": "SHR",
+      "variation": "SPT",
+      "activity_name_ar": "سند جوانب الحفر ودعمها",
+      "activity_name_en": "Excavation Shoring & Support",
+      "project_ids": [
+        "general_construction"
+      ],
+      "network_types": [],
+      "applicable_owners": [
+        "nhi",
+        "moh"
+      ],
+      "sequence_order": 27,
+      "dependencies": [
+        "002-EXC-FND"
+      ],
+      "has_images": false,
+      "image_count": 0,
+      "page_count": 3,
+      "source_document": "",
+      "excavation_context": "building",
+      "tags": [
+        "shoring",
+        "support",
+        "excavation"
+      ],
+      "status": "active",
+      "created_date": "2026-08-29",
+      "last_modified": "2026-08-29",
+      "version": "1.0"
+    },
+    "002-TRM-TRT": {
+      "code_id": "002-TRM-TRT",
+      "category": "002",
+      "phase": "TRM",
+      "variation": "TRT",
+      "activity_name_ar": "مكافحة النمل الأبيض ومعالجة التربة",
+      "activity_name_en": "Termite Treatment & Soil Treatment",
+      "project_ids": [
+        "general_construction"
+      ],
+      "network_types": [],
+      "applicable_owners": [
+        "nhi",
+        "moh"
+      ],
+      "sequence_order": 28,
+      "dependencies": [
+        "002-EXC-FND"
+      ],
+      "has_images": false,
+      "image_count": 0,
+      "page_count": 2,
+      "source_document": "",
+      "excavation_context": "building",
+      "tags": [
+        "termite",
+        "soil treatment",
+        "building"
+      ],
+      "status": "active",
+      "created_date": "2026-08-29",
+      "last_modified": "2026-08-29",
+      "version": "1.0"
+    },
+    "002-SOL-RPL": {
+      "code_id": "002-SOL-RPL",
+      "category": "002",
+      "phase": "SOL",
+      "variation": "RPL",
+      "activity_name_ar": "إحلال التربة الضعيفة",
+      "activity_name_en": "Weak Soil Replacement",
+      "project_ids": [
+        "general_construction"
+      ],
+      "network_types": [],
+      "applicable_owners": [
+        "nhi",
+        "moh"
+      ],
+      "sequence_order": 29,
+      "dependencies": [
+        "002-EXC-FND"
+      ],
+      "has_images": false,
+      "image_count": 0,
+      "page_count": 3,
+      "source_document": "",
+      "excavation_context": "building",
+      "tags": [
+        "soil replacement",
+        "weak soil",
+        "excavation"
+      ],
+      "status": "active",
+      "created_date": "2026-08-29",
+      "last_modified": "2026-08-29",
+      "version": "1.0"
+    },
+    "002-WPR-FND": {
+      "code_id": "002-WPR-FND",
+      "category": "002",
+      "phase": "WPR",
+      "variation": "FND",
+      "activity_name_ar": "عزل القواعد ضد الرطوبة والمياه",
+      "activity_name_en": "Foundation Waterproofing",
+      "project_ids": [
+        "general_construction"
+      ],
+      "network_types": [],
+      "applicable_owners": [
+        "nhi",
+        "moh"
+      ],
+      "sequence_order": 30,
+      "dependencies": [
+        "002-EXC-FND"
+      ],
+      "has_images": false,
+      "image_count": 0,
+      "page_count": 2,
+      "source_document": "",
+      "excavation_context": "building",
+      "tags": [
+        "waterproofing",
+        "foundation",
+        "building"
+      ],
+      "status": "active",
+      "created_date": "2026-08-29",
+      "last_modified": "2026-08-29",
+      "version": "1.0"
+    },
     "999-CUS-001": {
       "code_id": "999-CUS-001",
       "category": "CUS",
@@ -2808,12 +2985,12 @@
     }
   },
   "statistics": {
-    "total_active_codes": 65,
+    "total_active_codes": 70,
     "total_deprecated_codes": 0,
     "total_projects": 6,
     "codes_by_category": {
       "001": 11,
-      "002": 13,
+      "002": 18,
       "003": 17,
       "004": 10,
       "005": 13,
@@ -2824,12 +3001,12 @@
       "water_supply": 31,
       "wastewater": 30,
       "road_maintenance": 14,
-      "general_construction": 12,
+      "general_construction": 17,
       "water_transmission": 4
     },
     "average_pages_per_code": 4.3,
     "total_estimated_pages": 273,
-    "last_updated": "2026-08-25",
-    "last_expanded": "2026-08-25"
+    "last_updated": "2026-08-29",
+    "last_expanded": "2026-08-29"
   }
 }

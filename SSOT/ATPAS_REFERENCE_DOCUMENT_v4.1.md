@@ -22,16 +22,17 @@ ATPAS هو تطبيق سطح مكتب Windows مبني بـ Python و PyQt5، ي
 
 | البند | القيمة الحالية |
 |---|---:|
-| الأكواد في `codes_registry.json` | 65 |
-| الأكواد النشطة | 65 |
+| الأكواد في `codes_registry.json` | 70 |
+| الأكواد النشطة | 70 |
 | أنواع المشاريع | 6 |
 | الجهات المالكة في `master_config.json` -> `owner_specifications` | 20 |
 | الأنماط الجاهزة في `presets.json` | 11 |
-| الاختبارات المجمعة (`pytest --collect-only`) | 504 |
+| الاختبارات المجمعة (`pytest --collect-only`) | 517 |
 | تغطية engine+utils | 84% (بوابة CI: 75%) |
 | الإصدار | v3.2 (من version.json) |
 | فهرس الأرشيف | منفذ (`utils/archive_index.py` — SQLite/WAL) |
 | الهيكل المتقدم | منفذ — الأقسام مجمّعة حسب الفئات (001–005) مع صفحات فاصلة + معاينة هيكل تفاعلية |
+| سياق الحفر (Spec 001) | منفذ — أكواد الحفر مصنّفة (infrastructure/building/road) + منع خلط السياقات + 5 أكواد مساندة |
 | توثيق المعمارية | `docs/ARCHITECTURE_AR.md` + `docs/GLOSSARY_AR.md` + `docs/DECISIONS_AR.md` |
 | الواجهة | PyQt5 عربية RTL |
 | ملف التشغيل | `dist/ATPAS/ATPAS.exe` |

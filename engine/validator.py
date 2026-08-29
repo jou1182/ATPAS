@@ -79,6 +79,7 @@ class Validator:
         self._check_forbidden(selected_codes, owner_spec, errors)
         self._check_mandatory(selected_codes, owner_spec, warnings)
         self._check_dependencies(selected_codes, project_ids, warnings)
+        self._check_excavation_context(selected_codes, project_ids, errors, warnings)
 
         return len(errors) == 0, errors, warnings
 
@@ -193,6 +194,84 @@ class Validator:
     def _is_alternative_dependency_set(self, code: Dict, deps: List[str]) -> bool:
         """Delegate to the shared rule — single source of truth (engine/rules.py)."""
         return _rules_alt_deps(self._codes, code, deps)
+
+    # ------------------------------------------------------------------
+    # Excavation context (Spec 001)
+    # ------------------------------------------------------------------
+
+    # سياقات الحفر المقبولة لكل مشروع — المشروع هو المحدد الأساسي
+    _PROJECT_EXCAVATION_CONTEXTS: Dict[str, str] = {
+        "wastewater": "infrastructure",
+        "water_supply": "infrastructure",
+        "water_transmission": "infrastructure",
+        "general_construction": "building",
+        "asphalt": "road",
+        "road_maintenance": "road",
+    }
+
+    def _excavation_context_of(self, code_id: str) -> str:
+        """Return the excavation context of a code, or '' when not excavation-related."""
+        return self._codes.get(code_id, {}).get("excavation_context", "")
+
+    def _check_excavation_context(
+        self,
+        selected_codes: List[str],
+        project_ids: List[str],
+        errors: List[str],
+        warnings: List[str],
+    ) -> None:
+        """
+        Spec 001 — منع خلط سياقات الحفر المتعارضة داخل عرض واحد.
+
+        القاعدة:
+          - كل كود حفر مُصنَّف بسياق (infrastructure / building / road).
+          - المشروع المحدد يحدد السياق المقبول الأساسي.
+          - خلط سياقين مختلفين من أكواد الحفر في نفس العرض = خطأ يمنع البناء.
+          - الكود غير المصنف (excavation_context = '') لا يُمنع، لكنه يُسجَّل
+            كتحذير مراجعة (FR-017: لا يُختار صامتاً).
+        """
+        # 1) تجميع سياقات أكواد الحفر المختارة
+        present_contexts: Dict[str, List[str]] = {}
+        unclassified: List[str] = []
+        for cid in selected_codes:
+            ctx = self._excavation_context_of(cid)
+            if ctx:
+                present_contexts.setdefault(ctx, []).append(cid)
+            elif cid.startswith("002-"):
+                # كود في فئة الحفر بلا تصنيف سياق → يحتاج مراجعة
+                unclassified.append(cid)
+
+        # 2) تعارض داخل العرض: سياقان مختلفان لحفر حقيقي
+        if len(present_contexts) > 1:
+            contexts_desc = "، ".join(
+                f"{ctx} ({', '.join(cids)})"
+                for ctx, cids in sorted(present_contexts.items())
+            )
+            errors.append(
+                "تعارض في سياق الحفر: لا يمكن خلط أكثر من سياق حفر واحد في العرض "
+                f"({contexts_desc}). الحل: أبقِ نوع حفر واحداً يتوافق مع المشروع المحدد، "
+                "أو ألغِ تحديد أكواد السياق الآخر."
+            )
+
+        # 3) مطابقة سياق المشروع (تحذير لا خطأ — المشروع قد يكون متعدد النطاقات)
+        expected = self._PROJECT_EXCAVATION_CONTEXTS.get(project_ids[0]) if project_ids else None
+        if expected and len(present_contexts) == 1:
+            only_ctx = next(iter(present_contexts))
+            if only_ctx != expected:
+                codes_desc = "، ".join(present_contexts[only_ctx])
+                warnings.append(
+                    f"سياق الحفر المحدد ({only_ctx}) لا يطابق سياق المشروع المتوقع "
+                    f"({expected}) — الأكواد: {codes_desc}. تأكد أن نوع الحفر مناسب "
+                    "لطبيعة المشروع، أو أضف مشروعاً يبرر هذا السياق."
+                )
+
+        # 4) أكواد حفر غير مصنفة → تحذير مراجعة
+        if unclassified:
+            warnings.append(
+                "أكواد حفر بلا تصنيف سياق (تحتاج مراجعة): "
+                + "، ".join(unclassified)
+                + ". حدّث تصنيفها في السجل قبل الاعتماد النهائي."
+            )
 
     # ------------------------------------------------------------------
     # Loader

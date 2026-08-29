@@ -124,14 +124,15 @@
     },
     "gc_nhi_building": {
       "name_ar": "إنشاءات — مبنى خرساني",
-      "description_ar": "مبنى حكومي بهيكل خرساني مع تشطيبات كاملة",
+      "description_ar": "مبنى حكومي بهيكل خرساني مع تشطيبات كاملة وحزمة حفر مبانٍ",
       "icon": "🏗️",
       "group": "إنشاءات",
       "project_ids": ["general_construction"],
       "owner_id": "nhi",
       "codes": [
         "001-SOI-INV",
-        "002-EXC-FND",
+        "002-EXC-FND", "002-EXC-BLK", "002-DEW-WTR", "002-SHR-SPT",
+        "002-TRM-TRT", "002-SOL-RPL", "002-WPR-FND",
         "003-FND-CON", "003-RBR-WRK", "003-STR-CON", "003-MAS-BLK",
         "004-TST-CON", "004-INS-ELE", "004-INS-FIN",
         "005-CLN-STE"
@@ -139,14 +140,14 @@
     },
     "gc_nhi_steel": {
       "name_ar": "إنشاءات — هيكل معدني",
-      "description_ar": "منشأة بهيكل معدني مع أساسات خرسانية",
+      "description_ar": "منشأة بهيكل معدني مع أساسات خرسانية وحزمة حفر مبانٍ",
       "icon": "🔩",
       "group": "إنشاءات",
       "project_ids": ["general_construction"],
       "owner_id": "nhi",
       "codes": [
         "001-SOI-INV",
-        "002-EXC-FND",
+        "002-EXC-FND", "002-DEW-WTR", "002-SHR-SPT",
         "003-FND-CON", "003-STL-STR",
         "004-TST-CON", "004-INS-ELE",
         "005-CLN-STE"

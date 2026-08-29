@@ -416,6 +416,30 @@
       "phase_name_ar": "تنظيف الموقع",
       "phase_name_en": "Site Cleanup",
       "category": "005"
+    },
+    "DEW": {
+      "phase_code": "DEW",
+      "phase_name_ar": "نزح المياه",
+      "phase_name_en": "Dewatering",
+      "category": "002"
+    },
+    "SHR": {
+      "phase_code": "SHR",
+      "phase_name_ar": "سند الجوانب",
+      "phase_name_en": "Shoring",
+      "category": "002"
+    },
+    "TRM": {
+      "phase_code": "TRM",
+      "phase_name_ar": "مكافحة النمل",
+      "phase_name_en": "Termite Treatment",
+      "category": "002"
+    },
+    "WPR": {
+      "phase_code": "WPR",
+      "phase_name_ar": "عزل القواعد",
+      "phase_name_en": "Foundation Waterproofing",
+      "category": "002"
     }
   },
   "network_types": {
@@ -463,6 +487,7 @@
       "name_en": "Fine Excavation",
       "description": "حفر لأنابيب صغيرة (d < 400mm)",
       "depth_range": "0.5-1.5m",
+      "context": "infrastructure",
       "applicable_networks": [
         "S",
         "W"
@@ -474,6 +499,7 @@
       "name_en": "Open Excavation",
       "description": "حفر لأنابيب رئيسية (d > 600mm)",
       "depth_range": "1.5-4m",
+      "context": "infrastructure",
       "applicable_networks": [
         "S",
         "W"
@@ -485,6 +511,7 @@
       "name_en": "Tunneling",
       "description": "حفر نفقي بطريقة TBM (d > 1000mm)",
       "depth_range": ">4m",
+      "context": "infrastructure",
       "applicable_networks": [
         "S",
         "W"
@@ -496,8 +523,98 @@
       "name_en": "Asphalt Cutting",
       "description": "قطع الأسفلت الموجود",
       "depth_range": "0.05-0.15m",
+      "context": "road",
       "applicable_networks": [
         "A"
+      ]
+    },
+    "MIL": {
+      "code": "MIL",
+      "name_ar": "جلخ الأسفلت",
+      "name_en": "Asphalt Milling",
+      "description": "جلخ وإزالة الطبقة الأسفلتية القائمة",
+      "depth_range": "0.05-0.15m",
+      "context": "road",
+      "applicable_networks": [
+        "R",
+        "A"
+      ]
+    },
+    "FND": {
+      "code": "FND",
+      "name_ar": "حفر الأساسات",
+      "name_en": "Foundation Excavation",
+      "description": "حفر الأساسات والقواعد للمباني",
+      "depth_range": "1.5-6m",
+      "context": "building",
+      "applicable_networks": [
+        "C"
+      ]
+    },
+    "BLK": {
+      "code": "BLK",
+      "name_ar": "الحفر العام",
+      "name_en": "Bulk Excavation",
+      "description": "الحفر العام وتسوية الموقع",
+      "depth_range": "0.5-3m",
+      "context": "building",
+      "applicable_networks": [
+        "C"
+      ]
+    },
+    "DEW": {
+      "code": "DEW",
+      "name_ar": "نزح المياه",
+      "name_en": "Dewatering",
+      "description": "نزح المياه الجوفية من الحفر",
+      "depth_range": "1.0-6m",
+      "context": "building",
+      "applicable_networks": [
+        "C"
+      ]
+    },
+    "SHR": {
+      "code": "SHR",
+      "name_ar": "سند الجوانب",
+      "name_en": "Shoring",
+      "description": "سند جوانب الحفر ودعمها",
+      "depth_range": "1.5-6m",
+      "context": "building",
+      "applicable_networks": [
+        "C"
+      ]
+    },
+    "TRM": {
+      "code": "TRM",
+      "name_ar": "مكافحة النمل",
+      "name_en": "Termite Treatment",
+      "description": "مكافحة النمل الأبيض ومعالجة التربة",
+      "depth_range": "0.1-0.5m",
+      "context": "building",
+      "applicable_networks": [
+        "C"
+      ]
+    },
+    "SOL": {
+      "code": "SOL",
+      "name_ar": "إحلال التربة",
+      "name_en": "Soil Replacement",
+      "description": "إحلال التربة الضعيفة",
+      "depth_range": "0.5-3m",
+      "context": "building",
+      "applicable_networks": [
+        "C"
+      ]
+    },
+    "WPR": {
+      "code": "WPR",
+      "name_ar": "عزل القواعد",
+      "name_en": "Foundation Waterproofing",
+      "description": "عزل القواعد ضد الرطوبة والمياه",
+      "depth_range": "0.0-1m",
+      "context": "building",
+      "applicable_networks": [
+        "C"
       ]
     }
   },
